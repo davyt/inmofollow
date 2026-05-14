@@ -15,12 +15,16 @@ use Filament\Tables\Table;
 use App\Models\ScheduledMessage;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class ScheduledMessagesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('scheduled_for', 'asc')
             ->columns([
                 TextColumn::make('lead_id')
                     ->label('Lead')
@@ -90,7 +94,42 @@ class ScheduledMessagesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->options([
+                        'pending' => 'Pendiente',
+                        'sent' => 'Enviado',
+                        'cancelled' => 'Cancelado',
+                        'failed' => 'Fallido',
+                    ]),
+            
+                SelectFilter::make('channel')
+                    ->label('Canal')
+                    ->options([
+                        'whatsapp' => 'WhatsApp',
+                        'email' => 'Email',
+                    ]),
+            
+                Filter::make('due_today')
+                    ->label('Para hoy')
+                    ->query(fn (Builder $query): Builder => $query
+                        ->whereDate('scheduled_for', now()->toDateString())
+                        ->where('status', 'pending')
+                    ),
+            
+                Filter::make('overdue')
+                    ->label('Vencidos')
+                    ->query(fn (Builder $query): Builder => $query
+                        ->where('scheduled_for', '<', now())
+                        ->where('status', 'pending')
+                    ),
+            
+                Filter::make('upcoming')
+                    ->label('Próximos')
+                    ->query(fn (Builder $query): Builder => $query
+                        ->where('scheduled_for', '>=', now())
+                        ->where('status', 'pending')
+                    ),
             ])
             ->recordActions([
                 Action::make('open_whatsapp')
