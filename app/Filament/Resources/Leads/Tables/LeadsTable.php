@@ -11,6 +11,10 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Models\Lead;
+use App\Services\FollowUpGenerator;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 
 class LeadsTable
 {
@@ -91,6 +95,20 @@ class LeadsTable
                 //
             ])
             ->recordActions([
+                Action::make('generate_followups')
+                    ->label('Generar seguimiento')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->action(function (Lead $record): void {
+                        $created = app(FollowUpGenerator::class)->generateForLead($record);
+            
+                        Notification::make()
+                            ->title($created > 0 ? 'Seguimiento generado' : 'No se generaron mensajes')
+                            ->body($created > 0 ? "Se crearon {$created} mensaje(s) programado(s)." : 'Revisá que el lead tenga estado, consentimiento y una secuencia activa.')
+                            ->success()
+                            ->send();
+                    }),
+            
                 EditAction::make(),
             ])
             ->toolbarActions([
