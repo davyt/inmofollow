@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class ScheduledMessage extends Model
+{
+    protected $guarded = [];
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class);
+    }
+
+    public function sequence()
+    {
+        return $this->belongsTo(Sequence::class);
+    }
+
+    public function sequenceStep()
+    {
+        return $this->belongsTo(SequenceStep::class);
+    }
+
+    public function messageTemplate()
+    {
+        return $this->belongsTo(MessageTemplate::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
