@@ -19,6 +19,19 @@ class LeadResource extends Resource
     protected static ?string $model = Lead::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    protected static ?string $modelLabel = 'propietario / lead';
+    
+    protected static ?string $pluralModelLabel = 'propietarios / leads';
+    
+    protected static ?string $navigationLabel = 'Propietarios / Leads';
+    
+    protected static ?int $navigationSort = 10;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Seguimiento comercial';
+    }
 
     public static function form(Schema $schema): Schema
     {

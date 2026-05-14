@@ -19,6 +19,21 @@ class LeadNoteResource extends Resource
     protected static ?string $model = LeadNote::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    protected static ?string $modelLabel = 'nota';
+    
+    protected static ?string $pluralModelLabel = 'notas';
+    
+    protected static ?string $navigationLabel = 'Notas';
+    
+    protected static ?string $recordTitleAttribute = 'note';
+    
+    protected static ?int $navigationSort = 20;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Seguimiento comercial';
+    }
 
     public static function form(Schema $schema): Schema
     {

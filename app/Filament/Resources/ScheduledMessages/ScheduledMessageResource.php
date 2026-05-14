@@ -19,6 +19,19 @@ class ScheduledMessageResource extends Resource
     protected static ?string $model = ScheduledMessage::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    protected static ?string $modelLabel = 'mensaje programado';
+
+    protected static ?string $pluralModelLabel = 'mensajes programados';
+    
+    protected static ?string $navigationLabel = 'Mensajes programados';
+    
+    protected static ?int $navigationSort = 40;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Automatizaciones';
+    }
 
     protected static ?string $recordTitleAttribute = 'id';
 

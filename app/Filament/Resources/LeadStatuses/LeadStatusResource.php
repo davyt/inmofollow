@@ -19,6 +19,19 @@ class LeadStatusResource extends Resource
     protected static ?string $model = LeadStatus::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    protected static ?string $modelLabel = 'estado de lead';
+    
+    protected static ?string $pluralModelLabel = 'estados de leads';
+    
+    protected static ?string $navigationLabel = 'Estados de leads';
+    
+    protected static ?int $navigationSort = 20;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Configuración';
+    }
 
     public static function form(Schema $schema): Schema
     {

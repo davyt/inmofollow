@@ -19,6 +19,19 @@ class CompanyResource extends Resource
     protected static ?string $model = Company::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    protected static ?string $modelLabel = 'inmobiliaria';
+    
+    protected static ?string $pluralModelLabel = 'inmobiliarias';
+    
+    protected static ?string $navigationLabel = 'Inmobiliarias';
+    
+    protected static ?int $navigationSort = 10;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Configuración';
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -19,6 +19,19 @@ class SequenceStepResource extends Resource
     protected static ?string $model = SequenceStep::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    protected static ?string $modelLabel = 'paso de secuencia';
+    
+    protected static ?string $pluralModelLabel = 'pasos de secuencia';
+    
+    protected static ?string $navigationLabel = 'Pasos de secuencia';
+    
+    protected static ?int $navigationSort = 30;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Automatizaciones';
+    }
 
     protected static ?string $recordTitleAttribute = 'id';
 

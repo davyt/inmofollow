@@ -19,6 +19,19 @@ class SequenceResource extends Resource
     protected static ?string $model = Sequence::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    protected static ?string $modelLabel = 'secuencia';
+    
+    protected static ?string $pluralModelLabel = 'secuencias';
+    
+    protected static ?string $navigationLabel = 'Secuencias';
+    
+    protected static ?int $navigationSort = 20;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Automatizaciones';
+    }
 
     public static function form(Schema $schema): Schema
     {
