@@ -12,6 +12,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Models\ScheduledMessage;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 
 class ScheduledMessagesTable
 {
@@ -90,6 +93,54 @@ class ScheduledMessagesTable
                 //
             ])
             ->recordActions([
+                Action::make('open_whatsapp')
+                ->label('Abrir WhatsApp')
+                ->icon('heroicon-o-chat-bubble-left-right')
+                ->color('success')
+                ->visible(fn (ScheduledMessage $record): bool => $record->channel === 'whatsapp')
+                ->disabled(fn (ScheduledMessage $record): bool => blank($record->lead?->phone))
+                ->tooltip(fn (ScheduledMessage $record): string => blank($record->lead?->phone)
+                    ? 'El lead no tiene teléfono cargado'
+                    : 'Abrir WhatsApp con el mensaje preparado'
+                )
+                ->url(function (ScheduledMessage $record): string {
+                    $lead = $record->lead;
+            
+                    $phone = preg_replace('/\D+/', '', $lead?->phone ?? '');
+            
+                    // Si está cargado como 099123456, lo transforma a 59899123456
+                    if (str_starts_with($phone, '09')) {
+                        $phone = '598' . substr($phone, 1);
+                    }
+            
+                    $message = rawurlencode($record->message_body);
+            
+                    return "https://wa.me/{$phone}?text={$message}";
+                })
+                ->openUrlInNewTab(),
+            
+                Action::make('mark_as_sent')
+                    ->label('Marcar enviado')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->visible(fn (ScheduledMessage $record): bool => $record->status === 'pending')
+                    ->action(function (ScheduledMessage $record): void {
+                        $record->update([
+                            'status' => 'sent',
+                            'sent_at' => now(),
+                        ]);
+            
+                        $record->lead?->update([
+                            'last_contacted_at' => now(),
+                        ]);
+            
+                        Notification::make()
+                            ->title('Mensaje marcado como enviado')
+                            ->success()
+                            ->send();
+                    }),
+            
                 EditAction::make(),
             ])
             ->toolbarActions([
