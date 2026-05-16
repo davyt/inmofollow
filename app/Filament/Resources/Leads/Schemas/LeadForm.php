@@ -24,10 +24,21 @@ class LeadForm
 
                 Select::make('user_id')
                     ->label('Agente responsable')
-                    ->options(fn () => User::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn () => User::query()
+                        ->where('active', true)
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->toArray()
+                    )
                     ->searchable()
                     ->default(auth()->id())
-                    ->nullable(),
+                    ->nullable()
+                    ->visible(fn () => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
+                
+                Hidden::make('user_id')
+                    ->default(fn () => auth()->id())
+                    ->dehydrated(true)
+                    ->visible(fn () => auth()->user()?->isAgent()),
 
                 Select::make('lead_status_id')
                     ->label('Estado')

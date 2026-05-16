@@ -49,7 +49,8 @@ class ScheduledMessagesTable
                 TextColumn::make('user_id')
                     ->label('Agente')
                     ->formatStateUsing(fn ($state) => User::find($state)?->name ?? '-')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn (): bool => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
 
                 TextColumn::make('channel')
                     ->label('Canal')

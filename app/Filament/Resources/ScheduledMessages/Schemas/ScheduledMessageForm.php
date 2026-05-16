@@ -11,6 +11,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Hidden;
 
 class ScheduledMessageForm
 {
@@ -20,7 +21,17 @@ class ScheduledMessageForm
             ->components([
                 Select::make('lead_id')
                     ->label('Propietario / Lead')
-                    ->options(fn () => Lead::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(function () {
+                        $query = Lead::query()->orderBy('name');
+                
+                        $user = auth()->user();
+                
+                        if ($user?->isAgent()) {
+                            $query->where('user_id', $user->id);
+                        }
+                
+                        return $query->pluck('name', 'id')->toArray();
+                    })
                     ->searchable()
                     ->required(),
 
@@ -44,10 +55,21 @@ class ScheduledMessageForm
 
                 Select::make('user_id')
                     ->label('Agente')
-                    ->options(fn () => User::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn () => User::query()
+                        ->where('active', true)
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->toArray()
+                    )
                     ->searchable()
                     ->default(auth()->id())
-                    ->nullable(),
+                    ->nullable()
+                    ->visible(fn () => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
+                
+                Hidden::make('user_id')
+                    ->default(fn () => auth()->id())
+                    ->dehydrated(true)
+                    ->visible(fn () => auth()->user()?->isAgent()),
 
                 Select::make('channel')
                     ->label('Canal')

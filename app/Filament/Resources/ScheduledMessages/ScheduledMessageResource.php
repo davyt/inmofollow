@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ScheduledMessageResource extends Resource
 {
@@ -27,6 +28,23 @@ class ScheduledMessageResource extends Resource
     protected static ?string $navigationLabel = 'Mensajes programados';
     
     protected static ?int $navigationSort = 40;
+    
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+    
+        $user = auth()->user();
+    
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+    
+        if ($user->isAdmin() || $user->isSupervisor()) {
+            return $query;
+        }
+    
+        return $query->where('user_id', $user->id);
+    }
     
     public static function getNavigationGroup(): ?string
     {
