@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Sequences\Tables;
 
 use App\Models\LeadStatus;
+use App\Filament\Resources\Sequences\SequenceResource;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -51,12 +53,25 @@ class SequencesTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                Action::make('view_readonly')
+                    ->label('Ver')
+                    ->icon('heroicon-o-eye')
+                    ->modalHeading(fn ($record): string => 'Detalle de secuencia')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(fn ($record) => view('filament.modals.sequence-readonly', [
+                        'record' => $record,
+                        'canEdit' => SequenceResource::canEdit($record),
+                    ])),
+            
+                EditAction::make()
+                    ->visible(fn ($record): bool => SequenceResource::canEdit($record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])
+                    ->visible(fn (): bool => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
             ]);
     }
 }

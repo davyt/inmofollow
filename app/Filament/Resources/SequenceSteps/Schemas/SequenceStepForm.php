@@ -17,13 +17,39 @@ class SequenceStepForm
             ->components([
                 Select::make('sequence_id')
                     ->label('Secuencia')
-                    ->options(fn () => Sequence::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(function () {
+                        $query = Sequence::query()->orderBy('name');
+                
+                        $user = auth()->user();
+                
+                        if ($user?->isAgent()) {
+                            $query
+                                ->where('scope', 'personal')
+                                ->where('user_id', $user->id);
+                        }
+                
+                        return $query->pluck('name', 'id')->toArray();
+                    })
                     ->searchable()
                     ->required(),
 
                 Select::make('message_template_id')
                     ->label('Plantilla')
-                    ->options(fn () => MessageTemplate::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(function () {
+                        $query = MessageTemplate::query()->orderBy('name');
+                
+                        $user = auth()->user();
+                
+                        if ($user?->isAgent()) {
+                            $query->where(function ($query) use ($user) {
+                                $query
+                                    ->where('scope', 'global')
+                                    ->orWhere('user_id', $user->id);
+                            });
+                        }
+                
+                        return $query->pluck('name', 'id')->toArray();
+                    })
                     ->searchable()
                     ->nullable(),
 

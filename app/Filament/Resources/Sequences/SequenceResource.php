@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class SequenceResource extends Resource
 {
@@ -32,6 +34,27 @@ class SequenceResource extends Resource
     {
         return 'Automatizaciones';
     }
+    
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+    
+        if (! $user) {
+            return false;
+        }
+    
+        if ($user->isAdmin() || $user->isSupervisor()) {
+            return true;
+        }
+    
+        return $record->scope === 'personal'
+            && (int) $record->user_id === (int) $user->id;
+    }
+    
+    public static function canDelete(Model $record): bool
+    {
+        return static::canEdit($record);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -48,6 +71,27 @@ class SequenceResource extends Resource
         return [
             //
         ];
+    }
+    
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+    
+        $user = auth()->user();
+    
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+    
+        if ($user->isAdmin() || $user->isSupervisor()) {
+            return $query;
+        }
+    
+        return $query->where(function (Builder $query) use ($user) {
+            $query
+                ->where('scope', 'global')
+                ->orWhere('user_id', $user->id);
+        });
     }
 
     public static function getPages(): array

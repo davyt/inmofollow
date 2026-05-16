@@ -19,15 +19,25 @@ class FollowUpGenerator
             return 0;
         }
 
-        $sequence = Sequence::query()
+        $baseQuery = Sequence::query()
             ->where('active', true)
             ->where('lead_status_id', $lead->lead_status_id)
             ->where(function ($query) use ($lead) {
                 $query
                     ->whereNull('company_id')
                     ->orWhere('company_id', $lead->company_id);
-            })
+            });
+        
+        $sequence = (clone $baseQuery)
+            ->where('scope', 'personal')
+            ->where('user_id', $lead->user_id)
             ->first();
+        
+        if (! $sequence) {
+            $sequence = (clone $baseQuery)
+                ->where('scope', 'global')
+                ->first();
+        }
 
         if (! $sequence) {
             return 0;

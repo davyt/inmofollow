@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\MessageTemplates\Tables;
 
+use App\Filament\Resources\MessageTemplates\MessageTemplateResource;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -60,12 +62,25 @@ class MessageTemplatesTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                Action::make('view_readonly')
+                    ->label('Ver')
+                    ->icon('heroicon-o-eye')
+                    ->modalHeading(fn ($record): string => 'Detalle de plantilla')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(fn ($record) => view('filament.modals.message-template-readonly', [
+                        'record' => $record,
+                        'canEdit' => MessageTemplateResource::canEdit($record),
+                    ])),
+            
+                EditAction::make()
+                    ->visible(fn ($record): bool => MessageTemplateResource::canEdit($record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])
+                    ->visible(fn (): bool => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
             ]);
     }
 }

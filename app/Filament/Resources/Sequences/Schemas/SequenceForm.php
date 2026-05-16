@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Sequences\Schemas;
 
-use Filament\Forms\Components\Hidden;
 use App\Models\LeadStatus;
+use App\Models\User;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -19,6 +20,35 @@ class SequenceForm
                 Hidden::make('company_id')
                 ->default(fn () => config('inmofollow.default_company_id', 1))
                 ->dehydrated(true),
+                
+                Select::make('scope')
+                    ->label('Tipo')
+                    ->options([
+                        'global' => 'Global',
+                        'personal' => 'Personal',
+                    ])
+                    ->default(fn () => auth()->user()?->isAgent() ? 'personal' : 'global')
+                    ->disabled(fn () => auth()->user()?->isAgent())
+                    ->dehydrated(true)
+                    ->required(),
+                
+                Select::make('user_id')
+                    ->label('Agente dueño')
+                    ->helperText('Solo aplica si la secuencia es personal.')
+                    ->options(fn () => User::query()
+                        ->where('active', true)
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->toArray()
+                    )
+                    ->searchable()
+                    ->nullable()
+                    ->visible(fn () => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
+                
+                Hidden::make('user_id')
+                    ->default(fn () => auth()->id())
+                    ->dehydrated(true)
+                    ->visible(fn () => auth()->user()?->isAgent()),
 
                 Select::make('lead_status_id')
                     ->label('Estado que dispara la secuencia')
