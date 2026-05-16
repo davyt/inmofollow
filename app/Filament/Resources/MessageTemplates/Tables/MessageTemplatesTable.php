@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\MessageTemplates\Tables;
 
-use App\Models\Company;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -16,10 +15,6 @@ class MessageTemplatesTable
     {
         return $table
             ->columns([
-                TextColumn::make('company_id')
-                    ->label('Inmobiliaria')
-                    ->formatStateUsing(fn ($state) => Company::find($state)?->name ?? '-')
-                    ->sortable(),
 
                 TextColumn::make('name')
                     ->label('Plantilla')

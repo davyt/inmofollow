@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Leads\Schemas;
 
-use App\Models\Company;
 use App\Models\LeadStatus;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
@@ -11,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Hidden;
 
 class LeadForm
 {
@@ -18,11 +18,9 @@ class LeadForm
     {
         return $schema
             ->components([
-                Select::make('company_id')
-                    ->label('Inmobiliaria')
-                    ->options(fn () => Company::query()->orderBy('name')->pluck('name', 'id')->toArray())
-                    ->searchable()
-                    ->nullable(),
+                Hidden::make('company_id')
+                ->default(fn () => config('inmofollow.default_company_id', 1))
+                ->dehydrated(true),
 
                 Select::make('user_id')
                     ->label('Agente responsable')

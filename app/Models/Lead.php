@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasDefaultCompany;
 use Illuminate\Database\Eloquent\Model;
 
 class Lead extends Model
 {
+    use HasDefaultCompany;
+    
     protected $guarded = [];
 
     protected $casts = [

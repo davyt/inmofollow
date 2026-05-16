@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Leads\Tables;
 
-use App\Models\Company;
 use App\Models\LeadStatus;
 use App\Models\User;
 use Filament\Actions\BulkActionGroup;
@@ -34,11 +33,6 @@ class LeadsTable
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable(),
-
-                TextColumn::make('company_id')
-                    ->label('Inmobiliaria')
-                    ->formatStateUsing(fn ($state) => Company::find($state)?->name ?? '-')
-                    ->sortable(),
 
                 TextColumn::make('user_id')
                     ->label('Agente')

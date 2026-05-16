@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Sequences\Tables;
 
-use App\Models\Company;
 use App\Models\LeadStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -17,11 +16,6 @@ class SequencesTable
     {
         return $table
             ->columns([
-                TextColumn::make('company_id')
-                    ->label('Inmobiliaria')
-                    ->formatStateUsing(fn ($state) => Company::find($state)?->name ?? '-')
-                    ->sortable(),
-
                 TextColumn::make('lead_status_id')
                     ->label('Estado disparador')
                     ->formatStateUsing(fn ($state) => LeadStatus::find($state)?->name ?? '-')

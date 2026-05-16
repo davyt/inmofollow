@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
-use App\Models\Company;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -29,11 +28,6 @@ class UsersTable
                 TextColumn::make('phone')
                     ->label('Teléfono')
                     ->searchable(),
-
-                TextColumn::make('company_id')
-                    ->label('Inmobiliaria')
-                    ->formatStateUsing(fn ($state) => Company::find($state)?->name ?? '-')
-                    ->sortable(),
 
                 TextColumn::make('role')
                     ->label('Rol')

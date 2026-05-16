@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\LeadStatuses\Schemas;
 
-use App\Models\Company;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -14,11 +14,9 @@ class LeadStatusForm
     {
         return $schema
             ->components([
-                Select::make('company_id')
-                    ->label('Inmobiliaria')
-                    ->options(fn () => Company::query()->orderBy('name')->pluck('name', 'id')->toArray())
-                    ->searchable()
-                    ->nullable(),
+                Hidden::make('company_id')
+                ->default(fn () => config('inmofollow.default_company_id', 1))
+                ->dehydrated(true),
 
                 TextInput::make('name')
                     ->label('Nombre del estado')
