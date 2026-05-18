@@ -8,10 +8,10 @@ use App\Models\Sequence;
 use App\Models\SequenceStep;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\Hidden;
 
 class ScheduledMessageForm
 {
@@ -23,13 +23,13 @@ class ScheduledMessageForm
                     ->label('Propietario / Lead')
                     ->options(function () {
                         $query = Lead::query()->orderBy('name');
-                
+
                         $user = auth()->user();
-                
+
                         if ($user?->isAgent()) {
                             $query->where('user_id', $user->id);
                         }
-                
+
                         return $query->pluck('name', 'id')->toArray();
                     })
                     ->searchable()
@@ -37,19 +37,85 @@ class ScheduledMessageForm
 
                 Select::make('sequence_id')
                     ->label('Secuencia')
-                    ->options(fn () => Sequence::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(function () {
+                        $query = Sequence::query()->orderBy('name');
+
+                        $user = auth()->user();
+
+                        if ($user?->isAgent()) {
+                            $query->where(function ($query) use ($user) {
+                                $query
+                                    ->where('scope', 'global')
+                                    ->orWhere(function ($query) use ($user) {
+                                        $query
+                                            ->where('scope', 'personal')
+                                            ->where('user_id', $user->id);
+                                    });
+                            });
+                        }
+
+                        return $query->pluck('name', 'id')->toArray();
+                    })
                     ->searchable()
                     ->nullable(),
 
                 Select::make('sequence_step_id')
                     ->label('Paso de secuencia')
-                    ->options(fn () => SequenceStep::query()->orderBy('sort_order')->pluck('id', 'id')->toArray())
+                    ->options(function () {
+                        $query = SequenceStep::query()
+                            ->with('sequence')
+                            ->orderBy('sort_order')
+                            ->orderBy('id');
+
+                        $user = auth()->user();
+
+                        if ($user?->isAgent()) {
+                            $query->whereHas('sequence', function ($sequenceQuery) use ($user) {
+                                $sequenceQuery
+                                    ->where('scope', 'global')
+                                    ->orWhere(function ($query) use ($user) {
+                                        $query
+                                            ->where('scope', 'personal')
+                                            ->where('user_id', $user->id);
+                                    });
+                            });
+                        }
+
+                        return $query
+                            ->get()
+                            ->mapWithKeys(function (SequenceStep $step) {
+                                $sequenceName = $step->sequence?->name ?? 'Sin secuencia';
+
+                                return [
+                                    $step->id => "{$sequenceName} - Día {$step->day_offset} - Paso #{$step->id}",
+                                ];
+                            })
+                            ->toArray();
+                    })
                     ->searchable()
                     ->nullable(),
 
                 Select::make('message_template_id')
                     ->label('Plantilla')
-                    ->options(fn () => MessageTemplate::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(function () {
+                        $query = MessageTemplate::query()->orderBy('name');
+
+                        $user = auth()->user();
+
+                        if ($user?->isAgent()) {
+                            $query->where(function ($query) use ($user) {
+                                $query
+                                    ->where('scope', 'global')
+                                    ->orWhere(function ($query) use ($user) {
+                                        $query
+                                            ->where('scope', 'personal')
+                                            ->where('user_id', $user->id);
+                                    });
+                            });
+                        }
+
+                        return $query->pluck('name', 'id')->toArray();
+                    })
                     ->searchable()
                     ->nullable(),
 
@@ -65,7 +131,7 @@ class ScheduledMessageForm
                     ->default(auth()->id())
                     ->nullable()
                     ->visible(fn () => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
-                
+
                 Hidden::make('user_id')
                     ->default(fn () => auth()->id())
                     ->dehydrated(true)
