@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ScheduledMessages\Tables;
 
 use App\Models\Lead;
 use App\Models\MessageTemplate;
+use App\Models\ScheduledMessage;
 use App\Models\Sequence;
 use App\Models\SequenceStep;
 use App\Models\User;
@@ -13,7 +14,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use App\Models\ScheduledMessage;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\Filter;
@@ -55,23 +55,30 @@ class ScheduledMessagesTable
 
                 TextColumn::make('channel')
                     ->label('Canal')
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'whatsapp' => 'WhatsApp',
                         'email' => 'Email',
-                        default => $state,
+                        default => $state ?? '-',
                     })
                     ->sortable(),
 
                 TextColumn::make('status')
                     ->label('Estado')
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'pending' => 'Pendiente',
                         'sent' => 'Enviado',
                         'cancelled' => 'Cancelado',
                         'failed' => 'Fallido',
-                        default => $state,
+                        default => $state ?? '-',
                     })
-                    ->badge()
+                    ->colors([
+                        'warning' => 'pending',
+                        'success' => 'sent',
+                        'gray' => 'cancelled',
+                        'danger' => 'failed',
+                    ])
                     ->sortable(),
 
                 TextColumn::make('message_body')
@@ -115,22 +122,31 @@ class ScheduledMessagesTable
                 Filter::make('due_today')
                     ->label('Para hoy')
                     ->query(fn (Builder $query): Builder => $query
-                        ->whereDate('scheduled_for', now()->toDateString())
                         ->where('status', 'pending')
+                        ->whereDate('scheduled_for', now()->toDateString())
                     ),
             
                 Filter::make('overdue')
                     ->label('Vencidos')
                     ->query(fn (Builder $query): Builder => $query
-                        ->where('scheduled_for', '<', now())
                         ->where('status', 'pending')
+                        ->whereNotNull('scheduled_for')
+                        ->where('scheduled_for', '<', now())
                     ),
             
                 Filter::make('upcoming')
                     ->label('Próximos')
                     ->query(fn (Builder $query): Builder => $query
-                        ->where('scheduled_for', '>=', now())
                         ->where('status', 'pending')
+                        ->whereNotNull('scheduled_for')
+                        ->where('scheduled_for', '>', now())
+                    ),
+            
+                Filter::make('without_date')
+                    ->label('Sin fecha')
+                    ->query(fn (Builder $query): Builder => $query
+                        ->where('status', 'pending')
+                        ->whereNull('scheduled_for')
                     ),
             ])
             ->recordActions([
