@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\InmofollowStatsOverview;
+use App\Filament\Widgets\MessagesRequiringAttention;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
@@ -34,6 +35,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             InmofollowStatsOverview::class,
+            MessagesRequiringAttention::class,
         ];
     }
 
