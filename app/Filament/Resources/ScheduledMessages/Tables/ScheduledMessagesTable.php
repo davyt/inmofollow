@@ -160,20 +160,7 @@ class ScheduledMessagesTable
                     ? 'El lead no tiene teléfono cargado'
                     : 'Abrir WhatsApp con el mensaje preparado'
                 )
-                ->url(function (ScheduledMessage $record): string {
-                    $lead = $record->lead;
-            
-                    $phone = preg_replace('/\D+/', '', $lead?->phone ?? '');
-            
-                    // Si está cargado como 099123456, lo transforma a 59899123456
-                    if (str_starts_with($phone, '09')) {
-                        $phone = '598' . substr($phone, 1);
-                    }
-            
-                    $message = rawurlencode($record->message_body);
-            
-                    return "https://wa.me/{$phone}?text={$message}";
-                })
+                ->url(fn ($record): string => route('scheduled-messages.open-whatsapp', $record))
                 ->openUrlInNewTab(),
             
                 Action::make('mark_as_sent')

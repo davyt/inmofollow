@@ -4,11 +4,12 @@ namespace App\Models;
 
 use App\Models\Concerns\HasDefaultCompany;
 use App\Models\Concerns\LogsBasicActivity;
+use App\Models\Concerns\LogsLeadCriticalChanges;
 use Illuminate\Database\Eloquent\Model;
 
 class Lead extends Model
 {
-    use HasDefaultCompany, LogsBasicActivity;
+    use HasDefaultCompany, LogsBasicActivity, LogsLeadCriticalChanges;
     
     protected $guarded = [];
 
