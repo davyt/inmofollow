@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsBasicActivity;
 use App\Models\Concerns\HasDefaultCompany;
 use Illuminate\Database\Eloquent\Model;
 
 class Sequence extends Model
 {
-    use HasDefaultCompany;
+    use HasDefaultCompany, LogsBasicActivity;
 
     protected $guarded = [];
 

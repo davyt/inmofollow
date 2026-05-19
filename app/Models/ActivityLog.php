@@ -2,19 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\LogsBasicActivity;
 use Illuminate\Database\Eloquent\Model;
 
-class LeadNote extends Model
+class ActivityLog extends Model
 {
-    use LogsBasicActivity;
-     
     protected $guarded = [];
 
-    public function lead()
-    {
-        return $this->belongsTo(Lead::class);
-    }
+    protected $casts = [
+        'properties' => 'array',
+    ];
 
     public function user()
     {

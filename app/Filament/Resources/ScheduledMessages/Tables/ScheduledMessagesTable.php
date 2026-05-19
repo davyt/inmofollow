@@ -7,6 +7,7 @@ use App\Models\MessageTemplate;
 use App\Models\Sequence;
 use App\Models\SequenceStep;
 use App\Models\User;
+use App\Support\Activity;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -174,6 +175,16 @@ class ScheduledMessagesTable
                         $record->lead?->update([
                             'last_contacted_at' => now(),
                         ]);
+                        
+                        Activity::log(
+                            event: 'scheduled_message_sent',
+                            description: 'El mensaje programado fue marcado como enviado.',
+                            subject: $record,
+                            properties: [
+                                'lead_id' => $record->lead_id,
+                                'channel' => $record->channel,
+                            ]
+                        );
             
                         Notification::make()
                             ->title('Mensaje marcado como enviado')

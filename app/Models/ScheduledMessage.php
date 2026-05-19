@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsBasicActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class ScheduledMessage extends Model
 {
+    use LogsBasicActivity;
+    
     protected $guarded = [];
 
     public function lead()

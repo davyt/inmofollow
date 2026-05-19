@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Lead;
 use App\Models\ScheduledMessage;
 use App\Models\Sequence;
+use App\Support\Activity;
 use Illuminate\Support\Carbon;
 
 class FollowUpGenerator
@@ -105,6 +106,17 @@ class FollowUpGenerator
             $lead->update([
                 'next_follow_up_at' => $nextMessage->scheduled_for,
             ]);
+        }
+        
+        if ($created > 0) {
+            Activity::log(
+                event: 'followups_generated',
+                description: "Se generaron {$created} mensaje(s) programado(s) para el lead.",
+                subject: $lead,
+                properties: [
+                    'created_messages' => $created,
+                ]
+            );
         }
 
         return $created;
