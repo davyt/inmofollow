@@ -10,6 +10,11 @@ class ScheduledMessage extends Model
     use LogsBasicActivity;
     
     protected $guarded = [];
+    
+    protected $casts = [
+        'scheduled_for' => 'datetime',
+        'sent_at' => 'datetime',
+    ];
 
     public function lead()
     {

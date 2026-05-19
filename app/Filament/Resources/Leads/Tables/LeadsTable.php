@@ -4,15 +4,16 @@ namespace App\Filament\Resources\Leads\Tables;
 
 use App\Models\LeadStatus;
 use App\Models\User;
+use App\Models\Lead;
+use App\Services\FollowUpGenerator;
+use App\Models\ActivityLog;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use App\Models\Lead;
-use App\Services\FollowUpGenerator;
-use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 class LeadsTable
@@ -102,6 +103,35 @@ class LeadsTable
                             ->body($created > 0 ? "Se crearon {$created} mensaje(s) programado(s)." : 'Revisá que el lead tenga estado, consentimiento y una secuencia activa.')
                             ->success()
                             ->send();
+                    }),
+                Action::make('history')
+                    ->label('Historial')
+                    ->icon('heroicon-o-clock')
+                    ->color('gray')
+                    ->modalHeading(fn (Lead $record): string => 'Historial de ' . $record->name)
+                    ->modalWidth('5xl')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(function (Lead $record) {
+                        return view('filament.modals.lead-history', [
+                            'record' => $record->load(['user', 'leadStatus']),
+                            'notes' => $record->notes()
+                                ->with('user')
+                                ->latest()
+                                ->limit(10)
+                                ->get(),
+                            'messages' => $record->scheduledMessages()
+                                ->latest('scheduled_for')
+                                ->limit(10)
+                                ->get(),
+                            'activities' => ActivityLog::query()
+                                ->with('user')
+                                ->where('subject_type', Lead::class)
+                                ->where('subject_id', $record->id)
+                                ->latest()
+                                ->limit(10)
+                                ->get(),
+                        ]);
                     }),
             
                 EditAction::make(),
