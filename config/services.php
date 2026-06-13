@@ -40,4 +40,8 @@ return [
         'app_secret'   => env('WHATSAPP_APP_SECRET'),
     ],
 
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+    ],
+
 ];
