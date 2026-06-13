@@ -4,7 +4,7 @@ namespace App\Filament\Resources\MessageTemplates\Schemas;
 
 use App\Models\User;
 use App\Services\AiService;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
