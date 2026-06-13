@@ -13,7 +13,7 @@ class ImportLeads extends Page
     use WithFileUploads;
 
     protected static string $resource = LeadResource::class;
-    protected static string $view = 'filament.resources.leads.pages.import-leads';
+    protected string $view = 'filament.resources.leads.pages.import-leads';
     protected static ?string $title = 'Importar Leads desde CSV';
 
     public $csvFile = null;
