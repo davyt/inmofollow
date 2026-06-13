@@ -146,31 +146,41 @@ class MessageTemplateForm
                     ->default(true)
                     ->required(),
 
-                Section::make('Plantilla aprobada de Meta (WhatsApp)')
-                    ->description('Necesario para enviar el primer mensaje a un lead o cuando pasaron más de 24hs sin respuesta.')
+                Placeholder::make('meta_status_agente')
+                    ->label('Primer contacto por WhatsApp')
+                    ->content(fn (Get $get): string => filled($get('meta_template_name'))
+                        ? '✓ Aprobada por Meta — se puede enviar a cualquier lead, incluso si nunca te escribió.'
+                        : 'No aprobada por Meta — solo se puede enviar si el lead te escribió en las últimas 24hs.')
+                    ->visible(fn (Get $get): bool => $get('channel') === 'whatsapp' && auth()->user()?->isAgent()),
+
+                Section::make('Primer contacto por WhatsApp (plantilla aprobada por Meta)')
+                    ->description('Completá esta sección si querés poder enviar este mensaje a leads que nunca te escribieron, o que no respondieron hace más de 24hs.')
                     ->collapsible()
                     ->collapsed(fn (Get $get): bool => empty($get('meta_template_name')))
-                    ->visible(fn (Get $get): bool => $get('channel') === 'whatsapp')
+                    ->visible(fn (Get $get): bool => $get('channel') === 'whatsapp' && ! auth()->user()?->isAgent())
                     ->schema([
                         Placeholder::make('meta_info')
-                            ->label('')
+                            ->label('¿Cómo funciona?')
                             ->content(
-                                "Para contactar leads que nunca te escribieron (o que no respondieron en 24hs), WhatsApp exige usar una plantilla pre-aprobada por Meta.\n\n" .
-                                "Pasos:\n" .
-                                "1. Creá la plantilla en Meta Business Manager → WhatsApp → Plantillas de mensajes\n" .
-                                "2. Usá {{1}}, {{2}}, etc. para las variables (ej: \"Hola {{1}}, te contactamos por {{2}}\")\n" .
-                                "3. Esperá la aprobación de Meta (24-48hs normalmente)\n" .
-                                "4. Completá los campos de abajo con el nombre exacto de la plantilla y el orden de las variables"
+                                "WhatsApp solo permite enviar mensajes libremente a personas que te escribieron en las últimas 24hs. " .
+                                "Para contactar a alguien por primera vez (o después de 24hs sin respuesta), Meta exige usar una plantilla que ellos aprobaron previamente.\n\n" .
+                                "Si completás esta sección, el sistema usará automáticamente esa plantilla aprobada cuando sea necesario. " .
+                                "Si no la completás, el mensaje solo funcionará con leads que ya están en conversación activa con vos.\n\n" .
+                                "Pasos para configurarlo:\n" .
+                                "1. Entrá a Meta Business Manager → WhatsApp → Plantillas de mensajes\n" .
+                                "2. Creá una plantilla con el mismo texto que tiene este mensaje. Usá {{1}}, {{2}}, etc. donde van los datos del lead (nombre, zona, etc.)\n" .
+                                "3. Esperá que Meta la apruebe (normalmente 24-48hs)\n" .
+                                "4. Volvé aquí y completá los campos de abajo con el nombre exacto de esa plantilla"
                             ),
 
                         TextInput::make('meta_template_name')
                             ->label('Nombre de la plantilla en Meta')
-                            ->helperText('Exactamente como aparece en Meta Business Manager (minúsculas, sin espacios). Ej: primer_contacto')
+                            ->helperText('Copiá exactamente el nombre que aparece en Meta Business Manager. Ej: primer_contacto_pocitos')
                             ->placeholder('primer_contacto')
                             ->nullable(),
 
                         Select::make('meta_template_language')
-                            ->label('Idioma de la plantilla')
+                            ->label('Idioma')
                             ->options([
                                 'es_UY' => 'Español (Uruguay)',
                                 'es_AR' => 'Español (Argentina)',
@@ -181,8 +191,8 @@ class MessageTemplateForm
                             ->required(),
 
                         TagsInput::make('meta_template_variables')
-                            ->label('Variables en orden ({{1}}, {{2}}, ...)')
-                            ->helperText('Agregá las variables de InmoFollow en el mismo orden que las pusiste en Meta. La 1ra = {{1}}, la 2da = {{2}}, etc.')
+                            ->label('Variables en orden')
+                            ->helperText('Indicá en qué orden pusiste las variables en Meta. Si en Meta escribiste "Hola {{1}}, te contactamos por {{2}}", ponés: nombre → zona. Cada variable aquí corresponde a un {{número}} allá.')
                             ->suggestions(['nombre', 'zona', 'tipo_propiedad', 'agente'])
                             ->placeholder('Ej: nombre')
                             ->columnSpanFull(),

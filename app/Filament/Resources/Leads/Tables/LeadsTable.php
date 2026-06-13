@@ -202,9 +202,9 @@ class LeadsTable
 
                         if (empty($options)) {
                             return [
-                                Placeholder::make('unavailable')
-                                    ->label('')
-                                    ->content('Este lead no puede recibir mensajes de WhatsApp ahora. El sistema lo contactará automáticamente cuando corresponda.'),
+                                Placeholder::make('sin_plantillas')
+                                    ->label('No podés enviar un mensaje ahora')
+                                    ->content('Este lead no te escribió en las últimas 24hs y no hay plantillas configuradas para primer contacto. El sistema lo contactará automáticamente cuando corresponda o pedile al administrador que configure una plantilla de primer contacto.'),
                             ];
                         }
 
