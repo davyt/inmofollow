@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Leads\Tables;
 
-use App\Filament\Resources\Companies\CompanyResource;
 use App\Models\ActivityLog;
 use App\Models\Company;
 use App\Models\Lead;
@@ -21,7 +20,6 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
-use Filament\Notifications\Actions\Action as NotificationAction;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\IconColumn;
@@ -236,21 +234,15 @@ class LeadsTable
                         $company = Company::find($record->company_id);
 
                         if (! $company?->hasWhatsApp()) {
-                            $notification = Notification::make()
+                            $hint = auth()->user()?->isAdmin()
+                                ? 'Andá a Configuración → Mi empresa para completar las credenciales.'
+                                : 'Pedile al administrador que configure WhatsApp en la empresa.';
+
+                            Notification::make()
                                 ->title('WhatsApp no configurado')
-                                ->body('Completá las credenciales en Configuración → Mi empresa para poder enviar mensajes.')
-                                ->danger();
-
-                            if (auth()->user()?->isAdmin()) {
-                                $notification->actions([
-                                    NotificationAction::make('configure')
-                                        ->label('Ir a Mi empresa')
-                                        ->url(CompanyResource::getUrl('edit', ['record' => $record->company_id]))
-                                        ->button(),
-                                ]);
-                            }
-
-                            $notification->send();
+                                ->body($hint)
+                                ->danger()
+                                ->send();
                             return;
                         }
 
