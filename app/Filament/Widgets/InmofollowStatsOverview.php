@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\ActivityLog;
 use App\Models\Lead;
 use App\Models\ScheduledMessage;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -16,35 +15,28 @@ class InmofollowStatsOverview extends BaseWidget
     {
         $user = auth()->user();
 
-        $leadQuery = Lead::query();
+        $leadQuery    = Lead::query();
         $messageQuery = ScheduledMessage::query();
-        $activityQuery = ActivityLog::query();
 
         if ($user?->isAgent()) {
             $leadQuery->where('user_id', $user->id);
             $messageQuery->where('user_id', $user->id);
-            $activityQuery->where('user_id', $user->id);
         }
 
-        $leadsTotal = (clone $leadQuery)->count();
-
-        $leadsContactables = (clone $leadQuery)
+        $contactable = (clone $leadQuery)
             ->where('do_not_contact', false)
             ->count();
 
-        $pendingMessages = (clone $messageQuery)
-            ->where('status', 'pending')
+        $overdueFollowUps = (clone $leadQuery)
+            ->where('do_not_contact', false)
+            ->whereNotNull('next_follow_up_at')
+            ->where('next_follow_up_at', '<', now()->startOfDay())
             ->count();
 
-        $dueToday = (clone $messageQuery)
-            ->where('status', 'pending')
-            ->whereDate('scheduled_for', now()->toDateString())
-            ->count();
-
-        $overdue = (clone $messageQuery)
-            ->where('status', 'pending')
-            ->whereNotNull('scheduled_for')
-            ->where('scheduled_for', '<', now())
+        $followUpsToday = (clone $leadQuery)
+            ->where('do_not_contact', false)
+            ->whereNotNull('next_follow_up_at')
+            ->whereDate('next_follow_up_at', today())
             ->count();
 
         $sentThisWeek = (clone $messageQuery)
@@ -53,31 +45,26 @@ class InmofollowStatsOverview extends BaseWidget
             ->where('sent_at', '>=', now()->startOfWeek())
             ->count();
 
-        $activityToday = (clone $activityQuery)
-            ->whereDate('created_at', now()->toDateString())
-            ->count();
-
         return [
-            Stat::make($user?->isAgent() ? 'Mis leads' : 'Leads totales', $leadsTotal)
-                ->description('Propietarios/leads registrados'),
+            Stat::make($user?->isAgent() ? 'Mis leads' : 'Leads activos', $contactable)
+                ->description('Habilitados para contactar')
+                ->icon('heroicon-o-users')
+                ->color('info'),
 
-            Stat::make('Contactables', $leadsContactables)
-                ->description('Leads sin bloqueo de contacto'),
+            Stat::make('Para hoy', $followUpsToday)
+                ->description('Seguimientos de hoy')
+                ->icon('heroicon-o-calendar-days')
+                ->color($followUpsToday > 0 ? 'warning' : 'gray'),
 
-            Stat::make('Mensajes pendientes', $pendingMessages)
-                ->description('Seguimientos pendientes'),
-
-            Stat::make('Para hoy', $dueToday)
-                ->description('Mensajes pendientes de hoy'),
-
-            Stat::make('Vencidos', $overdue)
-                ->description('Pendientes con fecha anterior'),
+            Stat::make('Vencidos', $overdueFollowUps)
+                ->description($overdueFollowUps > 0 ? 'Requieren atención urgente' : 'Todo al día')
+                ->icon($overdueFollowUps > 0 ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-check-circle')
+                ->color($overdueFollowUps > 0 ? 'danger' : 'success'),
 
             Stat::make('Enviados esta semana', $sentThisWeek)
-                ->description('Mensajes marcados como enviados'),
-
-            Stat::make('Actividad hoy', $activityToday)
-                ->description($user?->isAgent() ? 'Tus acciones registradas' : 'Acciones registradas hoy'),
+                ->description('Mensajes de WhatsApp')
+                ->icon('heroicon-o-paper-airplane')
+                ->color('success'),
         ];
     }
 }

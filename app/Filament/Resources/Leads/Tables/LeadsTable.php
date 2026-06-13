@@ -14,9 +14,11 @@ use App\Services\MessageSender;
 use App\Support\Activity;
 use Carbon\Carbon;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
@@ -352,6 +354,34 @@ class LeadsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('assign_agent')
+                        ->label('Asignar agente')
+                        ->icon('heroicon-o-user-plus')
+                        ->color('info')
+                        ->visible(fn (): bool => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor())
+                        ->form([
+                            Select::make('user_id')
+                                ->label('Agente')
+                                ->options(fn () => User::query()
+                                    ->where('active', true)
+                                    ->whereIn('role', ['agent', 'supervisor'])
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->toArray()
+                                )
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $agent = User::find($data['user_id']);
+                            $records->each->update(['user_id' => $data['user_id']]);
+                            Notification::make()
+                                ->title("{$records->count()} lead(s) asignados a {$agent->name}")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     DeleteBulkAction::make(),
                 ]),
             ]);

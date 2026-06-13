@@ -3,15 +3,13 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\InmofollowStatsOverview;
-use App\Filament\Widgets\MessagesRequiringAttention;
+use App\Filament\Widgets\LeadFollowUpsWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
 {
     protected static ?string $navigationLabel = 'Escritorio';
-
     protected static ?string $title = 'Escritorio';
-
     protected static ?int $navigationSort = -10;
 
     public function getTitle(): string
@@ -21,13 +19,19 @@ class Dashboard extends BaseDashboard
 
     public function getHeading(): string
     {
-        return 'Resumen operativo';
+        $hour = now()->hour;
+        $greeting = match(true) {
+            $hour < 12 => 'Buenos días',
+            $hour < 19 => 'Buenas tardes',
+            default    => 'Buenas noches',
+        };
+        return $greeting . ', ' . (auth()->user()?->name ?? '') . '.';
     }
 
     public function getSubheading(): ?string
     {
         return auth()->user()?->isAgent()
-            ? 'Vista de tus leads, mensajes y actividad.'
+            ? 'Aquí están tus leads y seguimientos pendientes para hoy.'
             : 'Vista general del equipo comercial.';
     }
 
@@ -35,15 +39,12 @@ class Dashboard extends BaseDashboard
     {
         return [
             InmofollowStatsOverview::class,
-            MessagesRequiringAttention::class,
+            LeadFollowUpsWidget::class,
         ];
     }
 
     public function getHeaderWidgetsColumns(): int | array
     {
-        return [
-            'md' => 2,
-            'xl' => 4,
-        ];
+        return 1;
     }
 }
