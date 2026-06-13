@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Leads;
 
 use App\Filament\Resources\Leads\Pages\CreateLead;
 use App\Filament\Resources\Leads\Pages\EditLead;
+use App\Filament\Resources\Leads\Pages\ImportLeads;
 use App\Filament\Resources\Leads\Pages\ListLeads;
 use App\Filament\Resources\Leads\Schemas\LeadForm;
 use App\Filament\Resources\Leads\Tables\LeadsTable;
@@ -71,9 +72,10 @@ class LeadResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListLeads::route('/'),
+            'index'  => ListLeads::route('/'),
             'create' => CreateLead::route('/create'),
-            'edit' => EditLead::route('/{record}/edit'),
+            'edit'   => EditLead::route('/{record}/edit'),
+            'import' => ImportLeads::route('/import'),
         ];
     }
 }
