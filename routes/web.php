@@ -1,12 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WhatsAppWebhookController;
 use App\Models\ScheduledMessage;
 use App\Support\Activity;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// WhatsApp Business API webhook (sin auth — Meta necesita acceso libre)
+Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify']);
+Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
 Route::middleware(['auth'])->get('/scheduled-messages/{scheduledMessage}/open-whatsapp', function (ScheduledMessage $scheduledMessage) {
     $user = auth()->user();
