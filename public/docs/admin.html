@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InmoFollow — Manual del administrador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1d4ed8; --blue-light: #eff6ff;
+    --slate: #1e293b; --slate-mid: #475569; --slate-light: #94a3b8;
+    --border: #e2e8f0; --bg: #f8fafc; --white: #ffffff;
+    --green: #15803d; --amber: #b45309; --red: #b91c1c;
+  }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--slate); line-height: 1.7; }
+  a { color: var(--blue); }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 260px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); padding: 32px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .content { flex: 1; padding: 48px 48px 80px; max-width: 820px; }
+  @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; padding: 20px; } .content { padding: 24px 20px 60px; } }
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--blue); margin-bottom: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-back { font-size: 13px; color: var(--slate-light); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 20px; }
+  .sidebar-back:hover { color: var(--blue); }
+  .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+  .sidebar nav a { font-size: 13px; color: var(--slate-mid); text-decoration: none; padding: 7px 12px; border-radius: 8px; display: block; }
+  .sidebar nav a:hover { background: var(--bg); color: var(--slate); }
+  .sidebar-section { font-size: 11px; font-weight: 600; color: var(--slate-light); letter-spacing: .08em; text-transform: uppercase; padding: 16px 12px 6px; }
+  .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .page-label { font-size: 12px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .page-title { font-size: clamp(24px, 3vw, 36px); font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+  .page-subtitle { color: var(--slate-mid); font-size: 17px; }
+  h2 { font-size: 22px; font-weight: 700; margin-top: 52px; margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
+  h3 { font-size: 16px; font-weight: 600; margin-top: 28px; margin-bottom: 10px; }
+  h4 { font-size: 14px; font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: var(--slate-mid); }
+  p  { margin-bottom: 14px; color: var(--slate-mid); font-size: 15px; }
+  ul, ol { margin: 12px 0 16px 20px; color: var(--slate-mid); font-size: 15px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--slate); font-weight: 600; }
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 20px 0; display: flex; gap: 12px; font-size: 14px; }
+  .callout.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+  .callout.warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .callout.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+  .callout.danger  { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .callout p { margin: 0; color: inherit; font-size: 14px; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; margin-left: 0; }
+  .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--slate-mid); }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+
+  /* STEPS */
+  .steps { counter-reset: step; margin: 20px 0; }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; }
+  .step-num { counter-increment: step; content: counter(step); width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-body h4 { font-size: 15px; font-weight: 600; color: var(--slate); margin: 0 0 4px; }
+  .step-body p { font-size: 14px; color: var(--slate-mid); margin: 0; }
+  .step-body .link-out { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--blue); text-decoration: none; margin-top: 8px; background: var(--blue-light); padding: 4px 10px; border-radius: 6px; }
+
+  /* CODE */
+  code { background: #f1f5f9; border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; font-size: 13px; font-family: monospace; color: var(--slate); }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  th { background: var(--bg); font-weight: 600; text-align: left; padding: 10px 14px; border: 1px solid var(--border); color: var(--slate); }
+  td { padding: 10px 14px; border: 1px solid var(--border); color: var(--slate-mid); vertical-align: top; }
+
+  /* FIELD CARD */
+  .field-list { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+  .field-item { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .field-item label { font-size: 13px; font-weight: 600; color: var(--slate); display: block; margin-bottom: 4px; }
+  .field-item p { font-size: 13px; color: var(--slate-mid); margin: 0; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .tag.green { background: #f0fdf4; color: #15803d; }
+  .tag.amber { background: #fffbeb; color: #b45309; }
+  .tag.red   { background: #fef2f2; color: #b91c1c; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">🏠 InmoFollow</div>
+  <a class="sidebar-back" href="index.html">← Volver al índice</a>
+  <nav>
+    <div class="sidebar-section">Configuración inicial</div>
+    <a href="#checklist">Checklist de inicio</a>
+    <a href="#empresa">Mi empresa</a>
+    <a href="#whatsapp-setup">Configurar WhatsApp</a>
+    <a href="#meta-templates">Plantillas aprobadas por Meta</a>
+    <div class="sidebar-section">Operativa diaria</div>
+    <a href="#usuarios">Gestión de usuarios</a>
+    <a href="#plantillas">Plantillas de mensajes</a>
+    <a href="#secuencias">Secuencias</a>
+    <a href="#importar">Importar leads</a>
+    <a href="#asignar">Asignar leads</a>
+    <a href="#ia">Configurar IA</a>
+    <div class="sidebar-section">Futuro</div>
+    <a href="#integraciones">Integraciones CRM</a>
+  </nav>
+</aside>
+
+<main class="content">
+
+  <div class="page-header">
+    <div class="page-label">Manual del administrador</div>
+    <h1 class="page-title">Configuración y gestión</h1>
+    <p class="page-subtitle">Todo lo que el administrador necesita saber para poner en marcha y mantener InmoFollow.</p>
+  </div>
+
+  <!-- CHECKLIST -->
+  <h2 id="checklist">Checklist de puesta en marcha</h2>
+  <p>Seguí este orden para dejar el sistema listo para los agentes:</p>
+  <ul class="checklist">
+    <li><span class="check-box"></span> Crear la empresa en <em>Mi empresa</em> con nombre y datos básicos</li>
+    <li><span class="check-box"></span> Completar las credenciales de WhatsApp Business (Phone Number ID y Access Token)</li>
+    <li><span class="check-box"></span> Agregar el WhatsApp Business Account ID (para ver plantillas aprobadas)</li>
+    <li><span class="check-box"></span> Crear los estados de lead que usa tu inmobiliaria (Ej: Nuevo, En seguimiento, Calificado, Cerrado)</li>
+    <li><span class="check-box"></span> Crear las plantillas de mensajes globales (primer contacto, seguimiento, etc.)</li>
+    <li><span class="check-box"></span> Crear las secuencias de seguimiento y asociarlas a estados</li>
+    <li><span class="check-box"></span> Crear los usuarios (agentes)</li>
+    <li><span class="check-box"></span> Importar los leads iniciales o cargarlos manualmente</li>
+    <li><span class="check-box"></span> Asignar los leads a los agentes</li>
+    <li><span class="check-box"></span> Configurar el cron job en el servidor (envío automático)</li>
+  </ul>
+
+  <!-- MI EMPRESA -->
+  <h2 id="empresa">Mi empresa</h2>
+  <p>Accedé desde el menú lateral → <strong>Mi empresa</strong>. Aquí se centralizan todas las configuraciones.</p>
+
+  <div class="field-list">
+    <div class="field-item"><label>Nombre de la empresa</label><p>El nombre que aparecerá en el sistema.</p></div>
+    <div class="field-item"><label>WhatsApp — Phone Number ID</label><p>El identificador del número de teléfono en la API de Meta. Se obtiene en Meta Developers.</p></div>
+    <div class="field-item"><label>WhatsApp — Access Token</label><p>La clave de acceso a la API. Se recomienda usar un System User Token permanente (ver sección de configuración).</p></div>
+    <div class="field-item"><label>WhatsApp Business Account ID (WABA ID)</label><p>Identificador de la cuenta de WhatsApp Business. Necesario para consultar las plantillas aprobadas desde el panel.</p></div>
+    <div class="field-item"><label>Clave de API de IA (Anthropic)</label><p>Opcional. Permite generar mensajes con inteligencia artificial. Se obtiene en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</p></div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">🔑</span>
+    <p>Después de guardar las credenciales de WhatsApp, usá el botón <strong>"Probar conexión WhatsApp"</strong> para verificar que todo esté bien antes de empezar a enviar mensajes.</p>
+  </div>
+
+  <!-- WHATSAPP SETUP -->
+  <h2 id="whatsapp-setup">Configurar WhatsApp Business</h2>
+  <p>Para poder enviar mensajes desde InmoFollow, necesitás tener acceso a la <strong>API de WhatsApp Cloud</strong> de Meta. Este proceso se hace una sola vez.</p>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <p>Este proceso requiere una cuenta de <strong>Meta Business Manager verificada</strong> y un número de teléfono que <strong>no esté siendo usado en la app de WhatsApp</strong>. Si el número ya tiene WhatsApp instalado, hay que desvincularlo primero.</p>
+  </div>
+
+  <h3>Paso a paso</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Crear o acceder a Meta Business Manager</h4>
+        <p>Entrá a Meta Business Manager con tu cuenta de Facebook. Si no tenés una cuenta de empresa, creá una.</p>
+        <a class="link-out" href="https://business.facebook.com" target="_blank">↗ business.facebook.com</a>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Crear una aplicación en Meta Developers</h4>
+        <p>Entrá a Meta Developers → <em>Mis Apps</em> → <em>Crear app</em>. Seleccioná el tipo <strong>"Empresa"</strong> y completá el nombre de la app.</p>
+        <a class="link-out" href="https://developers.facebook.com/apps" target="_blank">↗ developers.facebook.com/apps</a>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>Agregar el producto WhatsApp a la app</h4>
+        <p>Dentro de la app recién creada, buscá el producto <strong>WhatsApp</strong> en el panel de productos y hacé clic en <em>Configurar</em>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Agregar y verificar el número de teléfono</h4>
+        <p>En <em>WhatsApp → Configuración → Números de teléfono</em>, agregá el número que vas a usar. Meta te enviará un código de verificación por SMS o llamada.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>Obtener el Phone Number ID</h4>
+        <p>Una vez verificado el número, en el mismo panel verás el <strong>Phone Number ID</strong>. Copialo — lo necesitás para InmoFollow.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h4>Obtener el Access Token (recomendado: System User Token)</h4>
+        <p>El token temporal que muestra Meta Developers vence pronto. Para producción, creá un <strong>System User</strong> en Meta Business Manager con permisos de WhatsApp y generá un token permanente.</p>
+        <p style="margin-top:8px;">Ruta: Meta Business Manager → <em>Configuración del negocio</em> → <em>Usuarios del sistema</em> → <em>Agregar</em> → Asignale el activo de WhatsApp con rol de administrador → <em>Generar token</em>.</p>
+        <a class="link-out" href="https://business.facebook.com/settings/system-users" target="_blank">↗ Usuarios del sistema</a>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <h4>Obtener el WhatsApp Business Account ID</h4>
+        <p>En Meta Business Manager → <em>Configuración del negocio</em> → <em>Cuentas de WhatsApp</em>, verás el ID de tu cuenta (WABA ID). Copialo también.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <h4>Configurar el Webhook</h4>
+        <p>Para que el sistema detecte cuando un lead te responde, tenés que configurar el webhook en Meta Developers → <em>WhatsApp → Configuración</em> → <em>Webhooks</em>.</p>
+        <p style="margin-top:8px;"><strong>URL del webhook:</strong> <code>https://tudominio.com/webhook/whatsapp</code><br>
+        <strong>Token de verificación:</strong> el valor de <code>WHATSAPP_VERIFY_TOKEN</code> en el archivo <code>.env</code> del servidor.</p>
+        <p style="margin-top:8px;">Suscribite al evento <strong>messages</strong> para recibir los mensajes entrantes.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">9</div>
+      <div class="step-body">
+        <h4>Cargar las credenciales en InmoFollow</h4>
+        <p>Ingresá el Phone Number ID, el Access Token y el WABA ID en <em>Mi empresa</em> y guardá. Luego usá el botón <strong>"Probar conexión WhatsApp"</strong> para confirmar que todo funciona.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- META TEMPLATES -->
+  <h2 id="meta-templates">Plantillas aprobadas por Meta</h2>
+  <p>Para poder contactar leads que nunca te escribieron (o que no respondieron hace más de 24hs), WhatsApp exige usar una <strong>plantilla aprobada previamente por Meta</strong>. Este es el requisito central para hacer outreach frío.</p>
+
+  <h3>¿Por qué es necesario?</h3>
+  <p>WhatsApp prohíbe el envío de mensajes comerciales a personas que no iniciaron la conversación, salvo que uses una plantilla aprobada. Es una medida anti-spam. Las plantillas pasan por una revisión de Meta antes de poder usarse.</p>
+
+  <h3>Crear una plantilla en Meta Business Manager</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Ir a Plantillas de mensajes</h4>
+        <p>En Meta Business Manager → <em>Herramientas para empresas</em> → <em>Gestor de WhatsApp</em> → <em>Plantillas de mensajes</em>.</p>
+        <a class="link-out" href="https://business.facebook.com/wa/manage/message-templates/" target="_blank">↗ Plantillas de mensajes</a>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Crear nueva plantilla</h4>
+        <p>Elegí categoría <strong>Marketing</strong>, dá un nombre en minúsculas y sin espacios (ejemplo: <code>primer_contacto_piso</code>) y seleccioná el idioma.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>Escribir el mensaje con variables</h4>
+        <p>Escribí el texto del mensaje. Usá <code>{{1}}</code>, <code>{{2}}</code>, etc. donde van datos variables (nombre del lead, zona, etc.).</p>
+        <p style="margin-top:8px;">Ejemplo: <em>"Hola {{1}}, te contactamos desde [Tu Inmobiliaria]. Vimos que consultaste por propiedades en {{2}}. ¿Querés que te contemos las opciones disponibles?"</em></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Enviar y esperar aprobación</h4>
+        <p>Una vez enviada, Meta la revisa. El proceso demora entre <strong>24 y 48 horas</strong>. Te notifican por email. El estado cambia a <span class="tag green">Aprobada</span>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>Conectarla a una plantilla en InmoFollow</h4>
+        <p>Una vez aprobada, andá a <em>Plantillas de mensajes</em> en InmoFollow, editá la plantilla correspondiente y completá la sección <strong>"Primer contacto por WhatsApp"</strong>:</p>
+        <ul style="margin-top:8px;">
+          <li><strong>Nombre de la plantilla en Meta:</strong> exactamente igual al nombre que usaste en Meta (ej: <code>primer_contacto_piso</code>)</li>
+          <li><strong>Idioma:</strong> el mismo que seleccionaste en Meta</li>
+          <li><strong>Variables en orden:</strong> agregá las variables de InmoFollow en el mismo orden que los <code>{{1}}</code>, <code>{{2}}</code> en Meta. Si <code>{{1}}</code> es el nombre y <code>{{2}}</code> es la zona, ponés: <em>nombre, zona</em></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <span class="callout-icon">✅</span>
+    <p>Desde <em>Mi empresa</em> → <strong>"Ver plantillas aprobadas"</strong> podés ver en tiempo real qué plantillas están aprobadas, pendientes o rechazadas en tu cuenta de Meta.</p>
+  </div>
+
+  <div class="callout danger">
+    <span class="callout-icon">🚫</span>
+    <p>Meta puede <strong>rechazar</strong> una plantilla si considera que el texto es demasiado promocional o genérico. Si eso pasa, hay que ajustar el texto y volver a enviarla para aprobación.</p>
+  </div>
+
+  <!-- USUARIOS -->
+  <h2 id="usuarios">Gestión de usuarios</h2>
+  <p>Accedé desde <em>Configuración → Usuarios</em>. Podés crear, editar y desactivar usuarios.</p>
+
+  <h3>Crear un agente</h3>
+  <ol>
+    <li>Clic en <strong>"Nuevo usuario"</strong></li>
+    <li>Completá nombre, email y contraseña inicial</li>
+    <li>Seleccioná rol: <strong>Agente</strong></li>
+    <li>Guardá</li>
+    <li>Compartí el email y contraseña con el agente</li>
+  </ol>
+
+  <h3>Cambiar contraseña de un agente</h3>
+  <p>Si un agente olvidó su contraseña, desde la tabla de usuarios hacé clic en <strong>"Nueva contraseña"</strong> junto a su nombre. Ingresá la nueva contraseña y el agente puede usarla de inmediato.</p>
+
+  <!-- PLANTILLAS -->
+  <h2 id="plantillas">Plantillas de mensajes</h2>
+  <p>Las plantillas <strong>globales</strong> están disponibles para todos los agentes. Las <strong>personales</strong> solo las ve el agente que las creó.</p>
+  <p>Como administrador, podés crear todas las plantillas globales que el equipo va a necesitar: primer contacto, seguimiento a los 3 días, recordatorio de visita, etc.</p>
+
+  <h3>Variables disponibles en el texto</h3>
+  <table>
+    <thead><tr><th>Variable</th><th>Se reemplaza por</th></tr></thead>
+    <tbody>
+      <tr><td><code>{{nombre}}</code></td><td>Nombre del lead</td></tr>
+      <tr><td><code>{{zona}}</code></td><td>Zona de interés del lead</td></tr>
+      <tr><td><code>{{tipo_propiedad}}</code></td><td>Tipo de propiedad que busca</td></tr>
+      <tr><td><code>{{agente}}</code></td><td>Nombre del agente que envía</td></tr>
+    </tbody>
+  </table>
+
+  <!-- SECUENCIAS -->
+  <h2 id="secuencias">Secuencias de seguimiento</h2>
+  <p>Una secuencia es una cadena de mensajes que se envían automáticamente con intervalos de tiempo definidos. Se asocian a un estado de lead (ej: la secuencia "Primer contacto" se activa cuando el lead está en estado "Nuevo").</p>
+
+  <h3>Crear una secuencia</h3>
+  <ol>
+    <li>Ir a <em>Secuencias</em> → <em>Nueva secuencia</em></li>
+    <li>Dar un nombre y asociarla a un estado de lead (opcional)</li>
+    <li>Agregar pasos: cada paso tiene una plantilla de mensaje y un número de días de retraso desde el paso anterior</li>
+    <li>Guardar y activar</li>
+  </ol>
+
+  <div class="callout info">
+    <span class="callout-icon">💡</span>
+    <p>El primer mensaje de una secuencia para leads nuevos debería usar una <strong>plantilla aprobada por Meta</strong>, ya que el lead aún no habrá iniciado conversación.</p>
+  </div>
+
+  <!-- IMPORTAR -->
+  <h2 id="importar">Importar leads</h2>
+  <p>Desde <em>Leads</em> → <em>Importar</em> podés subir un archivo CSV con leads masivos.</p>
+
+  <h3>Requisitos del archivo CSV</h3>
+  <ul>
+    <li>Formato UTF-8 (para que los acentos se vean bien)</li>
+    <li>Primera fila con los nombres de las columnas</li>
+    <li>El campo <strong>nombre</strong> o <strong>name</strong> es el único requerido</li>
+    <li>El teléfono puede estar en formato local (<code>09XXXXXXXX</code>) o internacional (<code>598XXXXXXXX</code>)</li>
+  </ul>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <p>Antes de importar, asegurate de que el archivo tiene la columna de <strong>consentimiento de WhatsApp</strong> si los leads ya dieron su ok. Sin consentimiento, el sistema no les envía mensajes.</p>
+  </div>
+
+  <!-- ASIGNAR -->
+  <h2 id="asignar">Asignar leads a agentes</h2>
+  <p>Tenés dos opciones:</p>
+  <ul>
+    <li><strong>Individual:</strong> editá el lead y seleccioná el agente en el campo "Agente".</li>
+    <li><strong>Masivo:</strong> en la tabla de leads, seleccioná varios con el checkbox, luego clic en <em>Acciones → Asignar agente</em>, elegí el agente y confirmá.</li>
+  </ul>
+
+  <!-- IA -->
+  <h2 id="ia">Configurar la inteligencia artificial</h2>
+  <p>InmoFollow usa la IA de Anthropic para generar textos de plantillas. Para activarla:</p>
+  <ol>
+    <li>Creá una cuenta en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></li>
+    <li>Generá una API Key desde <em>Settings → API Keys</em></li>
+    <li>En InmoFollow, andá a <em>Mi empresa</em> y pegá la clave en el campo <strong>"Clave de API de IA"</strong></li>
+    <li>Guardá</li>
+  </ol>
+  <p>A partir de ese momento, el botón <strong>"Generar con IA"</strong> estará disponible al crear o editar plantillas de mensajes.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">💰</span>
+    <p>El costo de la IA se descuenta de la cuenta de Anthropic que configuraste. El uso típico para generar textos de mensajes es muy bajo. Podés ver el consumo en el dashboard de Anthropic.</p>
+  </div>
+
+  <!-- INTEGRACIONES -->
+  <h2 id="integraciones">Integraciones con CRM externos</h2>
+  <p>El sistema está preparado para recibir leads automáticamente desde otras plataformas. Cuando tengamos los endpoints de cada sistema, las integraciones se agregarán sin cambios en la estructura de leads.</p>
+
+  <table>
+    <thead><tr><th>Plataforma</th><th>Estado</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>2clics.app</strong></td>
+        <td><span class="tag amber">Pendiente</span></td>
+        <td>Leads del CRM 2clics se sincronizarán automáticamente a InmoFollow. Estamos esperando los detalles técnicos de su API.</td>
+      </tr>
+      <tr>
+        <td><strong>MercadoLibre</strong></td>
+        <td><span class="tag amber">Pendiente</span></td>
+        <td>Consultas de MercadoLibre Inmuebles entrarán directamente como leads. También esperando acceso a la API.</td>
+      </tr>
+      <tr>
+        <td><strong>Importación CSV</strong></td>
+        <td><span class="tag green">Disponible</span></td>
+        <td>Disponible ahora. Compatible con exportaciones de la mayoría de sistemas.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Mientras tanto, la importación CSV permite trabajar con leads de cualquier origen. Exportá desde tu sistema actual y subí el archivo a InmoFollow.</p>
+
+</main>
+</div>
+</body>
+</html>

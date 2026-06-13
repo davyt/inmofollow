@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InmoFollow — Documentación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1d4ed8; --blue-light: #eff6ff; --blue-mid: #3b82f6;
+    --slate: #1e293b; --slate-mid: #475569; --slate-light: #94a3b8;
+    --border: #e2e8f0; --bg: #f8fafc; --white: #ffffff;
+    --green: #15803d; --amber: #b45309; --red: #b91c1c;
+  }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--slate); line-height: 1.6; min-height: 100vh; }
+
+  /* HEADER */
+  .header { background: var(--blue); padding: 48px 24px 64px; text-align: center; }
+  .header-logo { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .header-logo-icon { width: 48px; height: 48px; background: rgba(255,255,255,.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .header h1 { color: #fff; font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+  .header p { color: rgba(255,255,255,.75); font-size: 18px; margin-top: 8px; }
+
+  /* WAVE */
+  .wave { background: var(--blue); margin-bottom: -1px; line-height: 0; }
+  .wave svg { display: block; width: 100%; height: 48px; }
+
+  /* MAIN */
+  .main { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* GRID */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 16px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px; text-decoration: none; color: inherit; display: block; transition: box-shadow .2s, transform .2s; }
+  .card:hover { box-shadow: 0 8px 32px rgba(29,78,216,.12); transform: translateY(-3px); }
+  .card-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 20px; }
+  .card-icon.blue   { background: #eff6ff; }
+  .card-icon.green  { background: #f0fdf4; }
+  .card-icon.amber  { background: #fffbeb; }
+  .card-icon.purple { background: #faf5ff; }
+  .card h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .card p  { color: var(--slate-mid); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+  .card-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--blue); }
+  .card-tag svg { width: 16px; height: 16px; }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 13px; font-weight: 600; color: var(--slate-light); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 20px; margin-top: 48px; }
+
+  /* BADGE */
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .badge.new { background: #dcfce7; color: #15803d; }
+
+  /* INFO BAR */
+  .info-bar { background: var(--blue-light); border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 12px; margin-top: 40px; }
+  .info-bar p { font-size: 14px; color: var(--blue); }
+  .info-bar strong { font-weight: 600; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 24px; color: var(--slate-light); font-size: 13px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">
+    <div class="header-logo-icon">🏠</div>
+  </div>
+  <h1>InmoFollow</h1>
+  <p>Centro de documentación</p>
+</div>
+<div class="wave">
+  <svg viewBox="0 0 1440 48" preserveAspectRatio="none" fill="#f8fafc">
+    <path d="M0,48 C360,0 1080,48 1440,0 L1440,48 Z"/>
+  </svg>
+</div>
+
+<div class="main">
+
+  <div class="section-title">Documentos disponibles</div>
+
+  <div class="card-grid">
+
+    <a class="card" href="sistema.html">
+      <div class="card-icon blue">📋</div>
+      <h2>Documentación del sistema</h2>
+      <p>Qué es InmoFollow, cómo funciona cada módulo, la integración con WhatsApp y la IA, y el roadmap de integraciones futuras.</p>
+      <span class="card-tag">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        Ver documento
+      </span>
+    </a>
+
+    <a class="card" href="admin.html">
+      <div class="card-icon amber">⚙️</div>
+      <h2>Manual del administrador</h2>
+      <p>Configuración de WhatsApp Business, plantillas aprobadas por Meta, gestión de usuarios, importación de leads y configuración de la IA.</p>
+      <span class="card-tag">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        Ver documento
+      </span>
+    </a>
+
+    <a class="card" href="agente.html">
+      <div class="card-icon green">👤</div>
+      <h2>Manual del agente</h2>
+      <p>Cómo usar InmoFollow día a día: el escritorio, gestión de leads, envío de mensajes, plantillas personales e historial.</p>
+      <span class="card-tag">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        Ver documento
+      </span>
+    </a>
+
+  </div>
+
+  <div class="info-bar">
+    <span style="font-size:20px; flex-shrink:0;">💡</span>
+    <p><strong>Acceso al sistema:</strong> El panel de InmoFollow está disponible en <a href="/davyt/login" style="color:var(--blue); font-weight:600;">/davyt/login</a>. Usá las credenciales que te dio el administrador.</p>
+  </div>
+
+</div>
+
+<footer>InmoFollow &copy; 2026 — Documentación v1.0</footer>
+
+</body>
+</html>

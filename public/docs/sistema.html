@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InmoFollow — Documentación del sistema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1d4ed8; --blue-light: #eff6ff; --blue-mid: #3b82f6;
+    --slate: #1e293b; --slate-mid: #475569; --slate-light: #94a3b8;
+    --border: #e2e8f0; --bg: #f8fafc; --white: #ffffff;
+    --green: #15803d; --amber: #b45309; --red: #b91c1c;
+  }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--slate); line-height: 1.7; }
+  a { color: var(--blue); }
+
+  /* LAYOUT */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 260px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); padding: 32px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .content { flex: 1; padding: 48px 48px 80px; max-width: 820px; }
+
+  /* SIDEBAR */
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--blue); margin-bottom: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-back { font-size: 13px; color: var(--slate-light); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 20px; }
+  .sidebar-back:hover { color: var(--blue); }
+  .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+  .sidebar nav a { font-size: 13px; color: var(--slate-mid); text-decoration: none; padding: 7px 12px; border-radius: 8px; display: block; }
+  .sidebar nav a:hover { background: var(--bg); color: var(--slate); }
+  .sidebar-section { font-size: 11px; font-weight: 600; color: var(--slate-light); letter-spacing: .08em; text-transform: uppercase; padding: 16px 12px 6px; }
+
+  /* TOPBAR MOBILE */
+  @media (max-width: 768px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; padding: 20px; }
+    .sidebar nav { flex-direction: row; flex-wrap: wrap; }
+    .content { padding: 24px 20px 60px; }
+  }
+
+  /* CONTENT TYPOGRAPHY */
+  .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .page-label { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .page-title { font-size: clamp(24px, 3vw, 36px); font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+  .page-subtitle { color: var(--slate-mid); font-size: 17px; }
+
+  h2 { font-size: 22px; font-weight: 700; margin-top: 52px; margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
+  h3 { font-size: 16px; font-weight: 600; margin-top: 28px; margin-bottom: 10px; color: var(--slate); }
+  p  { margin-bottom: 14px; color: var(--slate-mid); font-size: 15px; }
+  ul, ol { margin: 12px 0 16px 20px; color: var(--slate-mid); font-size: 15px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--slate); font-weight: 600; }
+
+  /* CALLOUTS */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 20px 0; display: flex; gap: 12px; font-size: 14px; }
+  .callout.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+  .callout.warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .callout.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+  .callout.danger  { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .callout p { margin: 0; color: inherit; font-size: 14px; }
+
+  /* MODULES GRID */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 24px 0; }
+  .module-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .module-card .icon { font-size: 24px; margin-bottom: 10px; }
+  .module-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .module-card p { font-size: 13px; color: var(--slate-mid); margin: 0; }
+
+  /* FLOW */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 24px 0; }
+  .flow-step { display: flex; gap: 16px; }
+  .flow-line { display: flex; flex-direction: column; align-items: center; }
+  .flow-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .flow-connector { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 20px; }
+  .flow-body { padding-bottom: 24px; flex: 1; }
+  .flow-body h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .flow-body p { font-size: 14px; color: var(--slate-mid); margin: 0; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  th { background: var(--bg); font-weight: 600; text-align: left; padding: 10px 14px; border: 1px solid var(--border); color: var(--slate); }
+  td { padding: 10px 14px; border: 1px solid var(--border); color: var(--slate-mid); vertical-align: top; }
+  tr:hover td { background: #fafafa; }
+
+  /* TAG */
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 4px; }
+  .tag.blue  { background: #eff6ff; color: #1d4ed8; }
+  .tag.green { background: #f0fdf4; color: #15803d; }
+  .tag.amber { background: #fffbeb; color: #b45309; }
+  .tag.red   { background: #fef2f2; color: #b91c1c; }
+  .tag.gray  { background: #f1f5f9; color: #475569; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">🏠 InmoFollow</div>
+  <a class="sidebar-back" href="index.html">← Volver al índice</a>
+  <nav>
+    <div class="sidebar-section">Contenido</div>
+    <a href="#que-es">¿Qué es InmoFollow?</a>
+    <a href="#modulos">Módulos del sistema</a>
+    <a href="#flujo">Flujo de trabajo</a>
+    <a href="#whatsapp">Integración WhatsApp</a>
+    <a href="#ia">Integración de IA</a>
+    <a href="#importacion">Importación de leads</a>
+    <a href="#roles">Roles de usuario</a>
+    <a href="#integraciones">Integraciones futuras</a>
+    <a href="#requisitos">Requisitos técnicos</a>
+    <a href="#limitaciones">Limitaciones actuales</a>
+  </nav>
+</aside>
+
+<!-- CONTENT -->
+<main class="content">
+
+  <div class="page-header">
+    <div class="page-label">Documentación del sistema</div>
+    <h1 class="page-title">InmoFollow — Cómo funciona</h1>
+    <p class="page-subtitle">Visión general del sistema: módulos, flujos, integraciones y limitaciones.</p>
+  </div>
+
+  <!-- QUÉ ES -->
+  <h2 id="que-es">¿Qué es InmoFollow?</h2>
+  <p>InmoFollow es una plataforma de <strong>automatización de marketing por WhatsApp</strong> diseñada para inmobiliarias. Permite gestionar leads, programar secuencias de mensajes y enviarlos automáticamente a través de la API oficial de WhatsApp Business.</p>
+  <p>El sistema está pensado para trabajar junto a un CRM existente (como 2clics.app): el CRM maneja la operativa comercial del negocio, mientras que InmoFollow se encarga de la comunicación masiva y automatizada por WhatsApp.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">💡</span>
+    <p><strong>En resumen:</strong> InmoFollow no reemplaza tu CRM, lo complementa. Te da el motor de mensajería que el CRM no tiene.</p>
+  </div>
+
+  <!-- MÓDULOS -->
+  <h2 id="modulos">Módulos del sistema</h2>
+
+  <div class="module-grid">
+    <div class="module-card">
+      <div class="icon">👥</div>
+      <h4>Leads</h4>
+      <p>Registro de clientes potenciales. Cada lead tiene datos de contacto, zona, tipo de propiedad, estado y agente asignado.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">📝</div>
+      <h4>Plantillas de mensajes</h4>
+      <p>Mensajes reutilizables con variables dinámicas. Pueden ser globales (para todo el equipo) o personales (de un agente).</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">🔄</div>
+      <h4>Secuencias</h4>
+      <p>Cadenas de mensajes que se envían automáticamente en tiempos definidos. Ej: mensaje al día 1, otro al día 3, otro al día 7.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">📅</div>
+      <h4>Mensajes programados</h4>
+      <p>Cola de mensajes listos para salir. El sistema los revisa periódicamente y los envía cuando llega el momento.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">🏢</div>
+      <h4>Empresa</h4>
+      <p>Configuración central: credenciales de WhatsApp, clave de IA, nombre de la empresa.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">👤</div>
+      <h4>Usuarios</h4>
+      <p>Administradores, supervisores y agentes. Cada rol tiene acceso diferente al sistema.</p>
+    </div>
+  </div>
+
+  <!-- FLUJO -->
+  <h2 id="flujo">Flujo de trabajo típico</h2>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">1</div><div class="flow-connector"></div></div>
+      <div class="flow-body">
+        <h4>Ingreso de leads</h4>
+        <p>Los leads entran al sistema por importación CSV, carga manual, o en el futuro, desde 2clics.app o MercadoLibre automáticamente.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">2</div><div class="flow-connector"></div></div>
+      <div class="flow-body">
+        <h4>Asignación a agente</h4>
+        <p>El administrador asigna leads a los agentes, individualmente o en lotes desde la tabla de leads.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">3</div><div class="flow-connector"></div></div>
+      <div class="flow-body">
+        <h4>Generación de secuencia</h4>
+        <p>Según el estado del lead, el sistema puede generar automáticamente los mensajes programados de una secuencia. El agente también puede generarla manualmente.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">4</div><div class="flow-connector"></div></div>
+      <div class="flow-body">
+        <h4>Envío automático</h4>
+        <p>El sistema verifica periódicamente los mensajes pendientes y los envía a través de la API de WhatsApp. No requiere intervención del agente.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">5</div><div class="flow-connector"></div></div>
+      <div class="flow-body">
+        <h4>Respuesta del lead</h4>
+        <p>Cuando el lead responde por WhatsApp, el sistema lo registra. Esto activa una "sesión de 24 horas" que permite enviar mensajes libres (no solo plantillas aprobadas).</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">6</div><div class="flow-connector"></div></div>
+      <div class="flow-body">
+        <h4>Seguimiento y notas</h4>
+        <p>El agente puede ver el historial completo de cada lead: mensajes enviados, notas agregadas y actividad del sistema.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP -->
+  <h2 id="whatsapp">Integración con WhatsApp Business</h2>
+  <p>InmoFollow usa la <strong>API oficial de WhatsApp Cloud (Meta)</strong>, no WhatsApp Web ni soluciones de terceros. Esto garantiza estabilidad y cumplimiento de las políticas de Meta.</p>
+
+  <h3>Dos modos de envío</h3>
+  <table>
+    <thead><tr><th>Modo</th><th>Cuándo aplica</th><th>Qué se necesita</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Texto libre</strong></td>
+        <td>El lead te escribió en las últimas 24 horas</td>
+        <td>Solo el Access Token de WhatsApp</td>
+      </tr>
+      <tr>
+        <td><strong>Plantilla aprobada</strong></td>
+        <td>Primer contacto o más de 24hs sin respuesta</td>
+        <td>Plantilla aprobada en Meta Business Manager</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <p>WhatsApp no permite enviar mensajes comerciales a personas que no te escribieron primero (o que pasaron más de 24hs sin responder) usando texto libre. Para esos casos <strong>es obligatorio usar una plantilla aprobada por Meta</strong>. Este proceso tiene un tiempo de aprobación de 24-48hs y lo gestiona el administrador.</p>
+  </div>
+
+  <h3>Detección de sesión activa</h3>
+  <p>Cuando un lead te escribe por WhatsApp, el sistema recibe la notificación automáticamente (via webhook) y registra la fecha y hora. Mientras esa sesión esté activa (menos de 24hs), el agente puede enviar cualquier mensaje libremente. El sistema gestiona esto de forma transparente.</p>
+
+  <!-- IA -->
+  <h2 id="ia">Integración de inteligencia artificial</h2>
+  <p>InmoFollow incluye un generador de mensajes con IA basado en <strong>Claude (Anthropic)</strong>. Al crear una plantilla, el agente o administrador puede describir qué tipo de mensaje quiere y la IA genera el texto completo, adaptado al canal (WhatsApp o email) y al tono del negocio inmobiliario.</p>
+  <p>La clave de API de Anthropic se configura desde el panel de <em>Mi empresa</em>. Cada empresa usa su propia clave, por lo que el costo del uso de IA corre por cuenta de la empresa.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">🤖</span>
+    <p>La IA es opcional. El sistema funciona perfectamente sin ella; simplemente se escribe el mensaje manualmente en las plantillas.</p>
+  </div>
+
+  <!-- IMPORTACIÓN -->
+  <h2 id="importacion">Importación de leads</h2>
+  <p>El sistema acepta importaciones masivas de leads en formato <strong>CSV</strong>. El administrador puede subir un archivo exportado desde otro sistema (por ejemplo, el CRM actual) y los leads se cargan automáticamente.</p>
+
+  <h3>Campos que se pueden importar</h3>
+  <ul>
+    <li><strong>Nombre</strong> (requerido)</li>
+    <li>Teléfono, email</li>
+    <li>Zona, tipo de propiedad, origen</li>
+    <li>Estado del lead, agente asignado</li>
+    <li>Consentimiento de WhatsApp y email</li>
+    <li>Notas iniciales</li>
+  </ul>
+  <p>Los campos de texto libre (zona, tipo, origen) aceptan cualquier valor, por lo que una importación desde un sistema externo no requiere ajuste previo de las opciones.</p>
+
+  <!-- ROLES -->
+  <h2 id="roles">Roles de usuario</h2>
+  <table>
+    <thead><tr><th>Rol</th><th>Qué puede hacer</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Administrador</strong></td>
+        <td>Acceso total: configuración de la empresa, WhatsApp, IA, todos los leads, usuarios, plantillas globales, secuencias, importaciones y logs.</td>
+      </tr>
+      <tr>
+        <td><strong>Supervisor</strong></td>
+        <td>Acceso a todos los leads y mensajes del equipo. Puede ver reportes y actividad. No puede modificar la configuración de la empresa.</td>
+      </tr>
+      <tr>
+        <td><strong>Agente</strong></td>
+        <td>Ve y gestiona solo sus leads asignados. Puede crear plantillas personales, enviar mensajes y ver el historial de sus leads.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- INTEGRACIONES FUTURAS -->
+  <h2 id="integraciones">Integraciones futuras</h2>
+  <p>El sistema está preparado para conectarse con fuentes externas de leads. Cuando estén disponibles los endpoints correspondientes, se agregarán las siguientes integraciones:</p>
+
+  <table>
+    <thead><tr><th>Integración</th><th>Estado</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>2clics.app</strong></td>
+        <td><span class="tag amber">En desarrollo</span></td>
+        <td>Sincronización de leads desde el CRM 2clics directamente a InmoFollow.</td>
+      </tr>
+      <tr>
+        <td><strong>MercadoLibre</strong></td>
+        <td><span class="tag amber">En desarrollo</span></td>
+        <td>Importación automática de consultas recibidas en MercadoLibre Inmuebles.</td>
+      </tr>
+      <tr>
+        <td><strong>CSV / manual</strong></td>
+        <td><span class="tag green">Disponible</span></td>
+        <td>Importación desde archivo. Compatible con exportaciones de la mayoría de CRMs.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <span class="callout-icon">🔌</span>
+    <p>El diseño del sistema permite agregar nuevas fuentes de leads con cambios mínimos, ya que la estructura de importación es genérica.</p>
+  </div>
+
+  <!-- REQUISITOS -->
+  <h2 id="requisitos">Requisitos técnicos</h2>
+  <ul>
+    <li><strong>Servidor:</strong> PHP 8.3+, SQLite (incluido) o MySQL, acceso SSH, soporte de cron jobs</li>
+    <li><strong>WhatsApp Business:</strong> Cuenta de Meta Business Manager verificada, número de teléfono habilitado para la API</li>
+    <li><strong>Para plantillas aprobadas:</strong> WhatsApp Business Account ID (WABA ID)</li>
+    <li><strong>Para la IA (opcional):</strong> Clave de API de Anthropic (claude.ai/settings)</li>
+    <li><strong>Para envíos automáticos:</strong> Cron job configurado en el servidor</li>
+  </ul>
+
+  <!-- LIMITACIONES -->
+  <h2 id="limitaciones">Limitaciones actuales</h2>
+  <table>
+    <thead><tr><th>Limitación</th><th>Detalle</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Solo texto en WhatsApp</td>
+        <td>El sistema envía mensajes de texto. No envía imágenes, documentos ni botones interactivos (por ahora).</td>
+      </tr>
+      <tr>
+        <td>Un número de WhatsApp por empresa</td>
+        <td>La empresa tiene un único número de WhatsApp Business configurado. Multi-número no está implementado.</td>
+      </tr>
+      <tr>
+        <td>Plantillas Meta: aprobación manual</td>
+        <td>Las plantillas aprobadas por Meta deben crearse manualmente en Meta Business Manager. El proceso demora 24-48hs.</td>
+      </tr>
+      <tr>
+        <td>Sin reportes avanzados</td>
+        <td>El dashboard muestra métricas básicas. No hay gráficos históricos ni exportación de reportes todavía.</td>
+      </tr>
+      <tr>
+        <td>Base de datos SQLite</td>
+        <td>En instalaciones de alto volumen (miles de leads activos simultáneos), se recomienda migrar a MySQL.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</main>
+</div>
+</body>
+</html>

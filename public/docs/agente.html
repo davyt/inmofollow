@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InmoFollow — Manual del agente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1d4ed8; --blue-light: #eff6ff;
+    --slate: #1e293b; --slate-mid: #475569; --slate-light: #94a3b8;
+    --border: #e2e8f0; --bg: #f8fafc; --white: #ffffff;
+    --green: #15803d; --amber: #b45309; --red: #b91c1c;
+  }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--slate); line-height: 1.7; }
+  a { color: var(--blue); }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 260px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); padding: 32px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .content { flex: 1; padding: 48px 48px 80px; max-width: 820px; }
+  @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; padding: 20px; } .content { padding: 24px 20px 60px; } }
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--blue); margin-bottom: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-back { font-size: 13px; color: var(--slate-light); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 20px; }
+  .sidebar-back:hover { color: var(--blue); }
+  .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+  .sidebar nav a { font-size: 13px; color: var(--slate-mid); text-decoration: none; padding: 7px 12px; border-radius: 8px; display: block; }
+  .sidebar nav a:hover { background: var(--bg); color: var(--slate); }
+  .sidebar-section { font-size: 11px; font-weight: 600; color: var(--slate-light); letter-spacing: .08em; text-transform: uppercase; padding: 16px 12px 6px; }
+  .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .page-label { font-size: 12px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .page-title { font-size: clamp(24px, 3vw, 36px); font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+  .page-subtitle { color: var(--slate-mid); font-size: 17px; }
+  h2 { font-size: 22px; font-weight: 700; margin-top: 52px; margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
+  h3 { font-size: 16px; font-weight: 600; margin-top: 28px; margin-bottom: 10px; }
+  p  { margin-bottom: 14px; color: var(--slate-mid); font-size: 15px; }
+  ul, ol { margin: 12px 0 16px 20px; color: var(--slate-mid); font-size: 15px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--slate); font-weight: 600; }
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 20px 0; display: flex; gap: 12px; font-size: 14px; }
+  .callout.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+  .callout.warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .callout.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .callout p { margin: 0; color: inherit; font-size: 14px; }
+
+  /* SCREEN MOCKUP */
+  .screen { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .screen-bar { background: #f1f5f9; border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; gap: 6px; }
+  .screen-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+  .screen-body { padding: 20px; }
+
+  /* STAT CARDS DEMO */
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat-card { border-radius: 10px; padding: 14px 16px; }
+  .stat-card.blue   { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .stat-card.orange { background: #fffbeb; border: 1px solid #fde68a; }
+  .stat-card.red    { background: #fef2f2; border: 1px solid #fecaca; }
+  .stat-card.green  { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .stat-num { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-card.blue   .stat-num { color: #1d4ed8; }
+  .stat-card.orange .stat-num { color: #b45309; }
+  .stat-card.red    .stat-num { color: #b91c1c; }
+  .stat-card.green  .stat-num { color: #15803d; }
+  .stat-label { font-size: 12px; color: var(--slate-mid); margin-top: 4px; }
+
+  /* TABLE DEMO */
+  .demo-table { width: 100%; font-size: 13px; }
+  .demo-table th { background: #f8fafc; padding: 8px 12px; text-align: left; font-weight: 600; color: var(--slate); border-bottom: 1px solid var(--border); }
+  .demo-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--slate-mid); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge.red    { background: #fef2f2; color: #b91c1c; }
+  .badge.orange { background: #fffbeb; color: #b45309; }
+  .badge.blue   { background: #eff6ff; color: #1d4ed8; }
+  .badge.green  { background: #f0fdf4; color: #15803d; }
+  .badge.gray   { background: #f1f5f9; color: #475569; }
+
+  /* ACTION BUTTONS DEMO */
+  .action-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid; cursor: default; }
+  .action-btn.green-btn { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+  .action-btn.gray-btn  { background: #f1f5f9; border-color: var(--border); color: #475569; }
+  .action-btn.blue-btn  { background: var(--blue-light); border-color: #bfdbfe; color: var(--blue); }
+
+  /* FLOW INLINE */
+  .mini-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+  .mini-step { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 500; }
+  .mini-arrow { color: var(--slate-light); font-size: 18px; }
+
+  /* FAQ */
+  .faq { margin: 16px 0; }
+  .faq-item { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .faq-q { padding: 14px 18px; font-size: 15px; font-weight: 600; background: var(--white); cursor: default; }
+  .faq-a { padding: 12px 18px 16px; font-size: 14px; color: var(--slate-mid); background: var(--bg); border-top: 1px solid var(--border); }
+  .faq-a p { margin: 0; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">🏠 InmoFollow</div>
+  <a class="sidebar-back" href="index.html">← Volver al índice</a>
+  <nav>
+    <div class="sidebar-section">Primeros pasos</div>
+    <a href="#acceso">Ingresar al sistema</a>
+    <a href="#escritorio">El escritorio</a>
+    <div class="sidebar-section">Leads</div>
+    <a href="#ver-leads">Ver mis leads</a>
+    <a href="#enviar">Enviar un mensaje ahora</a>
+    <a href="#historial">Historial del lead</a>
+    <a href="#notas">Agregar notas</a>
+    <div class="sidebar-section">Mensajes</div>
+    <a href="#automatico">Envío automático</a>
+    <a href="#programados">Mensajes programados</a>
+    <a href="#plantillas">Mis plantillas</a>
+    <div class="sidebar-section">Ayuda</div>
+    <a href="#faq">Preguntas frecuentes</a>
+  </nav>
+</aside>
+
+<main class="content">
+
+  <div class="page-header">
+    <div class="page-label">Manual del agente</div>
+    <h1 class="page-title">Cómo usar InmoFollow</h1>
+    <p class="page-subtitle">Todo lo que necesitás saber para gestionar tus leads y mensajes día a día.</p>
+  </div>
+
+  <!-- ACCESO -->
+  <h2 id="acceso">Ingresar al sistema</h2>
+  <p>El administrador te va a dar un email y una contraseña. Con esos datos entrás en:</p>
+  <div style="background: var(--blue); border-radius: 10px; padding: 16px 20px; margin: 16px 0;">
+    <p style="color: rgba(255,255,255,.7); font-size: 13px; margin: 0 0 4px;">URL del sistema</p>
+    <code style="color: #fff; font-size: 16px; font-family: monospace; background: none;">/davyt/login</code>
+  </div>
+  <p>Si olvidaste tu contraseña, contactá al administrador — puede generarte una nueva directamente desde el panel de usuarios.</p>
+
+  <!-- ESCRITORIO -->
+  <h2 id="escritorio">El escritorio</h2>
+  <p>Lo primero que ves al entrar es el escritorio. Te muestra un resumen de tu situación actual.</p>
+
+  <div class="screen">
+    <div class="screen-bar"><div class="screen-dot"></div><div class="screen-dot"></div><div class="screen-dot"></div></div>
+    <div class="screen-body">
+      <p style="font-size: 22px; font-weight: 700; margin-bottom: 4px;">Buenos días, María.</p>
+      <p style="font-size: 13px; color: var(--slate-light); margin-bottom: 20px;">Aquí están tus leads y seguimientos pendientes para hoy.</p>
+      <div class="stat-row">
+        <div class="stat-card blue"><div class="stat-num">42</div><div class="stat-label">Mis leads</div></div>
+        <div class="stat-card orange"><div class="stat-num">5</div><div class="stat-label">Para hoy</div></div>
+        <div class="stat-card red"><div class="stat-num">3</div><div class="stat-label">Vencidos</div></div>
+        <div class="stat-card green"><div class="stat-num">18</div><div class="stat-label">Enviados esta semana</div></div>
+      </div>
+      <table class="demo-table">
+        <thead><tr><th>Seguimiento</th><th>Lead</th><th>Zona</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge red">Ayer 10:00</span></td><td>Juan Pérez</td><td>Pocitos</td><td><span class="badge blue">En seguimiento</span></td><td><span class="action-btn blue-btn">Ver lead</span></td></tr>
+          <tr><td><span class="badge orange">Hoy 14:00</span></td><td>Laura Díaz</td><td>Carrasco</td><td><span class="badge green">Calificado</span></td><td><span class="action-btn blue-btn">Ver lead</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Qué significa cada número</h3>
+  <ul>
+    <li><strong>Mis leads (azul):</strong> total de leads que tenés asignados y habilitados para contactar.</li>
+    <li><strong>Para hoy (naranja):</strong> leads que tenés que contactar hoy según el seguimiento programado.</li>
+    <li><strong>Vencidos (rojo):</strong> leads con seguimiento que no se hizo a tiempo. Necesitan atención urgente.</li>
+    <li><strong>Enviados esta semana (verde):</strong> mensajes de WhatsApp que salieron esta semana.</li>
+  </ul>
+
+  <p>La tabla de abajo te muestra los leads a contactar ordenados por urgencia. Hacé clic en <strong>"Ver lead"</strong> para ir directamente al perfil del lead.</p>
+
+  <!-- VER LEADS -->
+  <h2 id="ver-leads">Ver mis leads</h2>
+  <p>Desde el menú lateral → <strong>Leads</strong> verás la lista completa de tus leads asignados.</p>
+
+  <h3>Filtros útiles</h3>
+  <ul>
+    <li><strong>Estado:</strong> para ver solo los que están en una etapa específica (ej: "Nuevo", "En seguimiento")</li>
+    <li><strong>Seguimiento vencido:</strong> para ver los que debías contactar y no lo hiciste aún</li>
+    <li><strong>Acepta WhatsApp:</strong> para ver solo los que dieron consentimiento</li>
+    <li><strong>Rango de seguimiento:</strong> para ver quién tiene seguimiento entre dos fechas</li>
+  </ul>
+
+  <h3>Editar un lead</h3>
+  <p>Hacé clic en el ícono de editar (lápiz) junto a cualquier lead para ver y modificar su información: zona, tipo de propiedad, estado, próximo seguimiento, notas, etc.</p>
+
+  <!-- ENVIAR MENSAJE -->
+  <h2 id="enviar">Enviar un mensaje ahora</h2>
+  <p>Para enviar un mensaje de WhatsApp a un lead en este momento, hacé clic en el ícono de avión de papel <strong>✈</strong> que aparece en la fila del lead.</p>
+
+  <div class="mini-flow">
+    <div class="mini-step">Clic en ✈ (Enviar ahora)</div>
+    <div class="mini-arrow">→</div>
+    <div class="mini-step">Elegí una plantilla</div>
+    <div class="mini-arrow">→</div>
+    <div class="mini-step">Revisá la vista previa</div>
+    <div class="mini-arrow">→</div>
+    <div class="mini-step">Clic en Enviar</div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">👁</span>
+    <p>La <strong>vista previa</strong> te muestra exactamente cómo va a llegar el mensaje, con el nombre real del lead ya incluido. Revisala antes de enviar.</p>
+  </div>
+
+  <h3>¿Por qué a veces no puedo enviar?</h3>
+  <p>El botón de enviar puede no estar disponible en estos casos:</p>
+  <ul>
+    <li>El lead no tiene teléfono cargado</li>
+    <li>El lead tiene marcado "No contactar"</li>
+    <li>El lead no dio consentimiento de WhatsApp</li>
+  </ul>
+  <p>Si ves el mensaje <em>"No podés enviar un mensaje ahora"</em> en el modal, significa que el lead no te escribió en las últimas 24hs y no hay plantillas de primer contacto configuradas. En ese caso, el sistema ya tiene mensajes programados automáticos — no hace falta que hagas nada.</p>
+
+  <!-- HISTORIAL -->
+  <h2 id="historial">Historial del lead</h2>
+  <p>Desde la tabla de leads, hacé clic en el ícono de reloj 🕐 (<strong>Historial</strong>) para ver todo lo que pasó con ese lead:</p>
+  <ul>
+    <li>Mensajes enviados (con fecha y contenido)</li>
+    <li>Notas que agregaste</li>
+    <li>Acciones del sistema (mensajes automáticos, cambios de estado)</li>
+  </ul>
+  <p>Todo está ordenado del más reciente al más antiguo para que veas el estado actual de inmediato.</p>
+
+  <!-- NOTAS -->
+  <h2 id="notas">Agregar notas</h2>
+  <p>Las notas sirven para registrar lo que pasó en una llamada, una reunión o cualquier interacción que no es por WhatsApp. Quedán guardadas en el historial del lead para que las puedas consultar cuando quieras.</p>
+  <ol>
+    <li>Entrá al historial del lead (ícono 🕐)</li>
+    <li>O directamente editá el lead y buscá la sección de notas</li>
+    <li>Escribí la nota y guardá</li>
+  </ol>
+
+  <!-- AUTOMÁTICO -->
+  <h2 id="automatico">Envío automático — cómo funciona</h2>
+  <p>El sistema envía mensajes <strong>solo</strong>, sin que tengas que hacer nada. Así funciona:</p>
+
+  <div class="callout success">
+    <span class="callout-icon">🤖</span>
+    <p>Cuando a un lead se le asigna una secuencia (por su estado), el sistema crea automáticamente los mensajes programados y los envía en los momentos indicados. Vos solo tenés que mantener el estado del lead actualizado.</p>
+  </div>
+
+  <p>Por ejemplo, si tu empresa tiene configurada una secuencia para leads en estado "Nuevo":</p>
+  <div class="mini-flow">
+    <div class="mini-step">Lead entra como "Nuevo"</div>
+    <div class="mini-arrow">→</div>
+    <div class="mini-step">Sistema crea mensajes: día 1, día 3, día 7</div>
+    <div class="mini-arrow">→</div>
+    <div class="mini-step">Los envía automáticamente</div>
+  </div>
+
+  <p>Si el lead responde, vos seguís la conversación directamente por WhatsApp o podés enviar mensajes adicionales con el botón de enviar ahora.</p>
+
+  <!-- MENSAJES PROGRAMADOS -->
+  <h2 id="programados">Mensajes programados</h2>
+  <p>Desde el menú → <strong>Mensajes programados</strong> podés ver todos los mensajes que el sistema tiene planificados para tus leads.</p>
+  <ul>
+    <li><span class="badge gray">Pendiente</span> — todavía no se envió, está en la cola</li>
+    <li><span class="badge green">Enviado</span> — se envió correctamente</li>
+    <li><span class="badge red">Fallido</span> — hubo un error al enviar (avisá al administrador)</li>
+    <li><span class="badge gray">Cancelado</span> — el mensaje se canceló (el lead fue marcado como "no contactar", etc.)</li>
+  </ul>
+
+  <!-- PLANTILLAS PERSONALES -->
+  <h2 id="plantillas">Mis plantillas personales</h2>
+  <p>Además de las plantillas globales que configuró el administrador, podés crear tus propias plantillas para usarlas cuando enviás mensajes puntuales.</p>
+
+  <h3>Crear una plantilla personal</h3>
+  <ol>
+    <li>Ir a <em>Plantillas de mensajes</em> → <em>Nueva plantilla</em></li>
+    <li>El tipo se fija automáticamente en <strong>Personal</strong></li>
+    <li>Escribí el nombre y el mensaje. Podés usar las variables:</li>
+  </ol>
+
+  <div style="background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 12px 0; font-size: 14px; color: var(--slate-mid);">
+    <code style="color: var(--blue);">{{nombre}}</code> → nombre del lead &nbsp;|&nbsp;
+    <code style="color: var(--blue);">{{zona}}</code> → zona que busca &nbsp;|&nbsp;
+    <code style="color: var(--blue);">{{agente}}</code> → tu nombre
+  </div>
+
+  <h3>Generar el texto con IA (si está activada)</h3>
+  <p>Si el administrador configuró la IA, vas a ver un botón <strong>"Generar con IA"</strong> al crear una plantilla. Describí qué tipo de mensaje querés y la IA lo redacta por vos. Podés ajustar el texto después.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">💡</span>
+    <p>Tus plantillas personales <strong>solo las ves vos</strong>. No aparecen para otros agentes. Son tuyas para usar cuando querés contactar a tus propios leads.</p>
+  </div>
+
+  <!-- FAQ -->
+  <h2 id="faq">Preguntas frecuentes</h2>
+
+  <div class="faq">
+    <div class="faq-item">
+      <div class="faq-q">¿Por qué no veo todos los leads?</div>
+      <div class="faq-a"><p>Solo ves los leads que el administrador te asignó. Si falta alguno, pedile al admin que te lo asigne.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Qué pasa si el sistema envía un mensaje y el lead no lo recibe?</div>
+      <div class="faq-a"><p>El mensaje quedará como "Fallido" en mensajes programados. Avisale al administrador para que revise la conexión con WhatsApp.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Puedo enviar mensajes a cualquier hora?</div>
+      <div class="faq-a"><p>Sí, podés enviarlo cuando quieras con el botón "Enviar ahora". Para los mensajes automáticos, el horario lo configuró el administrador en la secuencia.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿El lead sabe que los mensajes son automáticos?</div>
+      <div class="faq-a"><p>No. Los mensajes llegan desde el número de WhatsApp de tu empresa, igual que si los hubieras enviado manualmente.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Cómo cambio mi contraseña?</div>
+      <div class="faq-a"><p>Por ahora el administrador puede cambiártela. Contactalo si necesitás resetearla.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Puedo ver los mensajes que se enviaron automáticamente?</div>
+      <div class="faq-a"><p>Sí. En el historial del lead (ícono 🕐) aparecen todos los mensajes enviados, automáticos y manuales, con fecha y hora.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Qué hago si un lead me dice que no quiere más mensajes?</div>
+      <div class="faq-a"><p>Editá el lead y activá la opción <strong>"No contactar"</strong>. El sistema deja de enviarle mensajes automáticamente.</p></div>
+    </div>
+  </div>
+
+</main>
+</div>
+</body>
+</html>
