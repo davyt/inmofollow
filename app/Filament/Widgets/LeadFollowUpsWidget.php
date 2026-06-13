@@ -5,7 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Resources\Leads\LeadResource;
 use App\Models\Lead;
 use Carbon\Carbon;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
