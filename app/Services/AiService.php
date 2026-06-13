@@ -12,7 +12,7 @@ class AiService
         $apiKey = config('services.anthropic.api_key');
 
         if (empty($apiKey)) {
-            throw new RuntimeException('La API key de Anthropic no está configurada (ANTHROPIC_API_KEY).');
+            throw new RuntimeException('La función de IA no está activada. El administrador del servidor debe configurar la variable ANTHROPIC_API_KEY en el archivo .env.');
         }
 
         $channelLabel = match ($channel) {
@@ -25,7 +25,7 @@ class AiService
             'x-api-key'         => $apiKey,
             'anthropic-version' => '2023-06-01',
         ])->timeout(30)->post('https://api.anthropic.com/v1/messages', [
-            'model'      => 'claude-haiku-4-5-20251001',
+            'model'      => config('services.anthropic.model', 'claude-haiku-4-5-20251001'),
             'max_tokens' => 1024,
             'system'     => $this->systemPrompt(),
             'messages'   => [

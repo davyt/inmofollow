@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Leads\Tables;
 
+use App\Filament\Resources\Companies\CompanyResource;
 use App\Models\ActivityLog;
 use App\Models\Company;
 use App\Models\Lead;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Services\FollowUpGenerator;
 use App\Services\WhatsAppService;
 use App\Support\Activity;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -19,8 +21,9 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Utilities\Get;
+use Filament\Notifications\Actions\Action as NotificationAction;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -84,8 +87,20 @@ class LeadsTable
 
                 TextColumn::make('next_follow_up_at')
                     ->label('Próximo seguimiento')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->description(fn ($state): ?string => match(true) {
+                        ! $state                                      => null,
+                        Carbon::parse($state)->isToday()              => 'Para hoy',
+                        Carbon::parse($state)->isPast()               => 'Vencido',
+                        default                                        => null,
+                    })
+                    ->color(fn ($state): string => match(true) {
+                        ! $state                                      => 'gray',
+                        Carbon::parse($state)->isToday()              => 'warning',
+                        Carbon::parse($state)->isPast()               => 'danger',
+                        default                                        => 'success',
+                    }),
 
                 TextColumn::make('created_at')
                     ->label('Creado')
@@ -221,11 +236,21 @@ class LeadsTable
                         $company = Company::find($record->company_id);
 
                         if (! $company?->hasWhatsApp()) {
-                            Notification::make()
+                            $notification = Notification::make()
                                 ->title('WhatsApp no configurado')
-                                ->body('Configurá las credenciales de WhatsApp en la empresa antes de enviar.')
-                                ->danger()
-                                ->send();
+                                ->body('Completá las credenciales en Configuración → Mi empresa para poder enviar mensajes.')
+                                ->danger();
+
+                            if (auth()->user()?->isAdmin()) {
+                                $notification->actions([
+                                    NotificationAction::make('configure')
+                                        ->label('Ir a Mi empresa')
+                                        ->url(CompanyResource::getUrl('edit', ['record' => $record->company_id]))
+                                        ->button(),
+                                ]);
+                            }
+
+                            $notification->send();
                             return;
                         }
 

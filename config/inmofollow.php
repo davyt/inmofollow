@@ -5,5 +5,5 @@ return [
 
     'default_company_name' => 'Artigue Negocios Inmobiliarios',
 
-    'allow_company_management' => false,
+    'allow_company_management' => true,
 ];

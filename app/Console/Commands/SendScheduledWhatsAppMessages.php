@@ -35,7 +35,7 @@ class SendScheduledWhatsAppMessages extends Command
                 continue;
             }
 
-            if (! $lead->phone || $lead->do_not_contact) {
+            if (! $lead->phone || $lead->do_not_contact || ! $lead->whatsapp_consent) {
                 $message->update(['status' => 'cancelled']);
                 continue;
             }

@@ -20,14 +20,14 @@ class CompanyResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     
-    protected static ?string $modelLabel = 'inmobiliaria';
-    
-    protected static ?string $pluralModelLabel = 'inmobiliarias';
-    
-    protected static ?string $navigationLabel = 'Inmobiliarias';
-    
+    protected static ?string $modelLabel = 'empresa';
+
+    protected static ?string $pluralModelLabel = 'empresas';
+
+    protected static ?string $navigationLabel = 'Mi empresa';
+
     protected static ?int $navigationSort = 10;
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Configuración';

@@ -71,7 +71,8 @@ class MessageTemplateForm
 
                 TextInput::make('subject')
                     ->label('Asunto')
-                    ->helperText('Solo aplica para email.')
+                    ->helperText('Requerido para email. No aplica para WhatsApp.')
+                    ->required(fn (Get $get): bool => $get('channel') === 'email')
                     ->nullable(),
 
                 Textarea::make('body')
