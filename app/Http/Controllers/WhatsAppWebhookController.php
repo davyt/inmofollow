@@ -23,6 +23,10 @@ class WhatsAppWebhookController extends Controller
 
     public function receive(Request $request): Response
     {
+        if (! $this->signatureIsValid($request)) {
+            return response('Unauthorized', 401);
+        }
+
         foreach (data_get($request->all(), 'entry', []) as $entry) {
             foreach (data_get($entry, 'changes', []) as $change) {
                 foreach (data_get($change, 'value.statuses', []) as $status) {
@@ -32,6 +36,21 @@ class WhatsAppWebhookController extends Controller
         }
 
         return response('OK', 200);
+    }
+
+    private function signatureIsValid(Request $request): bool
+    {
+        $secret = config('services.whatsapp.app_secret');
+
+        // Si no hay app_secret configurado, se omite la validación (útil en desarrollo)
+        if (empty($secret)) {
+            return true;
+        }
+
+        $signature = $request->header('X-Hub-Signature-256', '');
+        $expected  = 'sha256=' . hash_hmac('sha256', $request->getContent(), $secret);
+
+        return hash_equals($expected, $signature);
     }
 
     private function handleStatusUpdate(array $status): void
