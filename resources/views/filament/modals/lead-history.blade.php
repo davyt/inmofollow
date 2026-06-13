@@ -1,38 +1,30 @@
-<div style="display: flex; flex-direction: column; gap: 22px;">
+<div style="display: flex; flex-direction: column; gap: 20px;">
 
+    {{-- Lead info card --}}
     <div style="border: 1px solid #374151; background: rgba(17, 24, 39, 0.75); border-radius: 12px; padding: 16px;">
         <div style="font-size: 13px; color: #9ca3af; margin-bottom: 8px;">Lead / Propietario</div>
-
-        <div style="font-size: 18px; color: #ffffff; font-weight: 700; margin-bottom: 10px;">
-            {{ $record->name }}
-        </div>
-
+        <div style="font-size: 18px; color: #ffffff; font-weight: 700; margin-bottom: 10px;">{{ $record->name }}</div>
         <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
             <div>
                 <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Teléfono</div>
                 <div style="color: #ffffff;">{{ $record->phone ?: '-' }}</div>
             </div>
-
             <div>
                 <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Email</div>
                 <div style="color: #ffffff;">{{ $record->email ?: '-' }}</div>
             </div>
-
             <div>
                 <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Estado comercial</div>
                 <div style="color: #ffffff;">{{ $record->leadStatus?->name ?? '-' }}</div>
             </div>
-
             <div>
                 <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Agente</div>
                 <div style="color: #ffffff;">{{ $record->user?->name ?? '-' }}</div>
             </div>
-
             <div>
                 <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Zona</div>
                 <div style="color: #ffffff;">{{ $record->zone ?: '-' }}</div>
             </div>
-
             <div>
                 <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Tipo de propiedad</div>
                 <div style="color: #ffffff;">{{ $record->property_type ?: '-' }}</div>
@@ -40,78 +32,52 @@
         </div>
     </div>
 
+    {{-- Timeline --}}
     <div style="border: 1px solid #374151; background: rgba(17, 24, 39, 0.75); border-radius: 12px; padding: 16px;">
-        <div style="font-size: 15px; color: #ffffff; font-weight: 700; margin-bottom: 12px;">
-            Notas
-        </div>
+        <div style="font-size: 15px; color: #ffffff; font-weight: 700; margin-bottom: 16px;">Línea de tiempo</div>
 
-        @forelse ($notes as $note)
-            <div style="border-bottom: 1px solid #374151; padding: 12px 0;">
-                <div style="font-size: 12px; color: #9ca3af; margin-bottom: 6px;">
-                    {{ $note->created_at?->format('d/m/Y H:i') }} · {{ $note->user?->name ?? 'Sistema' }}
+        @forelse ($timeline as $item)
+            @php
+                $isMessage  = $item['type'] === 'message';
+                $isNote     = $item['type'] === 'note';
+                $isActivity = $item['type'] === 'activity';
+
+                $dotColor = match (true) {
+                    $isNote     => '#60a5fa',  // blue
+                    $isMessage && ($item['status'] ?? '') === 'failed' => '#f87171', // red
+                    $isMessage  => '#34d399',  // green
+                    default     => '#9ca3af',  // gray
+                };
+
+                $label = match (true) {
+                    $isNote     => 'Nota',
+                    $isMessage  => ($item['channel'] === 'whatsapp' ? 'WhatsApp' : 'Email') . (($item['status'] ?? '') === 'failed' ? ' (fallido)' : ' enviado'),
+                    default     => 'Actividad',
+                };
+
+                $date = $item['date'] ? \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') : '-';
+            @endphp
+
+            <div style="display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid #1f2937;">
+                {{-- Dot --}}
+                <div style="flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-top: 4px;">
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: {{ $dotColor }};"></div>
                 </div>
-                <div style="color: #ffffff; line-height: 1.55; white-space: pre-line;">
-                    {{ $note->note }}
-                </div>
-            </div>
-        @empty
-            <div style="color: #9ca3af;">Este lead todavía no tiene notas.</div>
-        @endforelse
-    </div>
 
-    <div style="border: 1px solid #374151; background: rgba(17, 24, 39, 0.75); border-radius: 12px; padding: 16px;">
-        <div style="font-size: 15px; color: #ffffff; font-weight: 700; margin-bottom: 12px;">
-            Mensajes programados
-        </div>
-
-        @forelse ($messages as $message)
-            <div style="border-bottom: 1px solid #374151; padding: 12px 0;">
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
-                    <span style="border-radius: 999px; background: rgba(245, 158, 11, .15); color: #facc15; padding: 4px 10px; font-size: 12px; font-weight: 700;">
-                        {{ $message->channel === 'whatsapp' ? 'WhatsApp' : 'Email' }}
-                    </span>
-
-                    <span style="border-radius: 999px; background: rgba(59, 130, 246, .15); color: #93c5fd; padding: 4px 10px; font-size: 12px; font-weight: 700;">
-                        {{ match ($message->status) {
-                            'pending' => 'Pendiente',
-                            'sent' => 'Enviado',
-                            'cancelled' => 'Cancelado',
-                            'failed' => 'Fallido',
-                            default => $message->status,
-                        } }}
-                    </span>
-
-                    <span style="color: #9ca3af; font-size: 12px;">
-                        Programado:
-                        @if ($message->scheduled_for)
-                            {{ \Illuminate\Support\Carbon::parse($message->scheduled_for)->format('d/m/Y H:i') }}
-                        @else
-                            Sin fecha
+                {{-- Content --}}
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                        <span style="font-size: 11px; font-weight: 700; color: {{ $dotColor }}; text-transform: uppercase; letter-spacing: .05em;">
+                            {{ $label }}
+                        </span>
+                        <span style="font-size: 11px; color: #6b7280;">{{ $date }}</span>
+                        @if ($item['actor'] ?? null)
+                            <span style="font-size: 11px; color: #6b7280;">· {{ $item['actor'] }}</span>
                         @endif
-                    </span>
-                </div>
-
-                <div style="color: #ffffff; line-height: 1.55; white-space: pre-line;">
-                    {{ $message->message_body }}
-                </div>
-            </div>
-        @empty
-            <div style="color: #9ca3af;">Este lead todavía no tiene mensajes programados.</div>
-        @endforelse
-    </div>
-
-    <div style="border: 1px solid #374151; background: rgba(17, 24, 39, 0.75); border-radius: 12px; padding: 16px;">
-        <div style="font-size: 15px; color: #ffffff; font-weight: 700; margin-bottom: 12px;">
-            Actividad registrada
-        </div>
-
-        @forelse ($activities as $activity)
-            <div style="border-bottom: 1px solid #374151; padding: 10px 0;">
-                <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">
-                    {{ $activity->created_at?->format('d/m/Y H:i') }} · {{ $activity->user?->name ?? 'Sistema' }}
-                </div>
-                <div style="color: #ffffff;">
-                    {{ $activity->description ?: $activity->event }}
+                    </div>
+                    <div style="color: #d1d5db; font-size: 13px; line-height: 1.6; white-space: pre-line; word-break: break-word;">
+                        {{ $item['text'] }}
+                    </div>
                 </div>
             </div>
         @empty

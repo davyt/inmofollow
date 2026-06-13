@@ -9,9 +9,12 @@ class Company extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'active'          => 'boolean',
-        'wa_active'       => 'boolean',
-        'wa_access_token' => 'encrypted',
+        'active'                => 'boolean',
+        'wa_active'             => 'boolean',
+        'wa_access_token'       => 'encrypted',
+        'zone_options'          => 'array',
+        'property_type_options' => 'array',
+        'lead_source_options'   => 'array',
     ];
 
     public function hasWhatsApp(): bool

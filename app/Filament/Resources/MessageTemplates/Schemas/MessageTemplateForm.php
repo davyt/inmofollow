@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\MessageTemplates\Schemas;
 
+use App\Models\User;
 use App\Services\AiService;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -13,7 +15,6 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
-use App\Models\User;
 
 class MessageTemplateForm
 {
@@ -80,6 +81,29 @@ class MessageTemplateForm
                     ->rows(8)
                     ->columnSpanFull()
                     ->hintActions([
+                        Action::make('previewTemplate')
+                            ->label('Previsualizar')
+                            ->icon('heroicon-o-eye')
+                            ->color('gray')
+                            ->modalHeading('Vista previa del mensaje')
+                            ->modalDescription('Variables sustituidas con datos de ejemplo.')
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Cerrar')
+                            ->form(function (Get $get): array {
+                                $body = $get('body') ?: '';
+                                $preview = str_replace(
+                                    ['{{nombre}}', '{{zona}}', '{{tipo_propiedad}}', '{{agente}}'],
+                                    ['María García', 'Pocitos', 'Apartamento', 'Carlos Rodríguez'],
+                                    $body,
+                                );
+                                return [
+                                    Placeholder::make('preview_content')
+                                        ->label('Mensaje con datos de ejemplo')
+                                        ->content($preview ?: 'Escribí el cuerpo del mensaje primero.'),
+                                ];
+                            })
+                            ->action(fn () => null),
+
                         Action::make('generateWithAi')
                             ->label('Generar con IA')
                             ->icon('heroicon-o-sparkles')

@@ -2,18 +2,26 @@
 
 namespace App\Filament\Resources\Leads\Schemas;
 
+use App\Models\Company;
 use App\Models\LeadStatus;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\Hidden;
 
 class LeadForm
 {
+    private static function companyOptions(string $field, array $defaults = []): array
+    {
+        $company = Company::find(config('inmofollow.default_company_id', 1));
+        $options = $company?->{$field} ?? $defaults;
+        return collect($options)->mapWithKeys(fn ($v) => [$v => $v])->toArray();
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -60,17 +68,24 @@ class LeadForm
                     ->email()
                     ->default(null),
 
-                TextInput::make('property_type')
+                Select::make('property_type')
                     ->label('Tipo de propiedad')
-                    ->default(null),
+                    ->options(fn () => self::companyOptions('property_type_options'))
+                    ->searchable()
+                    ->nullable(),
 
-                TextInput::make('zone')
+                Select::make('zone')
                     ->label('Zona')
-                    ->default(null),
+                    ->options(fn () => self::companyOptions('zone_options'))
+                    ->searchable()
+                    ->nullable(),
 
-                TextInput::make('source')
+                Select::make('source')
                     ->label('Origen')
-                    ->default('Manual'),
+                    ->options(fn () => self::companyOptions('lead_source_options', ['Manual']))
+                    ->searchable()
+                    ->default('Manual')
+                    ->nullable(),
 
                 Textarea::make('notes')
                     ->label('Observaciones')
