@@ -39,6 +39,11 @@ class CompanyForm
                     ->helperText('Activá solo cuando tengas configuradas las credenciales de abajo.')
                     ->default(false),
 
+                TextInput::make('wa_business_account_id')
+                    ->label('WhatsApp: Business Account ID (WABA ID)')
+                    ->helperText('Meta Business Manager → Configuración → ID de cuenta de WhatsApp Business. Necesario para ver tus plantillas aprobadas desde el sistema.')
+                    ->nullable(),
+
                 TextInput::make('wa_phone_number_id')
                     ->label('WhatsApp: Phone Number ID')
                     ->helperText('Meta for Developers → Tu App → WhatsApp → Configuración de la API → Phone Number ID')

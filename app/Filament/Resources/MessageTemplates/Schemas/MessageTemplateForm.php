@@ -8,12 +8,14 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 
 class MessageTemplateForm
@@ -143,6 +145,48 @@ class MessageTemplateForm
                     ->label('Activa')
                     ->default(true)
                     ->required(),
+
+                Section::make('Plantilla aprobada de Meta (WhatsApp)')
+                    ->description('Necesario para enviar el primer mensaje a un lead o cuando pasaron más de 24hs sin respuesta.')
+                    ->collapsible()
+                    ->collapsed(fn (Get $get): bool => empty($get('meta_template_name')))
+                    ->visible(fn (Get $get): bool => $get('channel') === 'whatsapp')
+                    ->schema([
+                        Placeholder::make('meta_info')
+                            ->label('')
+                            ->content(
+                                "Para contactar leads que nunca te escribieron (o que no respondieron en 24hs), WhatsApp exige usar una plantilla pre-aprobada por Meta.\n\n" .
+                                "Pasos:\n" .
+                                "1. Creá la plantilla en Meta Business Manager → WhatsApp → Plantillas de mensajes\n" .
+                                "2. Usá {{1}}, {{2}}, etc. para las variables (ej: \"Hola {{1}}, te contactamos por {{2}}\")\n" .
+                                "3. Esperá la aprobación de Meta (24-48hs normalmente)\n" .
+                                "4. Completá los campos de abajo con el nombre exacto de la plantilla y el orden de las variables"
+                            ),
+
+                        TextInput::make('meta_template_name')
+                            ->label('Nombre de la plantilla en Meta')
+                            ->helperText('Exactamente como aparece en Meta Business Manager (minúsculas, sin espacios). Ej: primer_contacto')
+                            ->placeholder('primer_contacto')
+                            ->nullable(),
+
+                        Select::make('meta_template_language')
+                            ->label('Idioma de la plantilla')
+                            ->options([
+                                'es_UY' => 'Español (Uruguay)',
+                                'es_AR' => 'Español (Argentina)',
+                                'es'    => 'Español (genérico)',
+                                'en_US' => 'English (US)',
+                            ])
+                            ->default('es_UY')
+                            ->required(),
+
+                        TagsInput::make('meta_template_variables')
+                            ->label('Variables en orden ({{1}}, {{2}}, ...)')
+                            ->helperText('Agregá las variables de InmoFollow en el mismo orden que las pusiste en Meta. La 1ra = {{1}}, la 2da = {{2}}, etc.')
+                            ->suggestions(['nombre', 'zona', 'tipo_propiedad', 'agente'])
+                            ->placeholder('Ej: nombre')
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 }

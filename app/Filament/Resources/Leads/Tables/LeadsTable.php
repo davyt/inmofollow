@@ -10,7 +10,7 @@ use App\Models\MessageTemplate;
 use App\Models\ScheduledMessage;
 use App\Models\User;
 use App\Services\FollowUpGenerator;
-use App\Services\WhatsAppService;
+use App\Services\MessageSender;
 use App\Support\Activity;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -190,7 +190,15 @@ class LeadsTable
                         filled($record->phone)
                     )
                     ->form(function (Lead $record): array {
+                        $sessionWarning = ! $record->hasActiveWhatsAppSession()
+                            ? '⚠ Este lead no tiene sesión activa (no te escribió en las últimas 24hs). Solo podés enviar si la plantilla tiene un nombre de Meta aprobado.'
+                            : '✓ Sesión activa — podés enviar texto libre o plantilla aprobada.';
+
                         return [
+                            Placeholder::make('session_status')
+                                ->label('Estado de sesión WhatsApp')
+                                ->content($sessionWarning),
+
                             Select::make('message_template_id')
                                 ->label('Plantilla')
                                 ->options(fn () => MessageTemplate::query()
@@ -215,39 +223,47 @@ class LeadsTable
                                     if (! $tpl) {
                                         return '-';
                                     }
-                                    return str_replace(
+
+                                    $mode = ! empty($tpl->meta_template_name)
+                                        ? "[Plantilla Meta: {$tpl->meta_template_name}]"
+                                        : '[Texto libre — requiere sesión activa]';
+
+                                    $body = str_replace(
                                         ['{{nombre}}', '{{zona}}', '{{tipo_propiedad}}', '{{agente}}'],
                                         [$record->name, $record->zone ?? '', $record->property_type ?? '', auth()->user()?->name ?? ''],
                                         $tpl->body,
                                     );
+
+                                    return "{$mode}\n\n{$body}";
                                 }),
                         ];
                     })
                     ->action(function (Lead $record, array $data): void {
                         $template = MessageTemplate::findOrFail($data['message_template_id']);
-                        $body = str_replace(
-                            ['{{nombre}}', '{{zona}}', '{{tipo_propiedad}}', '{{agente}}'],
-                            [$record->name, $record->zone ?? '', $record->property_type ?? '', auth()->user()?->name ?? ''],
-                            $template->body,
-                        );
-
-                        $company = Company::find($record->company_id);
+                        $company  = Company::find($record->company_id);
 
                         if (! $company?->hasWhatsApp()) {
                             $hint = auth()->user()?->isAdmin()
                                 ? 'Andá a Configuración → Mi empresa para completar las credenciales.'
                                 : 'Pedile al administrador que configure WhatsApp en la empresa.';
 
+                            Notification::make()->title('WhatsApp no configurado')->body($hint)->danger()->send();
+                            return;
+                        }
+
+                        if (empty($template->meta_template_name) && ! $record->hasActiveWhatsAppSession()) {
                             Notification::make()
-                                ->title('WhatsApp no configurado')
-                                ->body($hint)
-                                ->danger()
+                                ->title('Sin sesión activa')
+                                ->body('Este lead no tiene sesión activa. Asigná una plantilla aprobada por Meta para poder contactarlo.')
+                                ->warning()
                                 ->send();
                             return;
                         }
 
                         try {
-                            $waId = app(WhatsAppService::class)->sendTextMessage($company, $record->phone, $body);
+                            $sender = app(MessageSender::class);
+                            $waId   = $sender->send($lead = $record, $template, $company);
+                            $body   = $sender->substituteVariables($template->body, $lead);
 
                             ScheduledMessage::create([
                                 'lead_id'             => $record->id,
@@ -267,19 +283,12 @@ class LeadsTable
                                 event: 'whatsapp_sent_now',
                                 description: 'Mensaje enviado inmediatamente por WhatsApp.',
                                 subject: $record,
-                                properties: ['template' => $template->name, 'channel' => 'whatsapp'],
+                                properties: ['template' => $template->name],
                             );
 
-                            Notification::make()
-                                ->title('Mensaje enviado')
-                                ->success()
-                                ->send();
+                            Notification::make()->title('Mensaje enviado')->success()->send();
                         } catch (\Throwable $e) {
-                            Notification::make()
-                                ->title('Error al enviar')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
+                            Notification::make()->title('Error al enviar')->body($e->getMessage())->danger()->send();
                         }
                     }),
 

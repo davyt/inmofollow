@@ -6,6 +6,7 @@ use App\Filament\Resources\Companies\CompanyResource;
 use App\Services\WhatsAppService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
@@ -16,6 +17,29 @@ class EditCompany extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('viewTemplates')
+                ->label('Ver plantillas aprobadas')
+                ->icon('heroicon-o-document-text')
+                ->color('gray')
+                ->modalHeading('Plantillas de Meta aprobadas')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Cerrar')
+                ->modalWidth('3xl')
+                ->action(fn () => null)
+                ->modalContent(function (): \Illuminate\Contracts\View\View {
+                    $company = $this->record;
+                    $templates = [];
+                    $error = null;
+
+                    try {
+                        $templates = app(WhatsAppService::class)->getApprovedTemplates($company);
+                    } catch (\Throwable $e) {
+                        $error = $e->getMessage();
+                    }
+
+                    return view('filament.modals.meta-templates', compact('templates', 'error'));
+                }),
+
             Action::make('testWhatsApp')
                 ->label('Probar conexión WhatsApp')
                 ->icon('heroicon-o-signal')

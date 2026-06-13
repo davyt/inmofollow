@@ -29,6 +29,63 @@ class WhatsAppService
         return $response->json('messages.0.id', '');
     }
 
+    public function sendTemplateMessage(
+        Company $company,
+        string $phone,
+        string $templateName,
+        string $language,
+        array $parameters,
+    ): string {
+        $to = $this->formatPhone($phone);
+
+        $components = [];
+        if (! empty($parameters)) {
+            $components[] = [
+                'type'       => 'body',
+                'parameters' => array_map(fn ($p) => ['type' => 'text', 'text' => (string) $p], $parameters),
+            ];
+        }
+
+        $response = Http::withToken($company->wa_access_token)
+            ->post(self::API_BASE . "/{$company->wa_phone_number_id}/messages", [
+                'messaging_product' => 'whatsapp',
+                'to'               => $to,
+                'type'             => 'template',
+                'template'         => [
+                    'name'       => $templateName,
+                    'language'   => ['code' => $language],
+                    'components' => $components,
+                ],
+            ]);
+
+        if (! $response->successful()) {
+            $error = $response->json('error.message', $response->body());
+            throw new \RuntimeException("WhatsApp API error: {$error}");
+        }
+
+        return $response->json('messages.0.id', '');
+    }
+
+    public function getApprovedTemplates(Company $company): array
+    {
+        if (empty($company->wa_business_account_id)) {
+            throw new \RuntimeException('Falta el WhatsApp Business Account ID. Configuralo en Mi empresa.');
+        }
+
+        $response = Http::withToken($company->wa_access_token)
+            ->get(self::API_BASE . "/{$company->wa_business_account_id}/message_templates", [
+                'fields' => 'name,status,language,components',
+                'limit'  => 100,
+            ]);
+
+        if (! $response->successful()) {
+            $error = $response->json('error.message', $response->body());
+            throw new \RuntimeException("Error al obtener plantillas: {$error}");
+        }
+
+        return $response->json('data', []);
+    }
+
     public function testConnection(Company $company): bool
     {
         $response = Http::withToken($company->wa_access_token)

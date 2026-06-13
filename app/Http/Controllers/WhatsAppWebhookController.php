@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lead;
 use App\Models\ScheduledMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -32,6 +33,10 @@ class WhatsAppWebhookController extends Controller
                 foreach (data_get($change, 'value.statuses', []) as $status) {
                     $this->handleStatusUpdate($status);
                 }
+
+                foreach (data_get($change, 'value.messages', []) as $message) {
+                    $this->handleInboundMessage($message);
+                }
             }
         }
 
@@ -42,7 +47,6 @@ class WhatsAppWebhookController extends Controller
     {
         $secret = config('services.whatsapp.app_secret');
 
-        // Si no hay app_secret configurado, se omite la validación (útil en desarrollo)
         if (empty($secret)) {
             return true;
         }
@@ -69,11 +73,28 @@ class WhatsAppWebhookController extends Controller
         }
 
         if ($statusValue === 'failed') {
-            $errorBody = $status['errors'][0]['title'] ?? 'Error desconocido';
             $message->update([
                 'status'        => 'failed',
-                'error_message' => $errorBody,
+                'error_message' => data_get($status, 'errors.0.title', 'Error desconocido'),
             ]);
         }
+    }
+
+    private function handleInboundMessage(array $message): void
+    {
+        $from = $message['from'] ?? null;
+
+        if (! $from) {
+            return;
+        }
+
+        $lead = Lead::findByWhatsAppPhone($from);
+
+        if (! $lead) {
+            return;
+        }
+
+        // Actualizar sesión activa: el lead nos escribió, abre ventana de 24hs
+        $lead->update(['last_wa_inbound_at' => now()]);
     }
 }

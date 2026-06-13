@@ -13,7 +13,8 @@ class MessageTemplate extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'active' => 'boolean',
+        'active'                  => 'boolean',
+        'meta_template_variables' => 'array',
     ];
 
     public function company()

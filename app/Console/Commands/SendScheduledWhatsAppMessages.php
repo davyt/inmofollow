@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\ScheduledMessage;
-use App\Services\WhatsAppService;
+use App\Services\MessageSender;
 use App\Support\Activity;
 use Illuminate\Console\Command;
 
@@ -12,24 +12,26 @@ class SendScheduledWhatsAppMessages extends Command
     protected $signature = 'whatsapp:send-scheduled';
     protected $description = 'Envía los mensajes de WhatsApp programados que ya deben enviarse';
 
-    public function handle(WhatsAppService $service): int
+    public function handle(MessageSender $sender): int
     {
         $messages = ScheduledMessage::query()
-            ->with(['lead.company', 'lead'])
+            ->with(['lead.company', 'lead', 'messageTemplate', 'user'])
             ->where('channel', 'whatsapp')
             ->where('status', 'pending')
             ->where('scheduled_for', '<=', now())
             ->get();
 
         if ($messages->isEmpty()) {
+            $this->line('Sin mensajes pendientes.');
             return self::SUCCESS;
         }
 
         $this->info("Procesando {$messages->count()} mensaje(s) pendiente(s)...");
 
         foreach ($messages as $message) {
-            $lead    = $message->lead;
-            $company = $lead?->company;
+            $lead     = $message->lead;
+            $company  = $lead?->company;
+            $template = $message->messageTemplate;
 
             if (! $company || ! $company->wa_active || ! $company->wa_phone_number_id || ! $company->wa_access_token) {
                 continue;
@@ -41,12 +43,21 @@ class SendScheduledWhatsAppMessages extends Command
             }
 
             try {
-                $waId = $service->sendTextMessage($company, $lead->phone, $message->message_body);
+                if ($template) {
+                    $waId = $sender->send($lead, $template, $company, $message->user);
+                    $body = $sender->substituteVariables($template->body, $lead, $message->user);
+                } else {
+                    // Sin plantilla, usar el body guardado directamente
+                    $waId = app(\App\Services\WhatsAppService::class)
+                        ->sendTextMessage($company, $lead->phone, $message->message_body);
+                    $body = $message->message_body;
+                }
 
                 $message->update([
                     'status'        => 'sent',
                     'sent_at'       => now(),
                     'wa_message_id' => $waId,
+                    'message_body'  => $body,
                 ]);
 
                 $lead->update(['last_contacted_at' => now()]);
