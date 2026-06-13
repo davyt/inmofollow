@@ -190,30 +190,34 @@ class LeadsTable
                         filled($record->phone)
                     )
                     ->form(function (Lead $record): array {
-                        $sessionWarning = ! $record->hasActiveWhatsAppSession()
-                            ? '⚠ Este lead no tiene sesión activa (no te escribió en las últimas 24hs). Solo podés enviar si la plantilla tiene un nombre de Meta aprobado.'
-                            : '✓ Sesión activa — podés enviar texto libre o plantilla aprobada.';
+                        $hasSession = $record->hasActiveWhatsAppSession();
+
+                        $options = MessageTemplate::query()
+                            ->where('channel', 'whatsapp')
+                            ->where('active', true)
+                            ->when(! $hasSession, fn ($q) => $q->whereNotNull('meta_template_name')->where('meta_template_name', '!=', ''))
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->toArray();
+
+                        if (empty($options)) {
+                            return [
+                                Placeholder::make('unavailable')
+                                    ->label('')
+                                    ->content('Este lead no puede recibir mensajes de WhatsApp ahora. El sistema lo contactará automáticamente cuando corresponda.'),
+                            ];
+                        }
 
                         return [
-                            Placeholder::make('session_status')
-                                ->label('Estado de sesión WhatsApp')
-                                ->content($sessionWarning),
-
                             Select::make('message_template_id')
                                 ->label('Plantilla')
-                                ->options(fn () => MessageTemplate::query()
-                                    ->where('channel', 'whatsapp')
-                                    ->where('active', true)
-                                    ->orderBy('name')
-                                    ->pluck('name', 'id')
-                                    ->toArray()
-                                )
+                                ->options($options)
                                 ->searchable()
                                 ->live()
                                 ->required(),
 
                             Placeholder::make('preview')
-                                ->label('Vista previa del mensaje')
+                                ->label('Vista previa')
                                 ->content(function (Get $get) use ($record): string {
                                     $id = $get('message_template_id');
                                     if (! $id) {
@@ -223,39 +227,27 @@ class LeadsTable
                                     if (! $tpl) {
                                         return '-';
                                     }
-
-                                    $mode = ! empty($tpl->meta_template_name)
-                                        ? "[Plantilla Meta: {$tpl->meta_template_name}]"
-                                        : '[Texto libre — requiere sesión activa]';
-
-                                    $body = str_replace(
+                                    return str_replace(
                                         ['{{nombre}}', '{{zona}}', '{{tipo_propiedad}}', '{{agente}}'],
                                         [$record->name, $record->zone ?? '', $record->property_type ?? '', auth()->user()?->name ?? ''],
                                         $tpl->body,
                                     );
-
-                                    return "{$mode}\n\n{$body}";
                                 }),
                         ];
                     })
                     ->action(function (Lead $record, array $data): void {
+                        if (empty($data['message_template_id'])) {
+                            return;
+                        }
+
                         $template = MessageTemplate::findOrFail($data['message_template_id']);
                         $company  = Company::find($record->company_id);
 
                         if (! $company?->hasWhatsApp()) {
-                            $hint = auth()->user()?->isAdmin()
-                                ? 'Andá a Configuración → Mi empresa para completar las credenciales.'
-                                : 'Pedile al administrador que configure WhatsApp en la empresa.';
-
-                            Notification::make()->title('WhatsApp no configurado')->body($hint)->danger()->send();
-                            return;
-                        }
-
-                        if (empty($template->meta_template_name) && ! $record->hasActiveWhatsAppSession()) {
                             Notification::make()
-                                ->title('Sin sesión activa')
-                                ->body('Este lead no tiene sesión activa. Asigná una plantilla aprobada por Meta para poder contactarlo.')
-                                ->warning()
+                                ->title('WhatsApp no configurado')
+                                ->body('Pedile al administrador que configure las credenciales de WhatsApp.')
+                                ->danger()
                                 ->send();
                             return;
                         }
