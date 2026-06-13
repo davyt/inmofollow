@@ -15,6 +15,7 @@ class Company extends Model
         'zone_options'          => 'array',
         'property_type_options' => 'array',
         'lead_source_options'   => 'array',
+        'anthropic_api_key'     => 'encrypted',
     ];
 
     public function hasWhatsApp(): bool

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Companies\Schemas;
 
+use App\Models\Company;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -57,6 +58,23 @@ class CompanyForm
                 Placeholder::make('wa_verify_token')
                     ->label('WhatsApp: Webhook Verify Token (copiar en Meta)')
                     ->content(fn () => config('services.whatsapp.verify_token')),
+
+                // ── IA (Anthropic Claude) ──────────────────────────────────
+
+                Placeholder::make('anthropic_status')
+                    ->label('IA: Estado')
+                    ->content(function () {
+                        $company = Company::find(config('inmofollow.default_company_id', 1));
+                        $hasKey  = ! empty($company?->anthropic_api_key) || ! empty(config('services.anthropic.api_key'));
+                        return $hasKey ? '✓ API Key configurada' : '✗ No configurada — completá el campo de abajo para activar la IA.';
+                    }),
+
+                TextInput::make('anthropic_api_key')
+                    ->label('IA: API Key de Anthropic')
+                    ->helperText('Obtené tu API Key en console.anthropic.com → API Keys. Se guarda encriptada.')
+                    ->password()
+                    ->nullable()
+                    ->dehydrated(fn ($state) => filled($state)),
             ]);
     }
 }

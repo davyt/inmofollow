@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Company;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -9,10 +10,11 @@ class AiService
 {
     public function generateTemplateBody(string $channel, string $description): string
     {
-        $apiKey = config('services.anthropic.api_key');
+        $company = Company::find(config('inmofollow.default_company_id', 1));
+        $apiKey  = $company?->anthropic_api_key ?: config('services.anthropic.api_key');
 
         if (empty($apiKey)) {
-            throw new RuntimeException('La función de IA no está activada. El administrador del servidor debe configurar la variable ANTHROPIC_API_KEY en el archivo .env.');
+            throw new RuntimeException('La función de IA no está activada. Configurá la API Key de Anthropic en Configuración → Mi empresa.');
         }
 
         $channelLabel = match ($channel) {
