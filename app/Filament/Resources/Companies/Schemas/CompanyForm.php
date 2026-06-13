@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\Companies\Schemas;
 
 use Filament\Forms\Components\Placeholder;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -59,31 +57,6 @@ class CompanyForm
                 Placeholder::make('wa_verify_token')
                     ->label('WhatsApp: Webhook Verify Token (copiar en Meta)')
                     ->content(fn () => config('services.whatsapp.verify_token')),
-
-                // ── Listas de opciones para leads ─────────────────────────
-
-                Section::make('Opciones de leads')
-                    ->description('Configurá las listas que aparecen al cargar o editar un lead.')
-                    ->collapsible()
-                    ->schema([
-                        TagsInput::make('zone_options')
-                            ->label('Zonas disponibles')
-                            ->helperText('Escribí cada zona y presioná Enter para agregarla.')
-                            ->placeholder('Ej: Pocitos, Carrasco, Centro...')
-                            ->columnSpanFull(),
-
-                        TagsInput::make('property_type_options')
-                            ->label('Tipos de propiedad')
-                            ->helperText('Escribí cada tipo y presioná Enter para agregarlo.')
-                            ->placeholder('Ej: Apartamento, Casa, Local comercial...')
-                            ->columnSpanFull(),
-
-                        TagsInput::make('lead_source_options')
-                            ->label('Orígenes de lead')
-                            ->helperText('Escribí cada origen y presioná Enter para agregarlo.')
-                            ->placeholder('Ej: Manual, 2clics, MercadoLibre, Referido...')
-                            ->columnSpanFull(),
-                    ]),
             ]);
     }
 }

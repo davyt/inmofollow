@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Leads\Schemas;
 
-use App\Models\Company;
 use App\Models\LeadStatus;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
@@ -15,13 +14,6 @@ use Filament\Schemas\Schema;
 
 class LeadForm
 {
-    private static function companyOptions(string $field, array $defaults = []): array
-    {
-        $company = Company::find(config('inmofollow.default_company_id', 1));
-        $options = $company?->{$field} ?? $defaults;
-        return collect($options)->mapWithKeys(fn ($v) => [$v => $v])->toArray();
-    }
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -42,7 +34,7 @@ class LeadForm
                     ->default(auth()->id())
                     ->nullable()
                     ->visible(fn () => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor()),
-                
+
                 Hidden::make('user_id')
                     ->default(fn () => auth()->id())
                     ->dehydrated(true)
@@ -68,24 +60,20 @@ class LeadForm
                     ->email()
                     ->default(null),
 
-                Select::make('property_type')
+                TextInput::make('property_type')
                     ->label('Tipo de propiedad')
-                    ->options(fn () => self::companyOptions('property_type_options'))
-                    ->searchable()
-                    ->nullable(),
+                    ->placeholder('Ej: Apartamento, Casa, Local...')
+                    ->default(null),
 
-                Select::make('zone')
+                TextInput::make('zone')
                     ->label('Zona')
-                    ->options(fn () => self::companyOptions('zone_options'))
-                    ->searchable()
-                    ->nullable(),
+                    ->placeholder('Ej: Pocitos, Carrasco, Centro...')
+                    ->default(null),
 
-                Select::make('source')
+                TextInput::make('source')
                     ->label('Origen')
-                    ->options(fn () => self::companyOptions('lead_source_options', ['Manual']))
-                    ->searchable()
-                    ->default('Manual')
-                    ->nullable(),
+                    ->placeholder('Ej: Manual, 2clics, MercadoLibre...')
+                    ->default('Manual'),
 
                 Textarea::make('notes')
                     ->label('Observaciones')
