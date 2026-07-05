@@ -3,14 +3,10 @@
 namespace App\Filament\Resources\Leads\Tables;
 
 use App\Models\ActivityLog;
-use App\Models\Company;
 use App\Models\Lead;
 use App\Models\LeadStatus;
-use App\Models\MessageTemplate;
-use App\Models\ScheduledMessage;
 use App\Models\User;
 use App\Services\FollowUpGenerator;
-use App\Services\MessageSender;
 use App\Support\Activity;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -20,10 +16,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -180,112 +174,6 @@ class LeadsTable
                     }),
             ])
             ->recordActions([
-                Action::make('send_now')
-                    ->label('Enviar ahora')
-                    ->icon('heroicon-o-paper-airplane')
-                    ->color('success')
-                    ->modalHeading(fn (Lead $record): string => 'Enviar WhatsApp a ' . $record->name)
-                    ->modalDescription('El mensaje se enviará inmediatamente vía WhatsApp Business API.')
-                    ->visible(fn (Lead $record): bool =>
-                        $record->whatsapp_consent &&
-                        ! $record->do_not_contact &&
-                        filled($record->phone)
-                    )
-                    ->form(function (Lead $record): array {
-                        $hasSession = $record->hasActiveWhatsAppSession();
-
-                        $options = MessageTemplate::query()
-                            ->where('channel', 'whatsapp')
-                            ->where('active', true)
-                            ->when(! $hasSession, fn ($q) => $q->whereNotNull('meta_template_name')->where('meta_template_name', '!=', ''))
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->toArray();
-
-                        if (empty($options)) {
-                            return [
-                                Placeholder::make('sin_plantillas')
-                                    ->label('No podés enviar un mensaje ahora')
-                                    ->content('Este lead no te escribió en las últimas 24hs y no hay plantillas configuradas para primer contacto. El sistema lo contactará automáticamente cuando corresponda o pedile al administrador que configure una plantilla de primer contacto.'),
-                            ];
-                        }
-
-                        return [
-                            Select::make('message_template_id')
-                                ->label('Plantilla')
-                                ->options($options)
-                                ->searchable()
-                                ->live()
-                                ->required(),
-
-                            Placeholder::make('preview')
-                                ->label('Vista previa')
-                                ->content(function (Get $get) use ($record): string {
-                                    $id = $get('message_template_id');
-                                    if (! $id) {
-                                        return '← Seleccioná una plantilla para ver el mensaje.';
-                                    }
-                                    $tpl = MessageTemplate::find($id);
-                                    if (! $tpl) {
-                                        return '-';
-                                    }
-                                    return str_replace(
-                                        ['{{nombre}}', '{{zona}}', '{{tipo_propiedad}}', '{{agente}}'],
-                                        [$record->name, $record->zone ?? '', $record->property_type ?? '', auth()->user()?->name ?? ''],
-                                        $tpl->body,
-                                    );
-                                }),
-                        ];
-                    })
-                    ->action(function (Lead $record, array $data): void {
-                        if (empty($data['message_template_id'])) {
-                            return;
-                        }
-
-                        $template = MessageTemplate::findOrFail($data['message_template_id']);
-                        $company  = Company::find($record->company_id);
-
-                        if (! $company?->hasWhatsApp()) {
-                            Notification::make()
-                                ->title('WhatsApp no configurado')
-                                ->body('Pedile al administrador que configure las credenciales de WhatsApp.')
-                                ->danger()
-                                ->send();
-                            return;
-                        }
-
-                        try {
-                            $sender = app(MessageSender::class);
-                            $waId   = $sender->send($lead = $record, $template, $company);
-                            $body   = $sender->substituteVariables($template->body, $lead);
-
-                            ScheduledMessage::create([
-                                'lead_id'             => $record->id,
-                                'message_template_id' => $template->id,
-                                'user_id'             => auth()->id(),
-                                'channel'             => 'whatsapp',
-                                'message_body'        => $body,
-                                'status'              => 'sent',
-                                'scheduled_for'       => now(),
-                                'sent_at'             => now(),
-                                'wa_message_id'       => $waId ?: null,
-                            ]);
-
-                            $record->update(['last_contacted_at' => now()]);
-
-                            Activity::log(
-                                event: 'whatsapp_sent_now',
-                                description: 'Mensaje enviado inmediatamente por WhatsApp.',
-                                subject: $record,
-                                properties: ['template' => $template->name],
-                            );
-
-                            Notification::make()->title('Mensaje enviado')->success()->send();
-                        } catch (\Throwable $e) {
-                            Notification::make()->title('Error al enviar')->body($e->getMessage())->danger()->send();
-                        }
-                    }),
-
                 Action::make('generate_followups')
                     ->label('Generar seguimiento')
                     ->color('warning')
@@ -308,36 +196,9 @@ class LeadsTable
                     ->modalWidth('2xl')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Cerrar')
-                    ->modalContent(function (Lead $record) {
-                        $sent = $record->scheduledMessages()
-                            ->where('channel', 'whatsapp')
-                            ->whereIn('status', ['sent', 'failed'])
-                            ->get()
-                            ->map(fn ($m) => [
-                                'direction' => 'out',
-                                'date'      => $m->sent_at ?? $m->scheduled_for ?? $m->created_at,
-                                'status'    => $m->status,
-                                'text'      => $m->message_body,
-                            ]);
-
-                        $received = $record->waInboundMessages()
-                            ->get()
-                            ->map(fn ($m) => [
-                                'direction' => 'in',
-                                'date'      => $m->received_at ?? $m->created_at,
-                                'status'    => null,
-                                'text'      => $m->body ?: '[' . ucfirst($m->message_type) . ']',
-                            ]);
-
-                        $conversation = $sent->concat($received)
-                            ->sortBy('date')
-                            ->values();
-
-                        return view('filament.modals.lead-conversation', [
-                            'record'       => $record,
-                            'conversation' => $conversation,
-                        ]);
-                    }),
+                    ->modalContent(fn (Lead $record) => view('filament.modals.lead-conversation-wrapper', [
+                        'lead' => $record,
+                    ])),
 
                 Action::make('history')
                     ->label('Actividad')
