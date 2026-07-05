@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Leads\Pages;
 
 use App\Filament\Resources\Leads\LeadResource;
 use App\Models\Lead;
+use App\Models\LeadImportProfile;
 use App\Models\LeadStatus;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -23,6 +24,10 @@ class ImportLeads extends Page
     public int $step = 1;
     public string $delimiter = ',';
     public ?array $results = null;
+
+    public ?int $selectedProfileId = null;
+    public ?string $defaultSource = null;
+    public string $newProfileName = '';
 
     public array $mapping = [
         'name'             => '',
@@ -95,6 +100,62 @@ class ImportLeads extends Page
         } catch (\Throwable $e) {
             Notification::make()->title('Error al leer el archivo: ' . $e->getMessage())->danger()->send();
         }
+    }
+
+    public function availableProfiles(): array
+    {
+        return LeadImportProfile::where('company_id', config('inmofollow.default_company_id', 1))
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
+    public function updatedSelectedProfileId(): void
+    {
+        if (! $this->selectedProfileId) {
+            return;
+        }
+
+        $profile = LeadImportProfile::find($this->selectedProfileId);
+
+        if (! $profile) {
+            return;
+        }
+
+        foreach ($this->mapping as $field => $_) {
+            $savedColumn = $profile->mapping[$field] ?? '';
+            $this->mapping[$field] = in_array($savedColumn, $this->headers, true) ? $savedColumn : '';
+        }
+
+        $this->defaultSource = $profile->default_source;
+
+        Notification::make()
+            ->title('Perfil aplicado: ' . $profile->name)
+            ->body('Revisá el mapeo antes de importar — alguna columna puede no existir en este archivo.')
+            ->success()
+            ->send();
+    }
+
+    public function saveProfile(): void
+    {
+        if (trim($this->newProfileName) === '') {
+            Notification::make()->title('Ponele un nombre al perfil antes de guardarlo')->warning()->send();
+            return;
+        }
+
+        LeadImportProfile::updateOrCreate(
+            [
+                'company_id' => config('inmofollow.default_company_id', 1),
+                'name'       => trim($this->newProfileName),
+            ],
+            [
+                'mapping'        => $this->mapping,
+                'default_source' => $this->defaultSource,
+            ],
+        );
+
+        Notification::make()->title('Perfil guardado')->success()->send();
+        $this->newProfileName = '';
     }
 
     private function autoMap(): void
@@ -202,6 +263,10 @@ class ImportLeads extends Page
                     }
                 }
 
+                if (! empty($this->defaultSource)) {
+                    $data['source'] = $this->defaultSource;
+                }
+
                 if (empty($data['name'])) {
                     $skipped++;
                     continue;
@@ -258,5 +323,8 @@ class ImportLeads extends Page
         $this->step = 1;
         $this->delimiter = ',';
         $this->mapping = array_fill_keys(array_keys(self::getLeadFields()), '');
+        $this->selectedProfileId = null;
+        $this->defaultSource = null;
+        $this->newProfileName = '';
     }
 }

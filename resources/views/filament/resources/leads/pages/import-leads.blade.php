@@ -83,6 +83,58 @@
             </div>
         </div>
 
+        {{-- Perfiles de importación --}}
+        <div style="border:1px solid #374151; background:rgba(17,24,39,0.75); border-radius:12px; padding:24px;">
+            <h2 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:4px;">Perfil de importación</h2>
+            <p style="font-size:13px; color:#9ca3af; margin-bottom:16px;">
+                Si ya guardaste un mapeo para esta fuente (ej. "2clics - Negocios", "MercadoLibre"), elegilo para autocompletar las columnas de abajo.
+            </p>
+
+            <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;">
+                <div>
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px;">Usar perfil guardado</label>
+                    <select
+                        wire:model.live="selectedProfileId"
+                        style="background:#1f2937; color:#e5e7eb; border:1px solid #374151; border-radius:6px; padding:6px 10px; font-size:13px; min-width:220px;"
+                    >
+                        <option value="">— Mapeo manual —</option>
+                        @foreach ($this->availableProfiles() as $id => $name)
+                        <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px;">Origen fijo (opcional)</label>
+                    <input
+                        type="text"
+                        wire:model="defaultSource"
+                        placeholder="Ej: Mercado Libre"
+                        style="background:#1f2937; color:#e5e7eb; border:1px solid #374151; border-radius:6px; padding:6px 10px; font-size:13px; min-width:200px;"
+                    >
+                </div>
+            </div>
+
+            <div style="font-size:12px; color:#6b7280; margin-bottom:10px;">
+                Si completás "Origen fijo", ese valor se usa para <strong style="color:#9ca3af;">todas</strong> las filas, sin importar qué columna tengas mapeada a Origen — útil cuando el archivo no trae esa información (como el scraping de MercadoLibre).
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:center; border-top:1px solid #374151; padding-top:16px;">
+                <input
+                    type="text"
+                    wire:model="newProfileName"
+                    placeholder="Nombre del perfil (ej: 2clics - Negocios)"
+                    style="background:#1f2937; color:#e5e7eb; border:1px solid #374151; border-radius:6px; padding:6px 10px; font-size:13px; flex:1; max-width:280px;"
+                >
+                <button
+                    wire:click="saveProfile"
+                    style="padding:8px 16px; border-radius:8px; background:#374151; color:#e5e7eb; border:none; cursor:pointer; font-size:13px; white-space:nowrap;"
+                >
+                    Guardar mapeo actual como perfil
+                </button>
+            </div>
+        </div>
+
         {{-- Mapeo de columnas --}}
         <div style="border:1px solid #374151; background:rgba(17,24,39,0.75); border-radius:12px; padding:24px;">
             <h2 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:4px;">Mapear columnas</h2>
