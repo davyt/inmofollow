@@ -93,7 +93,12 @@ class WhatsAppService
                 'fields' => 'display_phone_number,verified_name',
             ]);
 
-        return $response->successful();
+        if (! $response->successful()) {
+            $error = $response->json('error.message', $response->body());
+            throw new \RuntimeException("WhatsApp API error: {$error}");
+        }
+
+        return true;
     }
 
     private function formatPhone(string $phone): string

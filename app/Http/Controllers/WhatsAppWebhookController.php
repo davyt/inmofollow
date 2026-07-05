@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\ScheduledMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class WhatsAppWebhookController extends Controller
 {
@@ -25,6 +26,7 @@ class WhatsAppWebhookController extends Controller
     public function receive(Request $request): Response
     {
         if (! $this->signatureIsValid($request)) {
+            Log::warning('WA webhook signature invalid');
             return response('Unauthorized', 401);
         }
 
@@ -91,6 +93,7 @@ class WhatsAppWebhookController extends Controller
         $lead = Lead::findByWhatsAppPhone($from);
 
         if (! $lead) {
+            Log::warning('WA webhook: no lead matched inbound phone', ['from' => $from]);
             return;
         }
 

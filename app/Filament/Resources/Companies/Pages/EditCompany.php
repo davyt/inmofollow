@@ -47,36 +47,44 @@ class EditCompany extends EditRecord
                 ->action(function (): void {
                     $company = $this->record;
 
-                    if (! $company->hasWhatsApp()) {
+                    $missing = [];
+                    if (empty($company->wa_phone_number_id)) {
+                        $missing[] = 'Phone Number ID';
+                    }
+                    if (empty($company->wa_access_token)) {
+                        $missing[] = 'Access Token';
+                    }
+                    if (! empty($missing)) {
                         Notification::make()
-                            ->title('WhatsApp no configurado')
-                            ->body('Completá el Phone Number ID y el Access Token, guardá los cambios y volvé a probar.')
+                            ->title('Faltan datos de configuración')
+                            ->body('Completá: ' . implode(', ', $missing) . '. Guardá los cambios y volvé a probar.')
+                            ->warning()
+                            ->send();
+                        return;
+                    }
+                    if (! $company->wa_active) {
+                        Notification::make()
+                            ->title('WhatsApp desactivado')
+                            ->body('Los datos están completos, pero el toggle "Activar envío automático" está apagado. Activalo, guardá y volvé a probar.')
                             ->warning()
                             ->send();
                         return;
                     }
 
                     try {
-                        $ok = app(WhatsAppService::class)->testConnection($company);
+                        app(WhatsAppService::class)->testConnection($company);
 
-                        if ($ok) {
-                            Notification::make()
-                                ->title('Conexión exitosa')
-                                ->body('WhatsApp está conectado y listo para enviar mensajes.')
-                                ->success()
-                                ->send();
-                        } else {
-                            Notification::make()
-                                ->title('Conexión fallida')
-                                ->body('La API no respondió correctamente. Verificá el Phone Number ID y el Access Token.')
-                                ->danger()
-                                ->send();
-                        }
+                        Notification::make()
+                            ->title('Conexión exitosa')
+                            ->body('WhatsApp está conectado y listo para enviar mensajes.')
+                            ->success()
+                            ->send();
                     } catch (\Throwable $e) {
                         Notification::make()
-                            ->title('Error al conectar')
+                            ->title('Conexión fallida')
                             ->body($e->getMessage())
                             ->danger()
+                            ->persistent()
                             ->send();
                     }
                 }),

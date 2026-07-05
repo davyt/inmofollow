@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Models\Company;
+use App\Services\WhatsAppService;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 class CompanyForm
 {
@@ -33,6 +35,21 @@ class CompanyForm
                     ->required(),
 
                 // ── WhatsApp Business API ──────────────────────────────────
+
+                Placeholder::make('wa_connection_status')
+                    ->label('WhatsApp: Estado de conexión')
+                    ->content(function (?Company $record): HtmlString {
+                        if (! $record?->hasWhatsApp()) {
+                            return new HtmlString('<span style="color:#9ca3af;">⚪ No configurado o desactivado</span>');
+                        }
+
+                        try {
+                            app(WhatsAppService::class)->testConnection($record);
+                            return new HtmlString('<span style="color:#34d399;font-weight:600;">🟢 Conectado</span>');
+                        } catch (\Throwable $e) {
+                            return new HtmlString('<span style="color:#f87171;font-weight:600;">🔴 Error: ' . e($e->getMessage()) . '</span>');
+                        }
+                    }),
 
                 Toggle::make('wa_active')
                     ->label('WhatsApp: Activar envío automático')
