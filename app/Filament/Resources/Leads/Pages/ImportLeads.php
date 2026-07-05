@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Leads\Pages;
 
 use App\Filament\Resources\Leads\LeadResource;
 use App\Models\Lead;
+use App\Models\LeadStatus;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Livewire\WithFileUploads;
@@ -31,6 +32,7 @@ class ImportLeads extends Page
         'zone'             => '',
         'source'           => '',
         'notes'            => '',
+        'lead_status'      => '',
         'whatsapp_consent' => '',
         'email_consent'    => '',
         'do_not_contact'   => '',
@@ -46,6 +48,7 @@ class ImportLeads extends Page
             'zone'             => 'Zona',
             'source'           => 'Origen',
             'notes'            => 'Observaciones',
+            'lead_status'      => 'Estado',
             'whatsapp_consent' => 'Acepta WhatsApp (1/0)',
             'email_consent'    => 'Acepta Email (1/0)',
             'do_not_contact'   => 'No contactar (1/0)',
@@ -104,6 +107,7 @@ class ImportLeads extends Page
             'zone'             => ['zona', 'zone', 'barrio', 'localidad', 'ubicacion', 'ubicación', 'sector', 'ciudad', 'departamento'],
             'source'           => ['origen', 'source', 'fuente', 'canal', 'procedencia', 'medio'],
             'notes'            => ['notas', 'notes', 'observaciones', 'comentarios', 'descripcion', 'descripción', 'obs', 'detalle'],
+            'lead_status'      => ['estado', 'status', 'lead_status', 'situacion', 'situación'],
             'whatsapp_consent' => ['whatsapp_consent', 'acepta_whatsapp', 'acepta_ws', 'ws_ok'],
             'email_consent'    => ['email_consent', 'acepta_email', 'email_ok'],
             'do_not_contact'   => ['no_contactar', 'do_not_contact', 'bloqueado', 'dnc'],
@@ -149,6 +153,11 @@ class ImportLeads extends Page
         $boolTrue  = ['1', 'si', 'sí', 'yes', 'true', 'x', 'v'];
         $lineNumber = 1;
 
+        $statusesByName = LeadStatus::where('company_id', $companyId)
+            ->get()
+            ->keyBy(fn ($status) => mb_strtolower(trim($status->name)));
+        $unmatchedStatuses = [];
+
         while (($row = fgetcsv($handle, 0, $this->delimiter)) !== false) {
             $lineNumber++;
             $row = array_pad($row, count($rawHeaders), '');
@@ -169,6 +178,16 @@ class ImportLeads extends Page
 
                     if (in_array($field, ['whatsapp_consent', 'email_consent', 'do_not_contact'])) {
                         $data[$field] = in_array(strtolower($value), $boolTrue);
+                    } elseif ($field === 'lead_status') {
+                        if ($value === '') {
+                            continue;
+                        }
+                        $status = $statusesByName->get(mb_strtolower($value));
+                        if ($status) {
+                            $data['lead_status_id'] = $status->id;
+                        } else {
+                            $unmatchedStatuses[$value] = true;
+                        }
                     } else {
                         $data[$field] = $value !== '' ? $value : null;
                     }
@@ -188,9 +207,10 @@ class ImportLeads extends Page
         fclose($handle);
 
         $this->results = [
-            'imported' => $imported,
-            'skipped'  => $skipped,
-            'errors'   => $errors,
+            'imported'          => $imported,
+            'skipped'           => $skipped,
+            'errors'            => $errors,
+            'unmatchedStatuses' => array_keys($unmatchedStatuses),
         ];
         $this->step = 3;
     }
@@ -198,7 +218,7 @@ class ImportLeads extends Page
     public function downloadTemplate(): mixed
     {
         $fields = array_keys(self::getLeadFields());
-        $example = ['Juan Pérez', '098123456', 'juan@example.com', 'Apartamento', 'Pocitos', 'Portal Inmuebles', 'Interesado en 2 dorm', '1', '0', '0'];
+        $example = ['Juan Pérez', '098123456', 'juan@example.com', 'Apartamento', 'Pocitos', 'Portal Inmuebles', 'Interesado en 2 dorm', 'Nuevo', '1', '0', '0'];
 
         return response()->streamDownload(function () use ($fields, $example) {
             $handle = fopen('php://output', 'w');

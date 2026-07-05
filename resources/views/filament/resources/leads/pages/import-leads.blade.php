@@ -38,6 +38,7 @@
                 <li>Separador: coma <code>,</code> o punto y coma <code>;</code> — se detecta automáticamente</li>
                 <li>Solo el campo <strong style="color:#e5e7eb;">nombre</strong> es obligatorio</li>
                 <li>Booleanos: usar <code>1</code> para verdadero, <code>0</code> para falso</li>
+                <li><strong style="color:#e5e7eb;">Estado</strong>: debe coincidir exactamente con el nombre de un estado ya creado en Estados de lead. Si no coincide, el lead se importa sin estado</li>
             </ul>
             <button wire:click="downloadTemplate" style="margin-top:12px; color:#818cf8; background:none; border:none; cursor:pointer; font-size:13px; padding:0;">
                 Descargar plantilla de ejemplo →
@@ -164,6 +165,19 @@
             <ul style="list-style:disc; padding-left:20px; font-size:13px; color:#9ca3af; line-height:1.8;">
                 @foreach ($results['errors'] as $error)
                 <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        @if (!empty($results['unmatchedStatuses']))
+        <div style="background:#1f2937; border-radius:8px; padding:16px; margin-bottom:20px;">
+            <p style="font-size:13px; font-weight:600; color:#facc15; margin-bottom:10px;">
+                Estados sin coincidencia (esos leads se importaron sin estado asignado):
+            </p>
+            <ul style="list-style:disc; padding-left:20px; font-size:13px; color:#9ca3af; line-height:1.8;">
+                @foreach ($results['unmatchedStatuses'] as $status)
+                <li>"{{ $status }}" — no coincide con ningún estado existente. Creálo en Estados de lead o corregí el CSV.</li>
                 @endforeach
             </ul>
         </div>

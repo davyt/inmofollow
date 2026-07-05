@@ -14,11 +14,16 @@ class SendScheduledWhatsAppMessages extends Command
 
     public function handle(MessageSender $sender): int
     {
+        $maxPerRun = (int) config('inmofollow.whatsapp_max_sends_per_run', 20);
+        $delayMs   = (int) config('inmofollow.whatsapp_send_delay_ms', 500);
+
         $messages = ScheduledMessage::query()
             ->with(['lead.company', 'lead', 'messageTemplate', 'user'])
             ->where('channel', 'whatsapp')
             ->where('status', 'pending')
             ->where('scheduled_for', '<=', now())
+            ->orderBy('scheduled_for')
+            ->limit($maxPerRun)
             ->get();
 
         if ($messages->isEmpty()) {
@@ -26,9 +31,16 @@ class SendScheduledWhatsAppMessages extends Command
             return self::SUCCESS;
         }
 
-        $this->info("Procesando {$messages->count()} mensaje(s) pendiente(s)...");
+        $this->info("Procesando {$messages->count()} mensaje(s) pendiente(s) (máx. {$maxPerRun} por corrida)...");
+
+        $isFirst = true;
 
         foreach ($messages as $message) {
+            if (! $isFirst && $delayMs > 0) {
+                usleep($delayMs * 1000);
+            }
+            $isFirst = false;
+
             $lead     = $message->lead;
             $company  = $lead?->company;
             $template = $message->messageTemplate;
