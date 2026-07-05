@@ -47,6 +47,11 @@ class Lead extends Model
         return $this->hasMany(ScheduledMessage::class);
     }
 
+    public function waInboundMessages()
+    {
+        return $this->hasMany(WaInboundMessage::class);
+    }
+
     public function hasActiveWhatsAppSession(): bool
     {
         return $this->last_wa_inbound_at !== null

@@ -328,6 +328,15 @@ class LeadsTable
                                 'text'    => $m->message_body,
                             ]);
 
+                        $inboundMessages = $record->waInboundMessages()
+                            ->get()
+                            ->map(fn ($m) => [
+                                'type' => 'inbound_message',
+                                'date' => $m->received_at ?? $m->created_at,
+                                'actor' => $record->name,
+                                'text' => $m->body ?: '[' . ucfirst($m->message_type) . ']',
+                            ]);
+
                         $activities = ActivityLog::query()
                             ->with('user')
                             ->where('subject_type', Lead::class)
@@ -340,7 +349,7 @@ class LeadsTable
                                 'text'  => $a->description ?: $a->event,
                             ]);
 
-                        $timeline = $notes->concat($messages)->concat($activities)
+                        $timeline = $notes->concat($messages)->concat($inboundMessages)->concat($activities)
                             ->sortByDesc('date')
                             ->values();
 

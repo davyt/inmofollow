@@ -38,12 +38,14 @@
 
         @forelse ($timeline as $item)
             @php
-                $isMessage  = $item['type'] === 'message';
-                $isNote     = $item['type'] === 'note';
-                $isActivity = $item['type'] === 'activity';
+                $isMessage         = $item['type'] === 'message';
+                $isNote            = $item['type'] === 'note';
+                $isInboundMessage  = $item['type'] === 'inbound_message';
+                $isActivity        = $item['type'] === 'activity';
 
                 $dotColor = match (true) {
                     $isNote     => '#60a5fa',  // blue
+                    $isInboundMessage => '#a78bfa', // purple — lo escribió el lead
                     $isMessage && ($item['status'] ?? '') === 'failed' => '#f87171', // red
                     $isMessage  => '#34d399',  // green
                     default     => '#9ca3af',  // gray
@@ -51,6 +53,7 @@
 
                 $label = match (true) {
                     $isNote     => 'Nota',
+                    $isInboundMessage => 'WhatsApp recibido',
                     $isMessage  => ($item['channel'] === 'whatsapp' ? 'WhatsApp' : 'Email') . (($item['status'] ?? '') === 'failed' ? ' (fallido)' : ' enviado'),
                     default     => 'Actividad',
                 };

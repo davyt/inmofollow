@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use App\Models\ScheduledMessage;
+use App\Models\WaInboundMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class WhatsAppWebhookController extends Controller
@@ -99,5 +101,22 @@ class WhatsAppWebhookController extends Controller
 
         // Actualizar sesión activa: el lead nos escribió, abre ventana de 24hs
         $lead->update(['last_wa_inbound_at' => now()]);
+
+        $type = $message['type'] ?? 'unknown';
+        $body = match ($type) {
+            'text'        => data_get($message, 'text.body'),
+            'button'      => data_get($message, 'button.text'),
+            'interactive' => data_get($message, 'interactive.button_reply.title') ?? data_get($message, 'interactive.list_reply.title'),
+            default       => data_get($message, "{$type}.caption"),
+        };
+
+        WaInboundMessage::create([
+            'lead_id'       => $lead->id,
+            'company_id'    => $lead->company_id,
+            'wa_message_id' => $message['id'] ?? null,
+            'message_type'  => $type,
+            'body'          => $body,
+            'received_at'   => isset($message['timestamp']) ? Carbon::createFromTimestamp((int) $message['timestamp']) : now(),
+        ]);
     }
 }
