@@ -196,6 +196,40 @@ class MessageTemplateForm
                             ->suggestions(['nombre', 'zona', 'tipo_propiedad', 'agente'])
                             ->placeholder('Ej: nombre')
                             ->columnSpanFull(),
+
+                        Placeholder::make('meta_header_info')
+                            ->label('Imagen, video o documento (opcional)')
+                            ->content('Completá esto solo si la plantilla en Meta tiene un header de imagen/video/documento (por ejemplo, el logo de la empresa o una foto de la propiedad). El tipo debe coincidir exactamente con lo configurado en Meta.'),
+
+                        Select::make('meta_header_type')
+                            ->label('Tipo de header')
+                            ->options([
+                                'image'    => 'Imagen',
+                                'video'    => 'Video',
+                                'document' => 'Documento',
+                            ])
+                            ->nullable()
+                            ->live(),
+
+                        TextInput::make('meta_header_media_url')
+                            ->label('URL pública del archivo')
+                            ->helperText('Link directo y público (https) a la imagen/video/documento. Ej: el logo alojado en tu sitio web.')
+                            ->url()
+                            ->visible(fn (Get $get): bool => filled($get('meta_header_type')))
+                            ->required(fn (Get $get): bool => filled($get('meta_header_type')))
+                            ->columnSpanFull(),
+
+                        Select::make('meta_button_variable')
+                            ->label('Botón con URL dinámica (opcional)')
+                            ->helperText('Completá solo si la plantilla en Meta tiene un botón de "URL dinámica" como PRIMER botón. Elegí qué dato del lead se reemplaza en esa URL.')
+                            ->options([
+                                'nombre'         => 'Nombre',
+                                'zona'           => 'Zona',
+                                'tipo_propiedad' => 'Tipo de propiedad',
+                                'agente'         => 'Agente',
+                            ])
+                            ->nullable()
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

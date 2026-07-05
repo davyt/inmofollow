@@ -35,14 +35,36 @@ class WhatsAppService
         string $templateName,
         string $language,
         array $parameters,
+        ?array $header = null,
+        ?string $buttonParameterValue = null,
     ): string {
         $to = $this->formatPhone($phone);
 
         $components = [];
+
+        if ($header && ! empty($header['type']) && ! empty($header['link'])) {
+            $components[] = [
+                'type'       => 'header',
+                'parameters' => [[
+                    'type'         => $header['type'],
+                    $header['type'] => ['link' => $header['link']],
+                ]],
+            ];
+        }
+
         if (! empty($parameters)) {
             $components[] = [
                 'type'       => 'body',
                 'parameters' => array_map(fn ($p) => ['type' => 'text', 'text' => (string) $p], $parameters),
+            ];
+        }
+
+        if ($buttonParameterValue !== null && $buttonParameterValue !== '') {
+            $components[] = [
+                'type'       => 'button',
+                'sub_type'   => 'url',
+                'index'      => '0',
+                'parameters' => [['type' => 'text', 'text' => $buttonParameterValue]],
             ];
         }
 

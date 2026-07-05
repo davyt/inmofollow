@@ -24,12 +24,22 @@ class MessageSender
         if ($useMetaTemplate) {
             $parameters = $this->resolveVariables($template->meta_template_variables ?? [], $lead, $triggeredBy);
 
+            $header = $template->meta_header_type
+                ? ['type' => $template->meta_header_type, 'link' => $template->meta_header_media_url]
+                : null;
+
+            $buttonValue = $template->meta_button_variable
+                ? ($this->resolveVariables([$template->meta_button_variable], $lead, $triggeredBy)[0] ?? null)
+                : null;
+
             $waId = $this->whatsApp->sendTemplateMessage(
                 $company,
                 $lead->phone,
                 $template->meta_template_name,
                 $template->meta_template_language ?? 'es_UY',
                 $parameters,
+                $header,
+                $buttonValue,
             );
 
             $body = $this->substituteVariables($template->body, $lead, $triggeredBy);
