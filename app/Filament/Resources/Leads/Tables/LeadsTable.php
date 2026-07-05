@@ -300,11 +300,50 @@ class LeadsTable
                             ->send();
                     }),
 
+                Action::make('conversation')
+                    ->label('Conversación')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->color('success')
+                    ->modalHeading(fn (Lead $record): string => 'Conversación con ' . $record->name)
+                    ->modalWidth('2xl')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(function (Lead $record) {
+                        $sent = $record->scheduledMessages()
+                            ->where('channel', 'whatsapp')
+                            ->whereIn('status', ['sent', 'failed'])
+                            ->get()
+                            ->map(fn ($m) => [
+                                'direction' => 'out',
+                                'date'      => $m->sent_at ?? $m->scheduled_for ?? $m->created_at,
+                                'status'    => $m->status,
+                                'text'      => $m->message_body,
+                            ]);
+
+                        $received = $record->waInboundMessages()
+                            ->get()
+                            ->map(fn ($m) => [
+                                'direction' => 'in',
+                                'date'      => $m->received_at ?? $m->created_at,
+                                'status'    => null,
+                                'text'      => $m->body ?: '[' . ucfirst($m->message_type) . ']',
+                            ]);
+
+                        $conversation = $sent->concat($received)
+                            ->sortBy('date')
+                            ->values();
+
+                        return view('filament.modals.lead-conversation', [
+                            'record'       => $record,
+                            'conversation' => $conversation,
+                        ]);
+                    }),
+
                 Action::make('history')
-                    ->label('Historial')
+                    ->label('Actividad')
                     ->icon('heroicon-o-clock')
                     ->color('gray')
-                    ->modalHeading(fn (Lead $record): string => 'Historial de ' . $record->name)
+                    ->modalHeading(fn (Lead $record): string => 'Actividad de ' . $record->name)
                     ->modalWidth('5xl')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Cerrar')
@@ -315,27 +354,6 @@ class LeadsTable
                             'actor' => $n->user?->name ?? 'Sistema',
                             'text'  => $n->note,
                         ]);
-
-                        $messages = $record->scheduledMessages()
-                            ->whereIn('status', ['sent', 'failed'])
-                            ->get()
-                            ->map(fn ($m) => [
-                                'type'    => 'message',
-                                'date'    => $m->sent_at ?? $m->scheduled_for ?? $m->created_at,
-                                'actor'   => null,
-                                'channel' => $m->channel,
-                                'status'  => $m->status,
-                                'text'    => $m->message_body,
-                            ]);
-
-                        $inboundMessages = $record->waInboundMessages()
-                            ->get()
-                            ->map(fn ($m) => [
-                                'type' => 'inbound_message',
-                                'date' => $m->received_at ?? $m->created_at,
-                                'actor' => $record->name,
-                                'text' => $m->body ?: '[' . ucfirst($m->message_type) . ']',
-                            ]);
 
                         $activities = ActivityLog::query()
                             ->with('user')
@@ -349,7 +367,7 @@ class LeadsTable
                                 'text'  => $a->description ?: $a->event,
                             ]);
 
-                        $timeline = $notes->concat($messages)->concat($inboundMessages)->concat($activities)
+                        $timeline = $notes->concat($activities)
                             ->sortByDesc('date')
                             ->values();
 

@@ -34,29 +34,17 @@
 
     {{-- Timeline --}}
     <div style="border: 1px solid #374151; background: rgba(17, 24, 39, 0.75); border-radius: 12px; padding: 16px;">
-        <div style="font-size: 15px; color: #ffffff; font-weight: 700; margin-bottom: 16px;">Línea de tiempo</div>
+        <div style="font-size: 15px; color: #ffffff; font-weight: 700; margin-bottom: 16px;">Notas y actividad</div>
+        <div style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">
+            Los mensajes de WhatsApp se ven en "Conversación".
+        </div>
 
         @forelse ($timeline as $item)
             @php
-                $isMessage         = $item['type'] === 'message';
-                $isNote            = $item['type'] === 'note';
-                $isInboundMessage  = $item['type'] === 'inbound_message';
-                $isActivity        = $item['type'] === 'activity';
+                $isNote = $item['type'] === 'note';
 
-                $dotColor = match (true) {
-                    $isNote     => '#60a5fa',  // blue
-                    $isInboundMessage => '#a78bfa', // purple — lo escribió el lead
-                    $isMessage && ($item['status'] ?? '') === 'failed' => '#f87171', // red
-                    $isMessage  => '#34d399',  // green
-                    default     => '#9ca3af',  // gray
-                };
-
-                $label = match (true) {
-                    $isNote     => 'Nota',
-                    $isInboundMessage => 'WhatsApp recibido',
-                    $isMessage  => ($item['channel'] === 'whatsapp' ? 'WhatsApp' : 'Email') . (($item['status'] ?? '') === 'failed' ? ' (fallido)' : ' enviado'),
-                    default     => 'Actividad',
-                };
+                $dotColor = $isNote ? '#60a5fa' : '#9ca3af';
+                $label    = $isNote ? 'Nota' : 'Actividad';
 
                 $date = $item['date'] ? \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') : '-';
             @endphp
