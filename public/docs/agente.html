@@ -106,8 +106,8 @@
     <a href="#escritorio">El escritorio</a>
     <div class="sidebar-section">Leads</div>
     <a href="#ver-leads">Ver mis leads</a>
-    <a href="#enviar">Enviar un mensaje ahora</a>
-    <a href="#historial">Historial del lead</a>
+    <a href="#conversacion">Conversación con el lead</a>
+    <a href="#actividad">Actividad del lead</a>
     <a href="#notas">Agregar notas</a>
     <div class="sidebar-section">Mensajes</div>
     <a href="#automatico">Envío automático</a>
@@ -185,49 +185,51 @@
   <h3>Editar un lead</h3>
   <p>Hacé clic en el ícono de editar (lápiz) junto a cualquier lead para ver y modificar su información: zona, tipo de propiedad, estado, próximo seguimiento, notas, etc.</p>
 
-  <!-- ENVIAR MENSAJE -->
-  <h2 id="enviar">Enviar un mensaje ahora</h2>
-  <p>Para enviar un mensaje de WhatsApp a un lead en este momento, hacé clic en el ícono de avión de papel <strong>✈</strong> que aparece en la fila del lead.</p>
+  <!-- CONVERSACIÓN -->
+  <h2 id="conversacion">Conversación con el lead</h2>
+  <p>Para ver los mensajes de WhatsApp con un lead y responderle, hacé clic en el ícono de globo de chat <strong>💬</strong> (<strong>Conversación</strong>) que aparece en la fila del lead.</p>
+  <p>Se abre una ventana con el hilo completo de mensajes — los que le mandaste vos (en verde) y los que te escribió él (en gris) — y, debajo, el formulario para responder. Si te llega una respuesta nueva mientras tenés la ventana abierta, aparece sola a los pocos segundos, sin que tengas que cerrar y volver a abrir.</p>
 
   <div class="mini-flow">
-    <div class="mini-step">Clic en ✈ (Enviar ahora)</div>
+    <div class="mini-step">Clic en 💬 (Conversación)</div>
     <div class="mini-arrow">→</div>
-    <div class="mini-step">Elegí una plantilla</div>
-    <div class="mini-arrow">→</div>
-    <div class="mini-step">Revisá la vista previa</div>
+    <div class="mini-step">Elegí plantilla o mensaje personalizado</div>
     <div class="mini-arrow">→</div>
     <div class="mini-step">Clic en Enviar</div>
   </div>
 
+  <h3>Plantilla vs. mensaje personalizado</h3>
+  <p>Debajo del hilo de mensajes siempre vas a poder elegir una <strong>plantilla</strong>. Si el lead te escribió hace menos de 24 horas, además aparece la opción <strong>"Mensaje personalizado"</strong>, que te deja escribir cualquier texto libre (sin necesidad de plantilla).</p>
+
   <div class="callout info">
-    <span class="callout-icon">👁</span>
-    <p>La <strong>vista previa</strong> te muestra exactamente cómo va a llegar el mensaje, con el nombre real del lead ya incluido. Revisala antes de enviar.</p>
+    <span class="callout-icon">💡</span>
+    <p>El "mensaje personalizado" solo aparece cuando hay una conversación activa reciente. Pasadas las 24hs sin que el lead responda, WhatsApp exige usar una plantilla aprobada — es una regla de Meta, no una limitación del sistema.</p>
   </div>
 
   <h3>¿Por qué a veces no puedo enviar?</h3>
-  <p>El botón de enviar puede no estar disponible en estos casos:</p>
+  <p>El formulario de envío puede no estar disponible en estos casos:</p>
   <ul>
     <li>El lead no tiene teléfono cargado</li>
     <li>El lead tiene marcado "No contactar"</li>
     <li>El lead no dio consentimiento de WhatsApp</li>
   </ul>
-  <p>Si ves el mensaje <em>"No podés enviar un mensaje ahora"</em> en el modal, significa que el lead no te escribió en las últimas 24hs y no hay plantillas de primer contacto configuradas. En ese caso, el sistema ya tiene mensajes programados automáticos — no hace falta que hagas nada.</p>
+  <p>Si ves el mensaje <em>"Este lead no te escribió en las últimas 24hs y no hay plantillas configuradas para primer contacto"</em>, el sistema ya tiene mensajes programados automáticos — no hace falta que hagas nada.</p>
 
-  <!-- HISTORIAL -->
-  <h2 id="historial">Historial del lead</h2>
-  <p>Desde la tabla de leads, hacé clic en el ícono de reloj 🕐 (<strong>Historial</strong>) para ver todo lo que pasó con ese lead:</p>
+  <!-- ACTIVIDAD -->
+  <h2 id="actividad">Actividad del lead</h2>
+  <p>Desde la tabla de leads, hacé clic en el ícono de reloj 🕐 (<strong>Actividad</strong>) para ver todo lo demás que pasó con ese lead, aparte de los mensajes de WhatsApp:</p>
   <ul>
-    <li>Mensajes enviados (con fecha y contenido)</li>
     <li>Notas que agregaste</li>
-    <li>Acciones del sistema (mensajes automáticos, cambios de estado)</li>
+    <li>Cambios de datos (estado, agente asignado, etc.)</li>
+    <li>Acciones del sistema (seguimientos generados, etc.)</li>
   </ul>
-  <p>Todo está ordenado del más reciente al más antiguo para que veas el estado actual de inmediato.</p>
+  <p>Todo está ordenado del más reciente al más antiguo. Los mensajes de WhatsApp enviados y recibidos <strong>no aparecen acá</strong> — están en "Conversación" (💬).</p>
 
   <!-- NOTAS -->
   <h2 id="notas">Agregar notas</h2>
-  <p>Las notas sirven para registrar lo que pasó en una llamada, una reunión o cualquier interacción que no es por WhatsApp. Quedán guardadas en el historial del lead para que las puedas consultar cuando quieras.</p>
+  <p>Las notas sirven para registrar lo que pasó en una llamada, una reunión o cualquier interacción que no es por WhatsApp. Quedán guardadas en la actividad del lead para que las puedas consultar cuando quieras.</p>
   <ol>
-    <li>Entrá al historial del lead (ícono 🕐)</li>
+    <li>Entrá a la actividad del lead (ícono 🕐)</li>
     <li>O directamente editá el lead y buscá la sección de notas</li>
     <li>Escribí la nota y guardá</li>
   </ol>
@@ -250,7 +252,7 @@
     <div class="mini-step">Los envía automáticamente</div>
   </div>
 
-  <p>Si el lead responde, vos seguís la conversación directamente por WhatsApp o podés enviar mensajes adicionales con el botón de enviar ahora.</p>
+  <p>Si el lead responde, vos seguís la conversación directamente desde el ícono 💬 (Conversación) de ese lead.</p>
 
   <!-- MENSAJES PROGRAMADOS -->
   <h2 id="programados">Mensajes programados</h2>
@@ -301,7 +303,7 @@
     </div>
     <div class="faq-item">
       <div class="faq-q">¿Puedo enviar mensajes a cualquier hora?</div>
-      <div class="faq-a"><p>Sí, podés enviarlo cuando quieras con el botón "Enviar ahora". Para los mensajes automáticos, el horario lo configuró el administrador en la secuencia.</p></div>
+      <div class="faq-a"><p>Sí, podés enviarlo cuando quieras desde "Conversación" (💬). Para los mensajes automáticos, el horario lo configuró el administrador en la secuencia.</p></div>
     </div>
     <div class="faq-item">
       <div class="faq-q">¿El lead sabe que los mensajes son automáticos?</div>
@@ -313,7 +315,7 @@
     </div>
     <div class="faq-item">
       <div class="faq-q">¿Puedo ver los mensajes que se enviaron automáticamente?</div>
-      <div class="faq-a"><p>Sí. En el historial del lead (ícono 🕐) aparecen todos los mensajes enviados, automáticos y manuales, con fecha y hora.</p></div>
+      <div class="faq-a"><p>Sí. En "Conversación" (ícono 💬) aparecen todos los mensajes enviados, automáticos y manuales, junto con los que respondió el lead, con fecha y hora.</p></div>
     </div>
     <div class="faq-item">
       <div class="faq-q">¿Qué hago si un lead me dice que no quiere más mensajes?</div>

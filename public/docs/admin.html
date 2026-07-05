@@ -142,7 +142,7 @@
 
   <div class="callout info">
     <span class="callout-icon">🔑</span>
-    <p>Después de guardar las credenciales de WhatsApp, usá el botón <strong>"Probar conexión WhatsApp"</strong> para verificar que todo esté bien antes de empezar a enviar mensajes.</p>
+    <p>Después de guardar las credenciales de WhatsApp, usá el botón <strong>"Probar conexión WhatsApp"</strong> para verificar que todo esté bien antes de empezar a enviar mensajes. Arriba de las credenciales vas a ver un indicador de estado: 🟢 conectado, 🔴 error (con el detalle exacto que devuelve Meta), o ⚪ si todavía no configuraste nada.</p>
   </div>
 
   <!-- WHATSAPP SETUP -->
@@ -212,11 +212,12 @@
     <div class="step">
       <div class="step-num">8</div>
       <div class="step-body">
-        <h4>Configurar el Webhook</h4>
-        <p>Para que el sistema detecte cuando un lead te responde, tenés que configurar el webhook en Meta Developers → <em>WhatsApp → Configuración</em> → <em>Webhooks</em>.</p>
-        <p style="margin-top:8px;"><strong>URL del webhook:</strong> <code>https://tudominio.com/webhook/whatsapp</code><br>
-        <strong>Token de verificación:</strong> el valor de <code>WHATSAPP_VERIFY_TOKEN</code> en el archivo <code>.env</code> del servidor.</p>
-        <p style="margin-top:8px;">Suscribite al evento <strong>messages</strong> para recibir los mensajes entrantes.</p>
+        <h4>Configurar el Webhook (dos partes — no te olvides de la segunda)</h4>
+        <p>Para que el sistema detecte cuando un lead te responde, tenés que configurar el webhook en Meta Developers → <em>Webhooks</em>.</p>
+        <p style="margin-top:8px;"><strong>URL de devolución de llamada:</strong> <code>https://tudominio.com/webhooks/whatsapp</code><br>
+        <strong>Identificador de verificación:</strong> el valor de <code>WHATSAPP_VERIFY_TOKEN</code> en el archivo <code>.env</code> del servidor (por defecto <code>inmofollow_wh_token</code>).</p>
+        <p style="margin-top:8px;">Suscribite al campo <strong>messages</strong> para recibir los mensajes entrantes.</p>
+        <p style="margin-top:8px;"><strong>Paso que se suele olvidar:</strong> esta configuración es a nivel de la App, pero cada número de WhatsApp Business tiene que suscribirse a esa App por separado. Andá a <em>WhatsApp → Introducción → Configuración de producción</em>, buscá tu número y activá el toggle <strong>"Suscribirse a webhooks"</strong>. Sin este paso, el webhook nunca recibe nada aunque la configuración de arriba esté perfecta.</p>
       </div>
     </div>
     <div class="step">
@@ -226,6 +227,11 @@
         <p>Ingresá el Phone Number ID, el Access Token y el WABA ID en <em>Mi empresa</em> y guardá. Luego usá el botón <strong>"Probar conexión WhatsApp"</strong> para confirmar que todo funciona.</p>
       </div>
     </div>
+  </div>
+
+  <div class="callout warning">
+    <span class="callout-icon">🧪</span>
+    <p>Para confirmar que el webhook realmente funciona (no solo que Meta dice que está configurado), escribile un mensaje al número de negocio desde tu teléfono y fijate si aparece en la <strong>Conversación</strong> de ese lead dentro de InmoFollow. Si no aparece nada, revisá el toggle "Suscribirse a webhooks" del paso anterior — es la causa más común.</p>
   </div>
 
   <!-- META TEMPLATES -->
@@ -291,6 +297,19 @@
     <p>Meta puede <strong>rechazar</strong> una plantilla si considera que el texto es demasiado promocional o genérico. Si eso pasa, hay que ajustar el texto y volver a enviarla para aprobación.</p>
   </div>
 
+  <h3>Imagen, video o botón con link (opcional)</h3>
+  <p>Si en Meta creaste la plantilla con un <strong>header de imagen, video o documento</strong> (por ejemplo el logo de la empresa), o con un <strong>botón de "URL dinámica"</strong>, completá también estos campos en la sección "Primer contacto por WhatsApp" de la plantilla en InmoFollow:</p>
+  <ul>
+    <li><strong>Tipo de header:</strong> tiene que coincidir exactamente con lo que configuraste en Meta (Imagen, Video o Documento)</li>
+    <li><strong>URL pública del archivo:</strong> un link https accesible públicamente (por ejemplo, el logo alojado en el sitio web de la inmobiliaria)</li>
+    <li><strong>Botón con URL dinámica:</strong> solo si la plantilla tiene un botón de este tipo como <strong>primer botón</strong>. Elegís qué dato del lead (nombre, zona, tipo de propiedad, agente) reemplaza la parte variable de esa URL</li>
+  </ul>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <p>Estos campos son opcionales y solo tienen efecto si la plantilla <strong>ya fue aprobada en Meta con esos mismos componentes</strong>. Completar "Tipo de header" acá no le agrega una imagen a una plantilla que en Meta es de solo texto — tiene que coincidir con lo aprobado.</p>
+  </div>
+
   <!-- USUARIOS -->
   <h2 id="usuarios">Gestión de usuarios</h2>
   <p>Accedé desde <em>Configuración → Usuarios</em>. Podés crear, editar y desactivar usuarios.</p>
@@ -350,12 +369,21 @@
     <li>Primera fila con los nombres de las columnas</li>
     <li>El campo <strong>nombre</strong> o <strong>name</strong> es el único requerido</li>
     <li>El teléfono puede estar en formato local (<code>09XXXXXXXX</code>) o internacional (<code>598XXXXXXXX</code>)</li>
+    <li>La columna <strong>Estado</strong> es opcional, pero tiene que coincidir <strong>exactamente</strong> (sin importar mayúsculas) con el nombre de un estado ya creado en <em>Estados de lead</em>. Si no coincide, el lead se importa igual pero sin estado, y el sistema te avisa cuáles no matchearon al final del import</li>
   </ul>
 
   <div class="callout warning">
     <span class="callout-icon">⚠️</span>
     <p>Antes de importar, asegurate de que el archivo tiene la columna de <strong>consentimiento de WhatsApp</strong> si los leads ya dieron su ok. Sin consentimiento, el sistema no les envía mensajes.</p>
   </div>
+
+  <h3>Importaciones grandes (cientos de leads)</h3>
+  <p>Importar el archivo en sí no dispara ningún mensaje — las secuencias solo se activan a mano por lead (botón "Generar seguimiento") o cuando vos las asignás. Pero si después vas a generar seguimientos para muchos leads importados a la vez, tené en cuenta que el envío automático:</p>
+  <ul>
+    <li>Procesa como máximo <strong>20 mensajes por corrida</strong> del cron (configurable en el servidor con <code>WHATSAPP_MAX_SENDS_PER_RUN</code>), con una pequeña pausa entre cada uno</li>
+    <li>No reenvía duplicados si una corrida tarda más de lo esperado</li>
+  </ul>
+  <p>Esto hace que el envío a un lote grande de leads se haga de forma progresiva a lo largo de varios minutos, en vez de una ráfaga que podría afectar la calidad del número de WhatsApp.</p>
 
   <!-- ASIGNAR -->
   <h2 id="asignar">Asignar leads a agentes</h2>
