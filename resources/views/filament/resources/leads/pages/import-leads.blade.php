@@ -39,6 +39,7 @@
                 <li>Solo el campo <strong style="color:#e5e7eb;">nombre</strong> es obligatorio</li>
                 <li>Booleanos: usar <code>1</code> para verdadero, <code>0</code> para falso</li>
                 <li><strong style="color:#e5e7eb;">Estado</strong>: debe coincidir exactamente con el nombre de un estado ya creado en Estados de lead. Si no coincide, el lead se importa sin estado</li>
+                <li>Si el <strong style="color:#e5e7eb;">teléfono</strong> ya existe en el sistema (en cualquier formato: local, con +598, con espacios), esa fila se omite como duplicado — no se crea un lead repetido</li>
             </ul>
             <button wire:click="downloadTemplate" style="margin-top:12px; color:#818cf8; background:none; border:none; cursor:pointer; font-size:13px; padding:0;">
                 Descargar plantilla de ejemplo →
@@ -144,10 +145,14 @@
     <div style="border:1px solid #374151; background:rgba(17,24,39,0.75); border-radius:12px; padding:24px;">
         <h2 style="font-size:18px; font-weight:700; color:#fff; margin-bottom:20px;">Importación completada</h2>
 
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:24px;">
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:24px;">
             <div style="background:#1f2937; border-radius:10px; padding:16px; text-align:center;">
                 <div style="font-size:32px; font-weight:800; color:#4ade80;">{{ $results['imported'] ?? 0 }}</div>
                 <div style="font-size:13px; color:#9ca3af; margin-top:4px;">Importados</div>
+            </div>
+            <div style="background:#1f2937; border-radius:10px; padding:16px; text-align:center;">
+                <div style="font-size:32px; font-weight:800; color:#38bdf8;">{{ $results['duplicated'] ?? 0 }}</div>
+                <div style="font-size:13px; color:#9ca3af; margin-top:4px;">Duplicados (ya existían)</div>
             </div>
             <div style="background:#1f2937; border-radius:10px; padding:16px; text-align:center;">
                 <div style="font-size:32px; font-weight:800; color:#facc15;">{{ $results['skipped'] ?? 0 }}</div>

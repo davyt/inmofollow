@@ -69,4 +69,29 @@ class Lead extends Model
             ->when($local, fn ($q) => $q->orWhere('phone', $local))
             ->first();
     }
+
+    /**
+     * Reduce un teléfono a su forma canónica (solo dígitos, sin 0 local ni código de país 598)
+     * para poder comparar "099699427", "+59899090071" y "598 99090071" como el mismo número.
+     */
+    public static function normalizePhone(?string $phone): ?string
+    {
+        if (blank($phone)) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D/', '', $phone);
+
+        if ($digits === '') {
+            return null;
+        }
+
+        if (str_starts_with($digits, '598') && strlen($digits) >= 11) {
+            $digits = substr($digits, 3);
+        } elseif (str_starts_with($digits, '0') && strlen($digits) === 9) {
+            $digits = substr($digits, 1);
+        }
+
+        return $digits;
+    }
 }

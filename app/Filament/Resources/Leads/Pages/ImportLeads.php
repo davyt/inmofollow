@@ -145,9 +145,10 @@ class ImportLeads extends Page
         $rawHeaders[0] = ltrim($rawHeaders[0], "\xEF\xBB\xBF");
         $rawHeaders = array_map('trim', $rawHeaders);
 
-        $imported = 0;
-        $skipped  = 0;
-        $errors   = [];
+        $imported   = 0;
+        $skipped    = 0;
+        $duplicated = 0;
+        $errors     = [];
         $companyId = config('inmofollow.default_company_id', 1);
         $userId    = auth()->id();
         $boolTrue  = ['1', 'si', 'sí', 'yes', 'true', 'x', 'v'];
@@ -157,6 +158,14 @@ class ImportLeads extends Page
             ->get()
             ->keyBy(fn ($status) => mb_strtolower(trim($status->name)));
         $unmatchedStatuses = [];
+
+        $existingPhones = Lead::where('company_id', $companyId)
+            ->whereNotNull('phone')
+            ->pluck('phone')
+            ->map(fn ($phone) => Lead::normalizePhone($phone))
+            ->filter()
+            ->flip()
+            ->toArray();
 
         while (($row = fgetcsv($handle, 0, $this->delimiter)) !== false) {
             $lineNumber++;
@@ -198,8 +207,19 @@ class ImportLeads extends Page
                     continue;
                 }
 
+                $normalizedPhone = Lead::normalizePhone($data['phone'] ?? null);
+
+                if ($normalizedPhone !== null && array_key_exists($normalizedPhone, $existingPhones)) {
+                    $duplicated++;
+                    continue;
+                }
+
                 Lead::create($data);
                 $imported++;
+
+                if ($normalizedPhone !== null) {
+                    $existingPhones[$normalizedPhone] = true;
+                }
             } catch (\Throwable $e) {
                 $errors[] = "Fila {$lineNumber}: " . $e->getMessage();
             }
@@ -209,6 +229,7 @@ class ImportLeads extends Page
         $this->results = [
             'imported'          => $imported,
             'skipped'           => $skipped,
+            'duplicated'        => $duplicated,
             'errors'            => $errors,
             'unmatchedStatuses' => array_keys($unmatchedStatuses),
         ];
