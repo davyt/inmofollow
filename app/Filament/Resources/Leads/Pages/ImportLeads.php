@@ -69,37 +69,190 @@ class ImportLeads extends Page
         try {
             $path = $this->csvFile->getRealPath();
 
-            $firstLine = fgets(fopen($path, 'r'));
-            $this->delimiter = str_contains($firstLine, ';') ? ';' : ',';
+            if (! $this->isXlsx()) {
+                $firstLine = fgets(fopen($path, 'r'));
+                $this->delimiter = str_contains($firstLine, ';') ? ';' : ',';
+            }
 
-            $handle = fopen($path, 'r');
-            $rawHeaders = fgetcsv($handle, 0, $this->delimiter);
+            $allRows = $this->readAllRows($path);
 
-            if (! $rawHeaders) {
-                Notification::make()->title('El archivo no tiene cabeceras válidas')->danger()->send();
-                fclose($handle);
+            if (empty($allRows)) {
+                Notification::make()->title('El archivo no tiene datos')->danger()->send();
                 return;
             }
 
-            $rawHeaders[0] = ltrim($rawHeaders[0], "\xEF\xBB\xBF");
-            $this->headers = array_map('trim', $rawHeaders);
+            $headerRowIndex = $this->detectHeaderRowIndex($allRows);
+            $rawHeaders = $allRows[$headerRowIndex];
+            $rawHeaders[0] = ltrim($rawHeaders[0] ?? '', "\xEF\xBB\xBF");
+            $this->headers = array_map(fn ($h) => trim((string) $h), $rawHeaders);
+
+            $dataRows = array_slice($allRows, $headerRowIndex + 1);
 
             $this->preview = [];
-            for ($i = 0; $i < 3; $i++) {
-                $row = fgetcsv($handle, 0, $this->delimiter);
-                if ($row === false) {
-                    break;
-                }
+            foreach (array_slice($dataRows, 0, 3) as $row) {
                 $row = array_pad($row, count($this->headers), '');
-                $this->preview[] = array_combine($this->headers, $row);
+                $this->preview[] = array_combine($this->headers, array_slice($row, 0, count($this->headers)));
             }
-            fclose($handle);
 
             $this->autoMap();
             $this->step = 2;
         } catch (\Throwable $e) {
             Notification::make()->title('Error al leer el archivo: ' . $e->getMessage())->danger()->send();
         }
+    }
+
+    private function isXlsx(): bool
+    {
+        $extension = strtolower($this->csvFile->getClientOriginalExtension() ?: pathinfo($this->csvFile->getClientOriginalName(), PATHINFO_EXTENSION));
+
+        return in_array($extension, ['xlsx', 'xlsm'], true);
+    }
+
+    /**
+     * @return array<int, array<int, string>>
+     */
+    private function readAllRows(string $path): array
+    {
+        if ($this->isXlsx()) {
+            return $this->readXlsxRows($path);
+        }
+
+        $handle = fopen($path, 'r');
+        $rows = [];
+        while (($row = fgetcsv($handle, 0, $this->delimiter)) !== false) {
+            $rows[] = $row;
+        }
+        fclose($handle);
+
+        return $rows;
+    }
+
+    /**
+     * @return array<int, array<int, string>>
+     */
+    private function readXlsxRows(string $path): array
+    {
+        $zip = new \ZipArchive();
+
+        if ($zip->open($path) !== true) {
+            throw new \RuntimeException('No se pudo abrir el archivo Excel.');
+        }
+
+        $sharedStrings = [];
+        $sharedStringsXml = $zip->getFromName('xl/sharedStrings.xml');
+        if ($sharedStringsXml !== false) {
+            $xml = simplexml_load_string($sharedStringsXml);
+            foreach ($xml->si as $si) {
+                if (isset($si->t)) {
+                    $sharedStrings[] = (string) $si->t;
+                } else {
+                    $text = '';
+                    foreach ($si->r as $run) {
+                        $text .= (string) $run->t;
+                    }
+                    $sharedStrings[] = $text;
+                }
+            }
+        }
+
+        $sheetContent = $zip->getFromName($this->firstSheetPath($zip));
+        $zip->close();
+
+        if ($sheetContent === false) {
+            throw new \RuntimeException('No se pudo leer la primera hoja del archivo Excel.');
+        }
+
+        $sheet = simplexml_load_string($sheetContent);
+        $rows = [];
+
+        foreach ($sheet->sheetData->row as $row) {
+            $cells = [];
+            $maxCol = 0;
+
+            foreach ($row->c as $c) {
+                $colIdx = $this->colToIndex((string) $c['r']);
+                $maxCol = max($maxCol, $colIdx);
+                $type = (string) $c['t'];
+                $value = isset($c->v) ? (string) $c->v : '';
+
+                if ($type === 's' && $value !== '') {
+                    $value = $sharedStrings[(int) $value] ?? '';
+                } elseif ($type === 'inlineStr' && isset($c->is->t)) {
+                    $value = (string) $c->is->t;
+                }
+
+                $cells[$colIdx] = $value;
+            }
+
+            $plainRow = [];
+            for ($i = 0; $i <= $maxCol; $i++) {
+                $plainRow[] = $cells[$i] ?? '';
+            }
+
+            $rows[] = $plainRow;
+        }
+
+        return $rows;
+    }
+
+    private function firstSheetPath(\ZipArchive $zip): string
+    {
+        try {
+            $workbookXml = $zip->getFromName('xl/workbook.xml');
+            $relsXml = $zip->getFromName('xl/_rels/workbook.xml.rels');
+
+            if ($workbookXml !== false && $relsXml !== false) {
+                $workbook = simplexml_load_string($workbookXml);
+                $rels = simplexml_load_string($relsXml);
+
+                $firstSheet = $workbook->sheets->sheet[0] ?? null;
+
+                if ($firstSheet) {
+                    $rId = (string) $firstSheet->attributes('r', true)->id;
+
+                    foreach ($rels->Relationship as $rel) {
+                        if ((string) $rel['Id'] === $rId) {
+                            return 'xl/' . ltrim((string) $rel['Target'], '/');
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // Fallback abajo
+        }
+
+        return 'xl/worksheets/sheet1.xml';
+    }
+
+    private function colToIndex(string $ref): int
+    {
+        $col = preg_replace('/\d+/', '', $ref);
+        $index = 0;
+        foreach (str_split($col) as $char) {
+            $index = $index * 26 + (ord($char) - ord('A') + 1);
+        }
+
+        return $index - 1;
+    }
+
+    /**
+     * Algunos exports (ej. 2clics) tienen una fila de título fusionada antes de la
+     * cabecera real. Saltea filas con una sola celda con contenido hasta encontrar
+     * la primera fila con varias columnas completas.
+     *
+     * @param  array<int, array<int, string>>  $rows
+     */
+    private function detectHeaderRowIndex(array $rows): int
+    {
+        foreach ($rows as $index => $row) {
+            $filled = count(array_filter($row, fn ($value) => trim((string) $value) !== ''));
+
+            if ($filled > 1) {
+                return $index;
+            }
+        }
+
+        return 0;
     }
 
     public function availableProfiles(): array
@@ -201,10 +354,12 @@ class ImportLeads extends Page
             return;
         }
 
-        $handle = fopen($this->csvFile->getRealPath(), 'r');
-        $rawHeaders = fgetcsv($handle, 0, $this->delimiter);
-        $rawHeaders[0] = ltrim($rawHeaders[0], "\xEF\xBB\xBF");
-        $rawHeaders = array_map('trim', $rawHeaders);
+        $allRows = $this->readAllRows($this->csvFile->getRealPath());
+        $headerRowIndex = $this->detectHeaderRowIndex($allRows);
+        $rawHeaders = $allRows[$headerRowIndex];
+        $rawHeaders[0] = ltrim($rawHeaders[0] ?? '', "\xEF\xBB\xBF");
+        $rawHeaders = array_map(fn ($h) => trim((string) $h), $rawHeaders);
+        $dataRows = array_slice($allRows, $headerRowIndex + 1);
 
         $imported   = 0;
         $skipped    = 0;
@@ -228,10 +383,10 @@ class ImportLeads extends Page
             ->flip()
             ->toArray();
 
-        while (($row = fgetcsv($handle, 0, $this->delimiter)) !== false) {
+        foreach ($dataRows as $row) {
             $lineNumber++;
             $row = array_pad($row, count($rawHeaders), '');
-            $rowData = array_combine($rawHeaders, $row);
+            $rowData = array_combine($rawHeaders, array_slice($row, 0, count($rawHeaders)));
 
             try {
                 $data = [
@@ -289,7 +444,6 @@ class ImportLeads extends Page
                 $errors[] = "Fila {$lineNumber}: " . $e->getMessage();
             }
         }
-        fclose($handle);
 
         $this->results = [
             'imported'          => $imported,

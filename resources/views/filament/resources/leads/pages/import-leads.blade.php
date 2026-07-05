@@ -14,7 +14,7 @@
     {{-- PASO 1: Subir archivo --}}
     @if ($step === 1)
     <div style="border:1px solid #374151; background:rgba(17,24,39,0.75); border-radius:12px; padding:24px;">
-        <h2 style="font-size:18px; font-weight:700; color:#fff; margin-bottom:20px;">Subir archivo CSV</h2>
+        <h2 style="font-size:18px; font-weight:700; color:#fff; margin-bottom:20px;">Subir archivo CSV o Excel</h2>
 
         <div style="margin-bottom:20px;">
             <label style="display:block; font-size:13px; font-weight:600; color:#d1d5db; margin-bottom:8px;">
@@ -23,7 +23,7 @@
             <input
                 type="file"
                 wire:model="csvFile"
-                accept=".csv,.txt,text/csv"
+                accept=".csv,.txt,text/csv,.xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 style="display:block; width:100%; font-size:14px; color:#9ca3af; cursor:pointer;"
             >
             <div wire:loading wire:target="csvFile" style="margin-top:10px; font-size:13px; color:#a5b4fc;">
@@ -34,8 +34,9 @@
         <div style="border-radius:8px; background:#1f2937; padding:16px; font-size:13px; color:#9ca3af;">
             <p style="font-weight:600; color:#d1d5db; margin-bottom:8px;">Formato esperado:</p>
             <ul style="list-style:disc; padding-left:20px; line-height:2;">
-                <li>Primera fila: nombres de columnas (ej: nombre, telefono, email)</li>
-                <li>Separador: coma <code>,</code> o punto y coma <code>;</code> — se detecta automáticamente</li>
+                <li>Acepta <strong style="color:#e5e7eb;">.csv</strong> y <strong style="color:#e5e7eb;">.xlsx</strong> (Excel) — no hace falta convertir nada a mano</li>
+                <li>Primera fila con contenido en varias columnas: nombres de columnas (ej: nombre, telefono, email). Si el archivo tiene una fila de título antes (como los export de 2clics), se detecta sola y se ignora</li>
+                <li>CSV: separador coma <code>,</code> o punto y coma <code>;</code> — se detecta automáticamente</li>
                 <li>Solo el campo <strong style="color:#e5e7eb;">nombre</strong> es obligatorio</li>
                 <li>Booleanos: usar <code>1</code> para verdadero, <code>0</code> para falso</li>
                 <li><strong style="color:#e5e7eb;">Estado</strong>: debe coincidir exactamente con el nombre de un estado ya creado en Estados de lead. Si no coincide, el lead se importa sin estado</li>
