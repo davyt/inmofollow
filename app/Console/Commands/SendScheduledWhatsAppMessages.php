@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Broadcast;
 use App\Models\ScheduledMessage;
 use App\Services\MessageSender;
 use App\Support\Activity;
@@ -74,6 +75,10 @@ class SendScheduledWhatsAppMessages extends Command
 
                 $lead->update(['last_contacted_at' => now()]);
 
+                if ($message->broadcast_id) {
+                    Broadcast::where('id', $message->broadcast_id)->increment('sent_count');
+                }
+
                 Activity::log(
                     event: 'whatsapp_sent_auto',
                     description: 'WhatsApp enviado automáticamente por el sistema.',
@@ -87,6 +92,10 @@ class SendScheduledWhatsAppMessages extends Command
                     'status'        => 'failed',
                     'error_message' => $e->getMessage(),
                 ]);
+
+                if ($message->broadcast_id) {
+                    Broadcast::where('id', $message->broadcast_id)->increment('failed_count');
+                }
 
                 Activity::log(
                     event: 'whatsapp_failed',
