@@ -27,13 +27,8 @@ class SequenceResource extends Resource
     protected static ?string $pluralModelLabel = 'secuencias';
     
     protected static ?string $navigationLabel = 'Secuencias';
-    
-    protected static ?int $navigationSort = 20;
-    
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Automatizaciones';
-    }
+
+    protected static bool $shouldRegisterNavigation = false;
     
     public static function canEdit(Model $record): bool
     {

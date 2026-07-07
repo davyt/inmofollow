@@ -28,8 +28,8 @@ class LeadNoteResource extends Resource
     protected static ?string $navigationLabel = 'Notas';
     
     protected static ?string $recordTitleAttribute = 'note';
-    
-    protected static ?int $navigationSort = 20;
+
+    protected static bool $shouldRegisterNavigation = false;
     
     public static function getEloquentQuery(): Builder
     {

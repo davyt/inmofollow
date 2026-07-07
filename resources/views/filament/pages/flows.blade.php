@@ -33,6 +33,21 @@
 .fl-select     { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 7px; padding: 8px 11px; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box; }
 </style>
 
+<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+    <a href="/davyt/message-templates/create"
+       style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#23233a;border:1px solid #2d2d42;border-radius:7px;color:#94a3b8;font-size:12px;font-weight:600;text-decoration:none;transition:border-color .15s;"
+       onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2d2d42'">
+        <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nueva plantilla
+    </a>
+    <a href="/davyt/message-templates"
+       style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#23233a;border:1px solid #2d2d42;border-radius:7px;color:#94a3b8;font-size:12px;font-weight:600;text-decoration:none;transition:border-color .15s;margin-left:8px;"
+       onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2d2d42'">
+        <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Ver plantillas
+    </a>
+</div>
+
 <div class="fl-wrap">
 
     {{-- Sidebar: lista de flows --}}

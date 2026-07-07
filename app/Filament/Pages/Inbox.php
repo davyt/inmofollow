@@ -17,7 +17,8 @@ class Inbox extends Page
     protected static ?string                 $navigationLabel = 'Conversaciones';
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-chat-bubble-left-right';
     protected static ?string                 $title           = 'Inbox';
-    protected static ?int                    $navigationSort  = 2;
+    protected static ?int                    $navigationSort  = 1;
+    protected static ?string                 $navigationGroup = 'Comunicación';
     protected string                         $view            = 'filament.pages.inbox';
 
     public array $conversations  = [];

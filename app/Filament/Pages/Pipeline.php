@@ -13,7 +13,8 @@ class Pipeline extends Page
     protected static ?string                 $navigationLabel = 'Pipeline';
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-view-columns';
     protected static ?string                 $title           = 'Pipeline Comercial';
-    protected static ?int                    $navigationSort  = 1;
+    protected static ?int                    $navigationSort  = 2;
+    protected static ?string                 $navigationGroup = 'Comercial';
     protected string                         $view            = 'filament.pages.pipeline';
 
     public array $statuses      = [];

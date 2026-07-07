@@ -19,15 +19,15 @@ class ScheduledMessageResource extends Resource
 {
     protected static ?string $model = ScheduledMessage::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    
-    protected static ?string $modelLabel = 'mensaje programado';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $pluralModelLabel = 'mensajes programados';
-    
-    protected static ?string $navigationLabel = 'Mensajes programados';
-    
-    protected static ?int $navigationSort = 40;
+    protected static ?string $modelLabel = 'envío';
+
+    protected static ?string $pluralModelLabel = 'historial de envíos';
+
+    protected static ?string $navigationLabel = 'Historial de envíos';
+
+    protected static ?int $navigationSort = 30;
     
     public static function getEloquentQuery(): Builder
     {
@@ -48,7 +48,7 @@ class ScheduledMessageResource extends Resource
     
     public static function getNavigationGroup(): ?string
     {
-        return 'Automatizaciones';
+        return 'Automatización';
     }
 
     protected static ?string $recordTitleAttribute = 'id';
@@ -74,8 +74,6 @@ class ScheduledMessageResource extends Resource
     {
         return [
             'index' => ListScheduledMessages::route('/'),
-            'create' => CreateScheduledMessage::route('/create'),
-            'edit' => EditScheduledMessage::route('/{record}/edit'),
         ];
     }
 }

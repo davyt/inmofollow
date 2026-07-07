@@ -20,14 +20,14 @@ class LeadResource extends Resource
 {
     protected static ?string $model = Lead::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $modelLabel = 'propietario / lead';
-    
+
     protected static ?string $pluralModelLabel = 'propietarios / leads';
-    
-    protected static ?string $navigationLabel = 'Propietarios / Leads';
-    
+
+    protected static ?string $navigationLabel = 'Leads';
+
     protected static ?int $navigationSort = 10;
     
     public static function getEloquentQuery(): Builder
@@ -49,7 +49,7 @@ class LeadResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Seguimiento comercial';
+        return 'Comercial';
     }
 
     public static function form(Schema $schema): Schema

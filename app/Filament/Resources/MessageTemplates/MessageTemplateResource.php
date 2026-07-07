@@ -20,19 +20,19 @@ class MessageTemplateResource extends Resource
 {
     protected static ?string $model = MessageTemplate::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+
     protected static ?string $modelLabel = 'plantilla de mensaje';
-    
+
     protected static ?string $pluralModelLabel = 'plantillas de mensajes';
-    
-    protected static ?string $navigationLabel = 'Plantillas de mensajes';
+
+    protected static ?string $navigationLabel = 'Plantillas';
     
     protected static ?int $navigationSort = 10;
     
     public static function getNavigationGroup(): ?string
     {
-        return 'Automatizaciones';
+        return 'Automatización';
     }
 
     public static function form(Schema $schema): Schema

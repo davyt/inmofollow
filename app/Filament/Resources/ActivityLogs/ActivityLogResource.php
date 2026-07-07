@@ -27,11 +27,13 @@ class ActivityLogResource extends Resource
     
     protected static ?string $navigationLabel = 'Registro de actividad';
     
-    protected static ?int $navigationSort = 90;
-    
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
+
+    protected static ?int $navigationSort = 40;
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Seguridad';
+        return 'Configuración';
     }
     
     public static function canViewAny(): bool

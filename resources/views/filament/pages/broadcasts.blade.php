@@ -30,7 +30,15 @@
 
     {{-- Columna izquierda: formulario --}}
     <div class="bc-card">
-        <div style="font-size: 15px; font-weight: 700; color: #e2e8f0; margin-bottom: 18px;">Nuevo broadcast</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+            <div style="font-size: 15px; font-weight: 700; color: #e2e8f0;">Nuevo broadcast</div>
+            <a href="/davyt/message-templates"
+               style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#94a3b8;text-decoration:none;padding:4px 10px;background:#23233a;border:1px solid #2d2d42;border-radius:6px;"
+               onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2d2d42'">
+                <svg style="width:11px;height:11px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Plantillas
+            </a>
+        </div>
 
         @if($successMessage)
         <div style="background: #052e16; border: 1px solid #16a34a44; border-radius: 8px; padding: 12px 14px; color: #4ade80; font-size: 13px; margin-bottom: 16px;">

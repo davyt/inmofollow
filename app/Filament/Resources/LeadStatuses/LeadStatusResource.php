@@ -18,7 +18,7 @@ class LeadStatusResource extends Resource
 {
     protected static ?string $model = LeadStatus::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-tag';
     
     protected static ?string $modelLabel = 'estado de lead';
     

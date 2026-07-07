@@ -197,8 +197,21 @@
             <div class="ai-info">
                 El agente recibe automáticamente:<br><br>
                 • Nombre, zona y tipo de propiedad del lead<br>
-                • Últimos 10 mensajes de la conversación<br><br>
+                • Últimos 10 mensajes de la conversación<br>
+                • Base de conocimiento activa (abajo)<br><br>
                 El agente solo responde dentro de la ventana de 24hs de WhatsApp.
+            </div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid #2d2d42;display:flex;gap:8px;flex-wrap:wrap;">
+                <a href="/davyt/flows"
+                   style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;text-decoration:none;padding:5px 12px;background:#13131f;border:1px solid #2d2d42;border-radius:6px;"
+                   onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2d2d42'">
+                    🔄 Configurar Flows
+                </a>
+                <a href="/davyt/broadcasts"
+                   style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;text-decoration:none;padding:5px 12px;background:#13131f;border:1px solid #2d2d42;border-radius:6px;"
+                   onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2d2d42'">
+                    📢 Ir a Broadcasts
+                </a>
             </div>
         </div>
 
