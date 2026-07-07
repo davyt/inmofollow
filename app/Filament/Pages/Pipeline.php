@@ -7,9 +7,9 @@ use Filament\Support\Enums\MaxWidth;
 
 class Pipeline extends Page
 {
-    protected static ?string $navigationLabel = 'Pipeline';
-    protected static ?string $navigationIcon  = 'heroicon-o-view-columns';
-    protected static ?string $title           = 'Pipeline Comercial';
+    protected static ?string $navigationLabel                    = 'Pipeline';
+    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-view-columns';
+    protected static ?string $title                              = 'Pipeline Comercial';
     protected static ?int    $navigationSort  = 1;
     protected static string  $view            = 'filament.pages.pipeline';
 
