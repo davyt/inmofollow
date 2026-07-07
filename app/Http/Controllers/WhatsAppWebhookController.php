@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use App\Models\ScheduledMessage;
+use App\Models\User;
 use App\Models\WaInboundMessage;
+use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class WhatsAppWebhookController extends Controller
 {
@@ -118,5 +121,34 @@ class WhatsAppWebhookController extends Controller
             'body'          => $body,
             'received_at'   => isset($message['timestamp']) ? Carbon::createFromTimestamp((int) $message['timestamp']) : now(),
         ]);
+
+        $this->notifyInboundMessage($lead, $body, $type);
+    }
+
+    private function notifyInboundMessage(Lead $lead, ?string $body, string $type): void
+    {
+        $preview = $body ? Str::limit($body, 80) : ucfirst($type);
+
+        $notification = Notification::make()
+            ->title('💬 ' . ($lead->name ?? 'Lead'))
+            ->body($preview)
+            ->icon('heroicon-o-chat-bubble-left-right')
+            ->actions([
+                \Filament\Notifications\Actions\Action::make('ver')
+                    ->button()
+                    ->url('/davyt/inbox')
+                    ->markAsRead(),
+            ]);
+
+        $recipients = User::where('company_id', $lead->company_id)
+            ->where(fn ($q) => $q
+                ->where('role', '!=', 'agent')
+                ->orWhere('id', $lead->user_id)
+            )
+            ->get();
+
+        foreach ($recipients as $user) {
+            $notification->sendToDatabase($user);
+        }
     }
 }
