@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AiAgent;
+use App\Models\AiKnowledgeEntry;
 use App\Models\Company;
 use App\Models\Lead;
 use App\Models\WaInboundMessage;
@@ -58,7 +59,12 @@ class AiService
             'Tipo de propiedad: '. ($lead->property_type ?? null),
         ]);
 
-        $system = $agent->system_prompt . "\n\nContexto:\n" . implode("\n", $contextLines);
+        $system = $agent->system_prompt . "\n\nContexto del lead:\n" . implode("\n", $contextLines);
+
+        $kb = $this->buildKnowledgeContext($lead->company_id);
+        if ($kb) {
+            $system .= "\n\n---\nBASE DE CONOCIMIENTO:\n" . $kb;
+        }
         $model  = $agent->model ?: $this->defaultModel($agent->provider);
 
         return match ($agent->provider) {
@@ -195,6 +201,27 @@ class AiService
             ->takeLast(10)
             ->map(fn ($m) => ['role' => $m['role'], 'content' => $m['content']])
             ->values();
+    }
+
+    private function buildKnowledgeContext(int $companyId): string
+    {
+        $entries = AiKnowledgeEntry::where('company_id', $companyId)
+            ->where('active', true)
+            ->get(['title', 'content']);
+
+        if ($entries->isEmpty()) return '';
+
+        $parts  = [];
+        $budget = 6000; // chars max para no inflar el context
+
+        foreach ($entries as $entry) {
+            $chunk   = "### {$entry->title}\n" . mb_substr($entry->content, 0, 2000);
+            $budget -= mb_strlen($chunk);
+            $parts[] = $chunk;
+            if ($budget <= 0) break;
+        }
+
+        return implode("\n\n", $parts);
     }
 
     private function templateSystemPrompt(): string

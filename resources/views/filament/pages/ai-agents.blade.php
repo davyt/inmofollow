@@ -205,4 +205,112 @@
     </div>
 </div>
 
+{{-- ============================================================ --}}
+{{-- Base de conocimiento --}}
+{{-- ============================================================ --}}
+<div style="margin-top: 20px;" class="ai-card">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+        <div>
+            <div style="font-size: 15px; font-weight: 700; color: #e2e8f0;">📚 Base de conocimiento</div>
+            <div style="font-size: 12px; color: #4b5563; margin-top: 2px;">El agente usará este contexto al responder. Máx. 6.000 caracteres por consulta.</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="ai-btn" style="background:#23233a;color:#94a3b8;border:1px solid #2d2d42;font-size:11px;padding:6px 12px;" wire:click="openAddForm('text')">+ Texto</button>
+            <button class="ai-btn" style="background:#23233a;color:#94a3b8;border:1px solid #2d2d42;font-size:11px;padding:6px 12px;" wire:click="openAddForm('url')">+ URL</button>
+            <button class="ai-btn" style="background:#23233a;color:#94a3b8;border:1px solid #2d2d42;font-size:11px;padding:6px 12px;" wire:click="openAddForm('pdf')">+ PDF</button>
+        </div>
+    </div>
+
+    {{-- Formulario de agregar entrada --}}
+    @if($showAddForm)
+    <div style="background:#13131f;border:1px solid #2d2d42;border-radius:10px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:14px;">
+            {{ $kbType === 'text' ? '📝 Texto libre' : ($kbType === 'url' ? '🔗 Desde URL' : '📄 Desde PDF') }}
+        </div>
+
+        @if($kbMessage)
+        <div style="background:#450a0a;border:1px solid #7f1d1d;border-radius:6px;padding:8px 12px;color:#f87171;font-size:12px;margin-bottom:12px;">{{ $kbMessage }}</div>
+        @endif
+
+        <div style="margin-bottom:12px;">
+            <label class="ai-label">Título (opcional)</label>
+            <input type="text" class="ai-input" wire:model="kbTitle" placeholder="Ej: Información de la empresa, Listado de propiedades...">
+        </div>
+
+        @if($kbType === 'text')
+        <div style="margin-bottom:14px;">
+            <label class="ai-label">Contenido</label>
+            <textarea class="ai-textarea" wire:model="kbText" placeholder="Pegá aquí el texto que el agente debe conocer..." style="min-height:140px;"></textarea>
+        </div>
+
+        @elseif($kbType === 'url')
+        <div style="margin-bottom:14px;">
+            <label class="ai-label">URL</label>
+            <input type="url" class="ai-input" wire:model="kbUrl" placeholder="https://...">
+            <div style="font-size:11px;color:#4b5563;margin-top:4px;">Se descargará el contenido de texto de la página (funciona mejor con páginas estáticas).</div>
+        </div>
+
+        @elseif($kbType === 'pdf')
+        <div style="margin-bottom:14px;">
+            <label class="ai-label">Archivo PDF</label>
+            <input type="file" wire:model="kbFile" accept=".pdf"
+                   style="width:100%;color:#94a3b8;font-size:13px;padding:8px 0;">
+            <div style="font-size:11px;color:#4b5563;margin-top:4px;">Máx. 10MB. Se extraerá el texto del PDF automáticamente.</div>
+        </div>
+        @endif
+
+        <div style="display:flex;gap:8px;">
+            <button class="ai-btn ai-btn-primary" wire:click="addEntry" wire:loading.attr="disabled" wire:target="addEntry,kbFile">
+                <span wire:loading.remove wire:target="addEntry">Guardar</span>
+                <span wire:loading wire:target="addEntry">Procesando...</span>
+            </button>
+            <button class="ai-btn" style="background:#23233a;color:#94a3b8;border:1px solid #2d2d42;" wire:click="cancelAdd">Cancelar</button>
+        </div>
+    </div>
+    @endif
+
+    {{-- Lista de entradas --}}
+    @if(empty($entries))
+    <div style="padding:32px;text-align:center;color:#374151;font-size:13px;">
+        No hay entradas todavía. Agregá textos, URLs o PDFs para enriquecer las respuestas del agente.
+    </div>
+    @else
+    <div style="display:flex;flex-direction:column;gap:8px;">
+        @foreach($entries as $entry)
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#13131f;border:1px solid #2d2d42;border-radius:8px;">
+            <span style="font-size:18px;flex-shrink:0;">
+                {{ $entry['type'] === 'pdf' ? '📄' : ($entry['type'] === 'url' ? '🔗' : '📝') }}
+            </span>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;color:{{ $entry['active'] ? '#e2e8f0' : '#4b5563' }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    {{ $entry['title'] }}
+                </div>
+                @if(!empty($entry['source_url']))
+                <div style="font-size:11px;color:#4b5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">
+                    {{ $entry['source_url'] }}
+                </div>
+                @endif
+            </div>
+            <span style="font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;flex-shrink:0;background:{{ $entry['active'] ? '#052e16' : '#1f2937' }};color:{{ $entry['active'] ? '#4ade80' : '#6b7280' }};">
+                {{ $entry['active'] ? 'Activo' : 'Inactivo' }}
+            </span>
+            <div style="display:flex;gap:6px;flex-shrink:0;">
+                <button
+                    wire:click="toggleEntry({{ $entry['id'] }})"
+                    style="font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid #2d2d42;background:#23233a;color:#94a3b8;cursor:pointer;"
+                >{{ $entry['active'] ? 'Pausar' : 'Activar' }}</button>
+                <button
+                    wire:click="deleteEntry({{ $entry['id'] }})"
+                    onclick="return confirm('¿Eliminar esta entrada?')"
+                    style="font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid #7f1d1d;background:#450a0a;color:#f87171;cursor:pointer;"
+                >Eliminar</button>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+</div>
+
 </x-filament-panels::page>
