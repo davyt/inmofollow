@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use Filament\Pages\Page;
+use Filament\Support\Enums\MaxWidth;
+
+class Pipeline extends Page
+{
+    protected static ?string $navigationLabel = 'Pipeline';
+    protected static ?string $navigationIcon  = 'heroicon-o-view-columns';
+    protected static ?string $title           = 'Pipeline Comercial';
+    protected static ?int    $navigationSort  = 1;
+    protected static string  $view            = 'filament.pages.pipeline';
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
+}
