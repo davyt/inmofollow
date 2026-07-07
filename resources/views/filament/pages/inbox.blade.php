@@ -1,4 +1,5 @@
-<div wire:poll.20s="loadInbox" style="display: flex; height: calc(100vh - 130px); gap: 0; border-radius: 12px; overflow: hidden; border: 1px solid #2d2d42;">
+<x-filament-panels::page>
+<div wire:poll.20s="loadInbox" style="display: flex; height: calc(100vh - 200px); gap: 0; border-radius: 12px; overflow: hidden; border: 1px solid #2d2d42;">
 
     {{-- Panel izquierdo: lista de conversaciones --}}
     <div style="width: 320px; flex-shrink: 0; display: flex; flex-direction: column; background: #1a1a2e; border-right: 1px solid #2d2d42;">
@@ -98,3 +99,4 @@
         @endif
     </div>
 </div>
+</x-filament-panels::page>

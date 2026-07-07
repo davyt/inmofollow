@@ -1,3 +1,4 @@
+<x-filament-panels::page>
 <div
     x-data="{ dragging: null, dropTarget: null }"
     style="overflow-x: auto; padding-bottom: 24px;"
@@ -116,3 +117,4 @@
 
     </div>
 </div>
+</x-filament-panels::page>
