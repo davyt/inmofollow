@@ -129,16 +129,11 @@ class WhatsAppWebhookController extends Controller
     {
         $preview = $body ? Str::limit($body, 80) : ucfirst($type);
 
-        $notification = Notification::make()
+        $dbNotification = Notification::make()
             ->title('💬 ' . ($lead->name ?? 'Lead'))
             ->body($preview)
             ->icon('heroicon-o-chat-bubble-left-right')
-            ->actions([
-                \Filament\Notifications\Actions\Action::make('ver')
-                    ->button()
-                    ->url('/davyt/inbox')
-                    ->markAsRead(),
-            ]);
+            ->toDatabase();
 
         $recipients = User::where('company_id', $lead->company_id)
             ->where(fn ($q) => $q
@@ -148,7 +143,7 @@ class WhatsAppWebhookController extends Controller
             ->get();
 
         foreach ($recipients as $user) {
-            $notification->sendToDatabase($user);
+            $user->notifyNow($dbNotification);
         }
     }
 }

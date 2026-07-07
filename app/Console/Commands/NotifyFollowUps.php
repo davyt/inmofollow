@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Lead;
 use App\Models\User;
-use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Console\Command;
 
@@ -28,19 +27,14 @@ class NotifyFollowUps extends Command
                 )
                 ->get();
 
-            $notification = Notification::make()
+            $dbNotification = Notification::make()
                 ->title('📅 Seguimiento: ' . ($lead->name ?? 'Lead'))
                 ->body('Seguimiento programado para hoy' . ($lead->leadStatus ? ' · ' . $lead->leadStatus->name : ''))
                 ->icon('heroicon-o-clock')
-                ->actions([
-                    Action::make('ver')
-                        ->button()
-                        ->url('/davyt/leads/' . $lead->id . '/edit')
-                        ->markAsRead(),
-                ]);
+                ->toDatabase();
 
             foreach ($recipients as $user) {
-                $notification->sendToDatabase($user);
+                $user->notifyNow($dbNotification);
             }
         }
 
