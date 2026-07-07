@@ -5,33 +5,55 @@
 
         @forelse ($conversation as $item)
             @php
-                $isOut  = $item['direction'] === 'out';
-                $failed = $isOut && ($item['status'] ?? '') === 'failed';
-                $date   = $item['date'] ? \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') : '-';
+                $isAiDraft = ($item['type'] ?? 'message') === 'ai_draft';
+                $isOut     = $item['direction'] === 'out';
+                $failed    = $isOut && ($item['status'] ?? '') === 'failed';
+                $date      = $item['date'] ? \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') : '-';
 
                 $bubbleColor = match (true) {
-                    $failed => 'rgba(239,68,68,.12)',
-                    $isOut  => 'rgba(52,211,153,.14)',
-                    default => 'rgba(255,255,255,.06)',
+                    $isAiDraft => 'rgba(139,92,246,.12)',
+                    $failed    => 'rgba(239,68,68,.12)',
+                    $isOut     => 'rgba(52,211,153,.14)',
+                    default    => 'rgba(255,255,255,.06)',
                 };
 
                 $borderColor = match (true) {
-                    $failed => '#ef4444',
-                    $isOut  => '#34d399',
-                    default => '#4b5563',
+                    $isAiDraft => '#8b5cf6',
+                    $failed    => '#ef4444',
+                    $isOut     => '#34d399',
+                    default    => '#4b5563',
                 };
             @endphp
 
-            <div style="display: flex; justify-content: {{ $isOut ? 'flex-end' : 'flex-start' }};">
+            <div style="display: flex; justify-content: {{ $isOut || $isAiDraft ? 'flex-end' : 'flex-start' }};">
                 <div style="max-width: 75%; background: {{ $bubbleColor }}; border: 1px solid {{ $borderColor }}; border-radius: 12px; padding: 10px 14px; margin: 4px 0;">
+                    @if($isAiDraft)
+                    <div style="font-size: 10px; font-weight: 700; color: #a78bfa; letter-spacing: .06em; margin-bottom: 6px;">🤖 BORRADOR IA</div>
+                    @endif
                     <div style="color: #e5e7eb; font-size: 14px; line-height: 1.5; white-space: pre-line; word-break: break-word;">
                         {{ $item['text'] ?: '-' }}
                     </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px;">
-                        @if ($failed)
-                            <span style="font-size: 11px; color: #f87171; font-weight: 600;">No se pudo enviar</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 8px;">
+                        @if($isAiDraft)
+                        <div style="display: flex; gap: 6px;">
+                            <button
+                                wire:click="sendAiDraft({{ $item['message_id'] }})"
+                                style="font-size: 11px; font-weight: 600; background: #059669; color: #fff; border: none; border-radius: 5px; padding: 3px 10px; cursor: pointer;"
+                            >Enviar</button>
+                            <button
+                                wire:click="discardAiDraft({{ $item['message_id'] }})"
+                                style="font-size: 11px; font-weight: 600; background: #374151; color: #9ca3af; border: none; border-radius: 5px; padding: 3px 10px; cursor: pointer;"
+                            >Descartar</button>
+                        </div>
+                        @else
+                        <div></div>
                         @endif
-                        <span style="font-size: 11px; color: #9ca3af;">{{ $date }}</span>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            @if ($failed)
+                                <span style="font-size: 11px; color: #f87171; font-weight: 600;">No se pudo enviar</span>
+                            @endif
+                            <span style="font-size: 11px; color: #9ca3af;">{{ $date }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

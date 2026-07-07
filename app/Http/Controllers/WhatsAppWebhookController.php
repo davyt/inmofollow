@@ -6,6 +6,9 @@ use App\Models\Lead;
 use App\Models\ScheduledMessage;
 use App\Models\User;
 use App\Models\WaInboundMessage;
+use App\Models\AiAgent;
+use App\Services\AiService;
+use App\Models\ScheduledMessage as ScheduledMsg;
 use Filament\Actions\Action as FilamentAction;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
@@ -114,7 +117,7 @@ class WhatsAppWebhookController extends Controller
             default       => data_get($message, "{$type}.caption"),
         };
 
-        WaInboundMessage::create([
+        $inboundMsg = WaInboundMessage::create([
             'lead_id'       => $lead->id,
             'company_id'    => $lead->company_id,
             'wa_message_id' => $message['id'] ?? null,
@@ -124,6 +127,47 @@ class WhatsAppWebhookController extends Controller
         ]);
 
         $this->notifyInboundMessage($lead, $body, $type);
+        $this->triggerAiAgent($lead, $inboundMsg, $body);
+    }
+
+    private function triggerAiAgent(Lead $lead, WaInboundMessage $msg, ?string $body): void
+    {
+        if (! $body) return;
+
+        $agent = AiAgent::where('company_id', $lead->company_id)
+            ->where('active', true)
+            ->first();
+
+        if (! $agent) return;
+
+        try {
+            $reply = app(AiService::class)->generateReply($lead, $body, $agent);
+
+            if ($agent->auto_send) {
+                $company = $lead->company;
+                if ($company?->wa_active && $company->wa_phone_number_id && $company->wa_access_token) {
+                    $waId = app(\App\Services\WhatsAppService::class)
+                        ->sendTextMessage($company, $lead->phone, $reply);
+
+                    ScheduledMsg::create([
+                        'lead_id'       => $lead->id,
+                        'company_id'    => $lead->company_id,
+                        'channel'       => 'whatsapp',
+                        'message_body'  => $reply,
+                        'status'        => 'sent',
+                        'scheduled_for' => now(),
+                        'sent_at'       => now(),
+                        'wa_message_id' => $waId,
+                    ]);
+
+                    $lead->update(['last_contacted_at' => now()]);
+                }
+            } else {
+                $msg->update(['ai_draft_reply' => $reply]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AI agent error: ' . $e->getMessage(), ['lead_id' => $lead->id]);
+        }
     }
 
     private function notifyInboundMessage(Lead $lead, ?string $body, string $type): void
