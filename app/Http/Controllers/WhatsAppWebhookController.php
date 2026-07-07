@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\ScheduledMessage;
 use App\Models\User;
 use App\Models\WaInboundMessage;
+use Filament\Actions\Action as FilamentAction;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -133,6 +134,9 @@ class WhatsAppWebhookController extends Controller
             ->title('💬 ' . ($lead->name ?? 'Lead'))
             ->body($preview)
             ->icon('heroicon-o-chat-bubble-left-right')
+            ->actions([
+                FilamentAction::make('ver')->label('Ver conversación')->url('/davyt/inbox'),
+            ])
             ->toDatabase();
 
         $recipients = User::where('company_id', $lead->company_id)

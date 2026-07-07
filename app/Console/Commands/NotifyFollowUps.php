@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Lead;
 use App\Models\User;
+use Filament\Actions\Action as FilamentAction;
 use Filament\Notifications\Notification;
 use Illuminate\Console\Command;
 
@@ -31,6 +32,9 @@ class NotifyFollowUps extends Command
                 ->title('📅 Seguimiento: ' . ($lead->name ?? 'Lead'))
                 ->body('Seguimiento programado para hoy' . ($lead->leadStatus ? ' · ' . $lead->leadStatus->name : ''))
                 ->icon('heroicon-o-clock')
+                ->actions([
+                    FilamentAction::make('ver')->label('Ver lead')->url('/davyt/leads/' . $lead->id . '/edit'),
+                ])
                 ->toDatabase();
 
             foreach ($recipients as $user) {
