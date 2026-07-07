@@ -14,6 +14,7 @@ class AiAgent extends Model
     protected $casts = [
         'active'    => 'boolean',
         'auto_send' => 'boolean',
+        'api_key'   => 'encrypted',
     ];
 
     public function company()

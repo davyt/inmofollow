@@ -7,7 +7,9 @@
 .ai-label   { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 6px; }
 .ai-input   { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 8px; padding: 9px 12px; color: #e2e8f0; font-size: 14px; outline: none; box-sizing: border-box; }
 .ai-input:focus { border-color: #f59e0b; }
-.ai-textarea { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 8px; padding: 10px 12px; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box; resize: vertical; min-height: 220px; line-height: 1.6; font-family: monospace; }
+.ai-select  { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 8px; padding: 9px 12px; color: #e2e8f0; font-size: 14px; outline: none; box-sizing: border-box; }
+.ai-select:focus { border-color: #f59e0b; }
+.ai-textarea { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 8px; padding: 10px 12px; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box; resize: vertical; min-height: 180px; line-height: 1.6; font-family: monospace; }
 .ai-textarea:focus { border-color: #f59e0b; }
 .ai-toggle-wrap { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #13131f; border: 1px solid #2d2d42; border-radius: 8px; }
 .ai-toggle  { position: relative; width: 44px; height: 24px; cursor: pointer; }
@@ -19,8 +21,12 @@
 .ai-btn     { padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
 .ai-btn-primary { background: #f59e0b; color: #0f0f1a; }
 .ai-btn-primary:hover { opacity: .85; }
-.ai-info    { background: #0f172a; border: 1px solid #1e3a5f; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #60a5fa; line-height: 1.6; }
-.ai-badge   { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 10px; }
+.ai-provider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ai-provider-opt  { border: 1.5px solid #2d2d42; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all .15s; }
+.ai-provider-opt:hover { border-color: #4b5563; }
+.ai-provider-opt.selected { border-color: #f59e0b; background: #1f1a0a; }
+.ai-free-badge { display: inline-block; font-size: 9px; font-weight: 700; background: #052e16; color: #4ade80; border-radius: 3px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
+.ai-info    { background: #0f172a; border: 1px solid #1e3a5f; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #60a5fa; line-height: 1.6; }
 </style>
 
 <div class="ai-grid">
@@ -28,12 +34,10 @@
     {{-- Columna izquierda: configuración --}}
     <div class="ai-card">
 
-        {{-- Header con estado --}}
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
             <div style="font-size: 15px; font-weight: 700; color: #e2e8f0;">Configuración del agente</div>
             @if($agentId)
-            <span class="ai-badge {{ $active ? 'bg-green-900 text-green-400' : 'bg-gray-800 text-gray-500' }}"
-                  style="background: {{ $active ? '#052e16' : '#1f2937' }}; color: {{ $active ? '#4ade80' : '#6b7280' }};">
+            <span style="font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 10px; background: {{ $active ? '#052e16' : '#1f2937' }}; color: {{ $active ? '#4ade80' : '#6b7280' }};">
                 {{ $active ? '● Activo' : '○ Inactivo' }}
             </span>
             @endif
@@ -51,28 +55,71 @@
             <input type="text" class="ai-input" wire:model="name" placeholder="Ej: Valeria - Asistente inmobiliaria">
         </div>
 
+        {{-- Selector de proveedor --}}
+        <div style="margin-bottom: 16px;">
+            <label class="ai-label">Proveedor</label>
+            <div class="ai-provider-grid">
+                @foreach(\App\Filament\Pages\AiAgents::$providers as $key => $info)
+                <div
+                    class="ai-provider-opt {{ $provider === $key ? 'selected' : '' }}"
+                    wire:click="$set('provider', '{{ $key }}')"
+                >
+                    <div style="font-size: 12px; font-weight: 600; color: {{ $provider === $key ? '#f59e0b' : '#94a3b8' }};">
+                        {{ $info['label'] }}
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Modelo --}}
+        <div style="margin-bottom: 16px;">
+            <label class="ai-label">Modelo</label>
+            <select class="ai-select" wire:model="model">
+                @foreach((\App\Filament\Pages\AiAgents::$models[$provider] ?? []) as $modelKey => $modelLabel)
+                <option value="{{ $modelKey }}">{{ $modelLabel }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- API Key --}}
+        <div style="margin-bottom: 16px;">
+            <label class="ai-label">
+                API Key
+                @php $providerInfo = \App\Filament\Pages\AiAgents::$providers[$provider] ?? null; @endphp
+                @if($providerInfo)
+                <a href="{{ $providerInfo['url'] }}" target="_blank" style="color: #f59e0b; font-weight: 400; text-transform: none; font-size: 11px; margin-left: 6px;">Obtener gratis →</a>
+                @endif
+            </label>
+            <input
+                type="password"
+                class="ai-input"
+                wire:model="apiKey"
+                placeholder="{{ $agentId ? '(guardada — escribí para cambiar)' : 'Pegá tu API Key aquí' }}"
+                autocomplete="off"
+            >
+            @if($provider === 'anthropic')
+            <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">O dejá vacío para usar la clave configurada en Mi empresa.</div>
+            @endif
+        </div>
+
         {{-- Toggles --}}
         <div style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
             <div class="ai-toggle-wrap">
                 <div>
                     <div style="font-size: 13px; font-weight: 600; color: #e2e8f0;">Activar agente</div>
-                    <div style="font-size: 11px; color: #4b5563; margin-top: 2px;">Responde automáticamente a mensajes entrantes</div>
+                    <div style="font-size: 11px; color: #4b5563; margin-top: 2px;">Responde a mensajes WhatsApp entrantes</div>
                 </div>
                 <label class="ai-toggle">
                     <input type="checkbox" wire:model.live="active">
                     <span class="ai-slider"></span>
                 </label>
             </div>
-
             <div class="ai-toggle-wrap" style="{{ !$active ? 'opacity:.4; pointer-events:none;' : '' }}">
                 <div>
                     <div style="font-size: 13px; font-weight: 600; color: #e2e8f0;">Envío automático</div>
                     <div style="font-size: 11px; color: #4b5563; margin-top: 2px;">
-                        @if($autoSend)
-                        Envía la respuesta directo al lead por WhatsApp
-                        @else
-                        Guarda la respuesta como borrador para que la revisés
-                        @endif
+                        {{ $autoSend ? 'Envía directo al lead por WhatsApp' : 'Guarda como borrador en el Inbox' }}
                     </div>
                 </div>
                 <label class="ai-toggle">
@@ -82,38 +129,63 @@
             </div>
         </div>
 
-        {{-- System prompt --}}
+        {{-- Prompt --}}
         <div style="margin-bottom: 20px;">
-            <label class="ai-label">Prompt del sistema (personalidad y reglas)</label>
-            <textarea class="ai-textarea" wire:model="systemPrompt" placeholder="Describí cómo debe comportarse el agente..."></textarea>
+            <label class="ai-label">Prompt del sistema</label>
+            <textarea class="ai-textarea" wire:model="systemPrompt" placeholder="Describí la personalidad y reglas del agente..."></textarea>
         </div>
 
-        <button class="ai-btn ai-btn-primary" wire:click="save">
-            Guardar configuración
-        </button>
+        <button class="ai-btn ai-btn-primary" wire:click="save">Guardar configuración</button>
     </div>
 
-    {{-- Columna derecha: info y variables --}}
+    {{-- Columna derecha: info --}}
     <div style="display: flex; flex-direction: column; gap: 16px;">
 
         <div class="ai-card">
-            <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 14px;">🤖 Cómo funciona</div>
-            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #64748b; line-height: 1.6;">
-                <div style="display: flex; gap: 10px;">
-                    <span style="color: #f59e0b; flex-shrink:0;">1.</span>
-                    <span>Llega un mensaje de WhatsApp de un lead</span>
+            <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 14px;">🆓 Opciones gratuitas recomendadas</div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+
+                <div style="border: 1px solid #2d2d42; border-radius: 8px; padding: 12px 14px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px;">
+                        Groq <span class="ai-free-badge">GRATIS</span>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; line-height: 1.5;">
+                        El más rápido. Llama 3.3 70B gratis con límite generoso (14.400 req/día). Ideal para producción.
+                    </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <span style="color: #f59e0b; flex-shrink:0;">2.</span>
-                    <span>El agente IA lee el contexto del lead y el historial de la conversación</span>
+
+                <div style="border: 1px solid #2d2d42; border-radius: 8px; padding: 12px 14px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px;">
+                        OpenRouter <span class="ai-free-badge">GRATIS</span>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; line-height: 1.5;">
+                        Acceso a muchos modelos gratuitos (Llama, Mistral, Phi). Requiere registración. Límites más bajos.
+                    </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <span style="color: #f59e0b; flex-shrink:0;">3.</span>
+
+                <div style="border: 1px solid #2d2d42; border-radius: 8px; padding: 12px 14px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px;">
+                        Google Gemini <span class="ai-free-badge">GRATIS</span>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; line-height: 1.5;">
+                        Gemini 1.5 Flash gratis hasta 1.500 req/día. Muy buena calidad para el precio.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="ai-card">
+            <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 12px;">🤖 Cómo funciona</div>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #64748b; line-height: 1.6;">
+                <div style="display: flex; gap: 10px;"><span style="color:#f59e0b;flex-shrink:0;">1.</span><span>Llega un WhatsApp al lead</span></div>
+                <div style="display: flex; gap: 10px;"><span style="color:#f59e0b;flex-shrink:0;">2.</span><span>El agente lee el historial de la conversación y el contexto del lead</span></div>
+                <div style="display: flex; gap: 10px;"><span style="color:#f59e0b;flex-shrink:0;">3.</span>
                     <span>
                         @if($autoSend)
-                        <strong style="color:#e2e8f0;">Envío automático:</strong> manda la respuesta directamente al lead por WhatsApp
+                        <strong style="color:#e2e8f0;">Auto-envío:</strong> responde directo por WhatsApp
                         @else
-                        <strong style="color:#e2e8f0;">Modo borrador:</strong> guarda la respuesta sugerida en el Inbox para que la revisés antes de enviar
+                        <strong style="color:#e2e8f0;">Borrador:</strong> aparece en el Inbox con botón Enviar/Descartar
                         @endif
                     </span>
                 </div>
@@ -121,23 +193,12 @@
         </div>
 
         <div class="ai-card">
-            <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 12px;">📋 Contexto disponible para el agente</div>
+            <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 10px;">📋 Contexto disponible</div>
             <div class="ai-info">
                 El agente recibe automáticamente:<br><br>
-                • <strong>Nombre</strong> del lead<br>
-                • <strong>Zona</strong> de interés<br>
-                • <strong>Tipo de propiedad</strong> buscada<br>
-                • <strong>Historial</strong> de los últimos 10 mensajes de la conversación<br><br>
-                Podés referenciar este contexto en tu prompt para personalizar las respuestas.
-            </div>
-        </div>
-
-        <div class="ai-card">
-            <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 12px;">⚠️ Requisitos</div>
-            <div style="font-size: 13px; color: #64748b; line-height: 1.7;">
-                • <strong style="color:#94a3b8;">API Key de Anthropic</strong> configurada en <a href="/davyt/companies" style="color:#f59e0b;">Configuración → Mi empresa</a><br>
-                • El agente solo responde dentro de la ventana de 24hs de WhatsApp<br>
-                • En modo borrador, la sugerencia aparece en el <a href="/davyt/inbox" style="color:#f59e0b;">Inbox</a> con botones para enviar o descartar
+                • Nombre, zona y tipo de propiedad del lead<br>
+                • Últimos 10 mensajes de la conversación<br><br>
+                El agente solo responde dentro de la ventana de 24hs de WhatsApp.
             </div>
         </div>
 
