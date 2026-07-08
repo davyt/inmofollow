@@ -169,26 +169,87 @@ class WhatsAppWebhookController extends Controller
                 $msg->update(['ai_draft_reply' => $reply]);
             }
 
-            // Execute AI-requested actions
+            // Execute AI-requested actions and collect summaries for notification
+            $executedSummaries = [];
             foreach ($actions as $action) {
-                $this->executeAiAction($lead, $action);
+                $summary = $this->executeAiAction($lead->fresh(), $action);
+                if ($summary) {
+                    $executedSummaries[] = $summary;
+                }
+            }
+
+            if (! empty($executedSummaries)) {
+                $this->notifyAiActions($lead->fresh(), $executedSummaries);
             }
         } catch (\Throwable $e) {
             Log::warning('AI agent error: ' . $e->getMessage(), ['lead_id' => $lead->id]);
         }
     }
 
-    private function executeAiAction(Lead $lead, array $action): void
+    private function executeAiAction(Lead $lead, array $action): ?string
     {
         try {
-            match ($action['type']) {
-                'update_status'   => $lead->updateQuietly(['lead_status_id' => $action['value']]),
-                'assign_agent'    => $lead->updateQuietly(['user_id' => $action['value']]),
-                'trigger_sequence' => app(FollowUpGenerator::class)->generateForLead($lead->fresh(), 'status_change'),
-                default           => null,
+            return match ($action['type']) {
+                'update_status' => $this->aiUpdateStatus($lead, (int) $action['value']),
+                'assign_agent'  => $this->aiAssignAgent($lead, (int) $action['value']),
+                'trigger_sequence' => $this->aiTriggerSequence($lead),
+                default         => null,
             };
         } catch (\Throwable $e) {
             Log::warning("AI action '{$action['type']}' failed: " . $e->getMessage(), ['lead_id' => $lead->id]);
+            return null;
+        }
+    }
+
+    private function aiUpdateStatus(Lead $lead, int $statusId): ?string
+    {
+        $status = \App\Models\LeadStatus::find($statusId);
+        if (! $status) return null;
+
+        // update() (not updateQuietly) so LeadObserver fires and triggers matching flows
+        $lead->update(['lead_status_id' => $statusId]);
+
+        return "Estado → {$status->name}";
+    }
+
+    private function aiAssignAgent(Lead $lead, int $agentId): ?string
+    {
+        $agent = User::find($agentId);
+        if (! $agent) return null;
+
+        $lead->update(['user_id' => $agentId]);
+
+        return "Asignado → {$agent->name}";
+    }
+
+    private function aiTriggerSequence(Lead $lead): ?string
+    {
+        $created = app(FollowUpGenerator::class)->generateForLead($lead, 'status_change');
+        return $created > 0 ? "Flow disparado ({$created} paso(s) programado(s))" : null;
+    }
+
+    private function notifyAiActions(Lead $lead, array $summaries): void
+    {
+        $body = implode(' · ', $summaries);
+
+        $dbNotification = Notification::make()
+            ->title('🤖 IA actuó sobre ' . ($lead->name ?? 'lead'))
+            ->body($body)
+            ->icon('heroicon-o-cpu-chip')
+            ->actions([
+                FilamentAction::make('ver')->label('Ver lead')->url('/davyt/inbox'),
+            ])
+            ->toDatabase();
+
+        $recipients = User::where('company_id', $lead->company_id)
+            ->where(fn ($q) => $q
+                ->where('role', '!=', 'agent')
+                ->orWhere('id', $lead->user_id)
+            )
+            ->get();
+
+        foreach ($recipients as $user) {
+            $user->notifyNow($dbNotification);
         }
     }
 

@@ -288,7 +288,7 @@
         @elseif($stepType === 'send_message')
         <div style="margin-bottom: 14px;">
             <label class="fl-label">Mensaje</label>
-            <textarea class="fl-textarea" wire:model="stepMessage" placeholder="Escribí el mensaje... Podés usar {{nombre}}, {{zona}}, {{agente}}"></textarea>
+            <textarea class="fl-textarea" wire:model="stepMessage" placeholder="Escribí el mensaje... Podés usar @{{nombre}}, @{{zona}}, @{{agente}}"></textarea>
         </div>
 
         @elseif($stepType === 'update_status')
