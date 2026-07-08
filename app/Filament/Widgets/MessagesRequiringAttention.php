@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\ScheduledMessages\ScheduledMessageResource;
+use App\Filament\Resources\Leads\LeadResource;
 use App\Models\ScheduledMessage;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
@@ -68,12 +68,13 @@ class MessagesRequiringAttention extends BaseWidget
                     ->searchable(),
             ])
             ->recordActions([
-                Action::make('open_resource')
-                    ->label('Abrir')
+                Action::make('ver_lead')
+                    ->label('Ver lead')
                     ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(fn (ScheduledMessage $record): string => ScheduledMessageResource::getUrl('edit', [
-                        'record' => $record,
-                    ])),
+                    ->url(fn (ScheduledMessage $record): string => $record->lead_id
+                        ? LeadResource::getUrl('edit', ['record' => $record->lead_id])
+                        : '#'
+                    ),
             ]);
     }
 

@@ -20,11 +20,6 @@ class AiService
     public function generateTemplateBody(string $channel, string $description): string
     {
         $company = Company::find(config('inmofollow.default_company_id', 1));
-        $apiKey  = $company?->anthropic_api_key ?: config('services.anthropic.api_key');
-
-        if (empty($apiKey)) {
-            throw new RuntimeException('La función de IA no está activada. Configurá la API Key de Anthropic en Configuración → Mi empresa.');
-        }
 
         $channelLabel = match ($channel) {
             'whatsapp' => 'WhatsApp',
@@ -32,11 +27,36 @@ class AiService
             default    => $channel,
         };
 
+        $messages = [['role' => 'user', 'content' => "Canal: {$channelLabel}\n\nDescripción: {$description}"]];
+        $system   = $this->templateSystemPrompt();
+
+        // Prefer the configured AiAgent (any provider) over the Anthropic-only key
+        $agent = AiAgent::where('company_id', $company?->id ?? 1)->first();
+
+        if ($agent && ! empty($agent->api_key)) {
+            $model = $agent->model ?: $this->defaultModel($agent->provider);
+            return match ($agent->provider) {
+                'anthropic'  => $this->callAnthropic($agent->api_key, $model, $system, $messages, 1024),
+                'openai'     => $this->callOpenAiCompat($agent->api_key, 'https://api.openai.com/v1/chat/completions', $model, $system, $messages),
+                'groq'       => $this->callOpenAiCompat($agent->api_key, 'https://api.groq.com/openai/v1/chat/completions', $model, $system, $messages),
+                'gemini'     => $this->callGemini($agent->api_key, $model, $system, $messages),
+                'openrouter' => $this->callOpenAiCompat($agent->api_key, 'https://openrouter.ai/api/v1/chat/completions', $model, $system, $messages),
+                default      => throw new RuntimeException("Proveedor no soportado: {$agent->provider}"),
+            };
+        }
+
+        // Fallback: company Anthropic key
+        $apiKey = $company?->anthropic_api_key ?: config('services.anthropic.api_key');
+
+        if (empty($apiKey)) {
+            throw new RuntimeException('Configurá una API Key en Agentes IA (o la clave de Anthropic en Mi empresa) para usar esta función.');
+        }
+
         return $this->callAnthropic(
             apiKey:    $apiKey,
             model:     config('services.anthropic.model', 'claude-haiku-4-5-20251001'),
-            system:    $this->templateSystemPrompt(),
-            messages:  [['role' => 'user', 'content' => "Canal: {$channelLabel}\n\nDescripción: {$description}"]],
+            system:    $system,
+            messages:  $messages,
             maxTokens: 1024,
         );
     }
