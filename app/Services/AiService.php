@@ -175,6 +175,12 @@ class AiService
         // Remove any other [Word: Value] brackets the AI may echo from the context
         $reply = preg_replace('/\[[^\[\]]{1,60}:[^\[\]]{1,120}\]/', '', $reply);
 
+        // Remove section headers the AI may echo from the actions context
+        $reply = preg_replace('/^\s*(Comandos?:?|---+)\s*$/im', '', $reply);
+
+        // Remove trailing lines that are just punctuation or symbols
+        $reply = preg_replace('/^\s*[→\-\*•:]+\s*$/im', '', $reply);
+
         $reply = trim(preg_replace('/\n{3,}/', "\n\n", $reply));
 
         return ['reply' => $reply, 'actions' => $actions];
