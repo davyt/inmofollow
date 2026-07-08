@@ -4,6 +4,11 @@ namespace App\Filament\Pages;
 
 use App\Models\AiAgent;
 use App\Models\AiKnowledgeEntry;
+use App\Models\Lead;
+use App\Models\LeadStatus;
+use App\Models\Sequence;
+use App\Models\User as UserModel;
+use App\Services\AiService;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +49,13 @@ class AiAgents extends Page
     public         $kbFile       = null;
     public string  $kbMessage    = '';
     public bool    $kbLoading    = false;
+
+    // Playground
+    public array   $pgHistory    = [];
+    public string  $pgInput      = '';
+    public ?int    $pgLeadId     = null;
+    public string  $pgError      = '';
+    public array   $pgLeads      = [];
 
     public static array $providers = [
         'groq'       => ['label' => 'Groq (gratuito)',       'url' => 'https://console.groq.com/keys'],
@@ -102,6 +114,7 @@ class AiAgents extends Page
         }
 
         $this->loadEntries();
+        $this->loadLeads();
     }
 
     public function loadEntries(): void
@@ -247,6 +260,76 @@ class AiAgents extends Page
             $this->loadEntries();
         }
     }
+
+    // --- Playground ---
+
+    public function loadLeads(): void
+    {
+        $user = Auth::user();
+        $this->pgLeads = Lead::where('company_id', $user->company_id)
+            ->whereNotNull('name')
+            ->orderByDesc('created_at')
+            ->limit(60)
+            ->get(['id', 'name', 'phone'])
+            ->toArray();
+    }
+
+    public function sendPlayground(): void
+    {
+        $this->pgError = '';
+        $message = trim($this->pgInput);
+
+        if (! $message) return;
+
+        if (! $this->agentId) {
+            $this->pgError = 'Guardá la configuración del agente primero.';
+            return;
+        }
+
+        $agent = AiAgent::find($this->agentId);
+        if (! $agent) return;
+
+        $this->pgHistory[] = ['role' => 'user', 'content' => $message, 'actions' => []];
+        $this->pgInput = '';
+
+        try {
+            $lead      = $this->pgLeadId ? Lead::find($this->pgLeadId) : null;
+            $companyId = Auth::user()->company_id;
+
+            // History for API: only role+content, skip the user msg just added
+            $apiHistory = array_map(
+                fn ($m) => ['role' => $m['role'], 'content' => $m['content']],
+                array_slice($this->pgHistory, 0, -1),
+            );
+
+            $result = app(AiService::class)->generatePlaygroundReply($apiHistory, $message, $agent, $lead, $companyId);
+
+            // Resolve human-readable labels for actions
+            $actions = array_map(function ($action) {
+                $label = match ($action['type']) {
+                    'update_status'    => 'Estado → ' . (LeadStatus::find($action['value'])?->name ?? "#{$action['value']}"),
+                    'assign_agent'     => 'Agente → ' . (UserModel::find($action['value'])?->name ?? "#{$action['value']}"),
+                    'trigger_sequence' => 'Flow → '   . (Sequence::find($action['value'])?->name   ?? "#{$action['value']}"),
+                    default            => "{$action['type']}:{$action['value']}",
+                };
+                return array_merge($action, ['label' => $label]);
+            }, $result['actions']);
+
+            $this->pgHistory[] = ['role' => 'assistant', 'content' => $result['reply'], 'actions' => $actions];
+
+        } catch (\Throwable $e) {
+            $this->pgHistory[] = ['role' => 'assistant', 'content' => 'Error: ' . $e->getMessage(), 'actions' => []];
+        }
+    }
+
+    public function clearPlayground(): void
+    {
+        $this->pgHistory = [];
+        $this->pgInput   = '';
+        $this->pgError   = '';
+    }
+
+    // -------------------------------------------------------------------------
 
     private function fetchUrl(string $url): string
     {

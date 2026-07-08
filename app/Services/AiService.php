@@ -69,6 +69,45 @@ class AiService
     // -------------------------------------------------------------------------
 
     /**
+     * Generate a reply for the playground (conversation history passed directly, no DB writes).
+     * Returns ['reply' => string, 'actions' => [...]]
+     */
+    public function generatePlaygroundReply(array $history, string $inboundMessage, AiAgent $agent, ?Lead $lead, int $companyId): array
+    {
+        $apiKey = $this->resolveApiKeyByCompany($agent, $companyId);
+
+        $messages = array_merge($history, [['role' => 'user', 'content' => $inboundMessage]]);
+
+        $contextLines = $lead ? array_filter([
+            'Nombre del lead: '   . ($lead->name ?? 'Desconocido'),
+            'Zona de interés: '   . ($lead->zone ?? null),
+            'Tipo de propiedad: ' . ($lead->property_type ?? null),
+        ]) : ['(Modo prueba — sin lead real)'];
+
+        $system = $agent->system_prompt . "\n\nContexto del lead:\n" . implode("\n", $contextLines);
+
+        $kb = $this->buildKnowledgeContext($companyId);
+        if ($kb) {
+            $system .= "\n\n---\nBASE DE CONOCIMIENTO:\n" . $kb;
+        }
+
+        $system .= "\n\n" . $this->buildActionsContext($companyId);
+
+        $model = $agent->model ?: $this->defaultModel($agent->provider);
+
+        $raw = match ($agent->provider) {
+            'anthropic'  => $this->callAnthropic($apiKey, $model, $system, $messages, 600),
+            'openai'     => $this->callOpenAiCompat($apiKey, 'https://api.openai.com/v1/chat/completions', $model, $system, $messages),
+            'groq'       => $this->callOpenAiCompat($apiKey, 'https://api.groq.com/openai/v1/chat/completions', $model, $system, $messages),
+            'gemini'     => $this->callGemini($apiKey, $model, $system, $messages),
+            'openrouter' => $this->callOpenAiCompat($apiKey, 'https://openrouter.ai/api/v1/chat/completions', $model, $system, $messages),
+            default      => throw new RuntimeException("Proveedor no soportado: {$agent->provider}"),
+        };
+
+        return $this->parseActionsFromReply($raw);
+    }
+
+    /**
      * Generate an AI reply for an inbound WhatsApp message.
      * Returns ['reply' => string, 'actions' => [['type' => string, 'value' => int], ...]]
      */
@@ -212,13 +251,17 @@ class AiService
 
     private function resolveApiKey(AiAgent $agent, Lead $lead): string
     {
+        return $this->resolveApiKeyByCompany($agent, $lead->company_id);
+    }
+
+    private function resolveApiKeyByCompany(AiAgent $agent, int $companyId): string
+    {
         if (! empty($agent->api_key)) {
             return $agent->api_key;
         }
 
-        // Fallback a clave de la compañía (solo para Anthropic)
         if ($agent->provider === 'anthropic') {
-            $company = Company::find($lead->company_id);
+            $company = Company::find($companyId);
             $key     = $company?->anthropic_api_key ?: config('services.anthropic.api_key');
             if ($key) return $key;
         }

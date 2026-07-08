@@ -326,4 +326,119 @@
 
 </div>
 
+{{-- ============================================================ --}}
+{{-- Playground --}}
+{{-- ============================================================ --}}
+<div style="margin-top: 20px;" class="ai-card">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <div style="font-size: 15px; font-weight: 700; color: #e2e8f0;">
+                🧪 Playground
+                <span style="font-size: 10px; font-weight: 700; background: #1e3a5f; color: #60a5fa; border-radius: 3px; padding: 2px 7px; margin-left: 8px; vertical-align: middle; letter-spacing: .04em;">SIN EFECTOS REALES</span>
+            </div>
+            <div style="font-size: 12px; color: #4b5563; margin-top: 3px;">Probá el agente como si fueras el lead. Las acciones <code style="font-size:10px;background:#13131f;padding:1px 4px;border-radius:3px;">[ESTADO]</code> <code style="font-size:10px;background:#13131f;padding:1px 4px;border-radius:3px;">[AGENTE]</code> se detectan pero no se ejecutan.</div>
+        </div>
+        @if(!empty($pgHistory))
+        <button class="ai-btn" style="background:#23233a;color:#94a3b8;border:1px solid #2d2d42;font-size:11px;padding:6px 14px;" wire:click="clearPlayground">Limpiar chat</button>
+        @endif
+    </div>
+
+    {{-- Lead de contexto --}}
+    @if(!empty($pgLeads))
+    <div style="margin-bottom: 16px;">
+        <label class="ai-label">Lead de contexto (opcional)</label>
+        <select class="ai-select" wire:model.live="pgLeadId" style="max-width: 380px;">
+            <option value="">Sin lead — modo prueba genérico</option>
+            @foreach($pgLeads as $l)
+            <option value="{{ $l['id'] }}">{{ $l['name'] }}{{ $l['phone'] ? ' (' . $l['phone'] . ')' : '' }}</option>
+            @endforeach
+        </select>
+    </div>
+    @endif
+
+    {{-- Ventana de chat --}}
+    <div id="pg-chat" style="background:#0d0d1a;border:1px solid #2d2d42;border-radius:10px;padding:16px;min-height:200px;max-height:440px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px;">
+
+        @if(empty($pgHistory))
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#374151;font-size:13px;padding:40px 0;">
+            Escribí un mensaje para comenzar a probar el agente...
+        </div>
+        @else
+
+        @foreach($pgHistory as $msg)
+
+            @if($msg['role'] === 'user')
+            {{-- Mensaje del usuario (derecha, simula el lead) --}}
+            <div style="display:flex;justify-content:flex-end;">
+                <div style="background:#1e3a5f;color:#bfdbfe;border-radius:14px 14px 2px 14px;padding:10px 14px;max-width:78%;font-size:13px;line-height:1.55;word-break:break-word;">
+                    {{ $msg['content'] }}
+                </div>
+            </div>
+
+            @else
+            {{-- Respuesta del agente (izquierda) --}}
+            <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
+                <div style="display:flex;align-items:flex-end;gap:8px;">
+                    <span style="font-size:18px;flex-shrink:0;line-height:1;">🤖</span>
+                    <div style="background:#1a1a2e;border:1px solid #2d2d42;color:#e2e8f0;border-radius:14px 14px 14px 2px;padding:10px 14px;max-width:80%;font-size:13px;line-height:1.55;word-break:break-word;">
+                        {{ $msg['content'] }}
+                    </div>
+                </div>
+                @if(!empty($msg['actions']))
+                <div style="display:flex;flex-wrap:wrap;gap:6px;padding-left:30px;">
+                    @foreach($msg['actions'] as $action)
+                    <span style="font-size:10px;font-weight:700;background:#052e16;color:#4ade80;border-radius:4px;padding:3px 9px;border:1px solid #16653444;">
+                        ⚡ {{ $action['label'] }}
+                    </span>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+            @endif
+
+        @endforeach
+        @endif
+
+    </div>
+
+    @if($pgError)
+    <div style="background:#450a0a;border:1px solid #7f1d1d;border-radius:6px;padding:8px 12px;color:#f87171;font-size:12px;margin-bottom:10px;">{{ $pgError }}</div>
+    @endif
+
+    @if(! $agentId)
+    <div class="ai-info" style="margin-bottom: 0;">Configurá y guardá el agente arriba para poder usar el playground.</div>
+    @else
+    {{-- Input --}}
+    <div style="display:flex;gap:10px;">
+        <input
+            type="text"
+            class="ai-input"
+            wire:model="pgInput"
+            wire:keydown.enter="sendPlayground"
+            placeholder="Escribí como si fueras el lead..."
+            style="flex:1;"
+        >
+        <button
+            class="ai-btn ai-btn-primary"
+            wire:click="sendPlayground"
+            wire:loading.attr="disabled"
+            wire:target="sendPlayground"
+            style="flex-shrink:0;min-width:80px;"
+        >
+            <span wire:loading.remove wire:target="sendPlayground">Enviar</span>
+            <span wire:loading wire:target="sendPlayground">...</span>
+        </button>
+    </div>
+    @endif
+
+</div>
+
+<script>
+document.addEventListener('livewire:updated', function () {
+    var chat = document.getElementById('pg-chat');
+    if (chat) chat.scrollTop = chat.scrollHeight;
+});
+</script>
+
 </x-filament-panels::page>
