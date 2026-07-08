@@ -120,12 +120,22 @@ class AiService
         $messages[] = ['role' => 'user', 'content' => $inboundMessage];
 
         $contextLines = array_filter([
-            'Nombre del lead: ' . ($lead->name ?? 'Desconocido'),
-            'Zona de interés: '  . ($lead->zone ?? null),
-            'Tipo de propiedad: '. ($lead->property_type ?? null),
+            'Nombre del lead: '   . ($lead->name ?? 'Desconocido'),
+            'Zona de interés: '   . ($lead->zone ?? null),
+            'Tipo de propiedad: ' . ($lead->property_type ?? null),
         ]);
 
-        $system = $agent->system_prompt . $this->buildLeadContext(array_values($contextLines));
+        if ($lead->primaryListing) {
+            $l = $lead->primaryListing;
+            if ($l->operation)    $contextLines[] = 'Operación: '        . $l->operation;
+            if ($l->asking_price) $contextLines[] = 'Precio publicado: ' . $l->formattedPrice();
+            if ($l->bedrooms)     $contextLines[] = 'Dormitorios: '      . $l->bedrooms;
+            if ($l->bathrooms)    $contextLines[] = 'Baños: '            . $l->bathrooms;
+            if ($l->m2_covered)   $contextLines[] = 'M² cubiertos: '     . $l->m2_covered;
+            if ($l->listing_url)  $contextLines[] = 'Publicación ML: '   . $l->listing_url;
+        }
+
+        $system = $agent->system_prompt . $this->buildLeadContext(array_values(array_filter($contextLines)));
 
         $kb = $this->buildKnowledgeContext($lead->company_id);
         if ($kb) {

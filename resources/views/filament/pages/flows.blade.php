@@ -122,6 +122,16 @@
                     </select>
                 </div>
                 @endif
+                <div>
+                    <label class="fl-label">Solo si Origen es (opcional)</label>
+                    <select class="fl-select" wire:model="newTriggerSource" style="width: 180px;">
+                        <option value="">Cualquier origen</option>
+                        <option value="ml">MercadoLibre (ml)</option>
+                        <option value="2clics">2clics</option>
+                        <option value="web">Web</option>
+                        <option value="manual">Manual</option>
+                    </select>
+                </div>
                 <button class="fl-btn fl-btn-amber" wire:click="createSequence">Crear</button>
                 <button class="fl-btn fl-btn-ghost" wire:click="$set('showNewForm', false)">Cancelar</button>
             </div>

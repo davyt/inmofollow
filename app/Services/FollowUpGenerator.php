@@ -96,6 +96,10 @@ class FollowUpGenerator
             ->where('trigger_type', $triggerType)
             ->where(function ($q) use ($lead) {
                 $q->whereNull('company_id')->orWhere('company_id', $lead->company_id);
+            })
+            ->where(function ($q) use ($lead) {
+                $q->whereNull('trigger_source')
+                  ->orWhere('trigger_source', $lead->source);
             });
 
         if ($triggerType === 'status_change') {

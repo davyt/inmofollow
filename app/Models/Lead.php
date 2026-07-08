@@ -52,6 +52,16 @@ class Lead extends Model
         return $this->hasMany(WaInboundMessage::class);
     }
 
+    public function listings()
+    {
+        return $this->hasMany(LeadListing::class);
+    }
+
+    public function primaryListing()
+    {
+        return $this->belongsTo(LeadListing::class, 'primary_listing_id');
+    }
+
     public function hasActiveWhatsAppSession(): bool
     {
         return $this->last_wa_inbound_at !== null

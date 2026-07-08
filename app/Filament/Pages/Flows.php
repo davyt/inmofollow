@@ -34,10 +34,11 @@ class Flows extends Page
     public ?array  $flow       = null;
 
     // New sequence form
-    public bool   $showNewForm     = false;
-    public string $newName         = '';
-    public string $newTriggerType  = 'status_change';
-    public ?int   $newStatusId     = null;
+    public bool   $showNewForm      = false;
+    public string $newName          = '';
+    public string $newTriggerType   = 'status_change';
+    public ?int   $newStatusId      = null;
+    public string $newTriggerSource = '';
 
     // Step form
     public bool   $showStepForm        = false;
@@ -173,9 +174,10 @@ class Flows extends Page
         $this->showNewForm     = true;
         $this->selectedId      = null;
         $this->flow            = null;
-        $this->newName         = '';
-        $this->newTriggerType  = 'status_change';
-        $this->newStatusId     = null;
+        $this->newName          = '';
+        $this->newTriggerType   = 'status_change';
+        $this->newStatusId      = null;
+        $this->newTriggerSource = '';
     }
 
     public function createSequence(): void
@@ -188,6 +190,7 @@ class Flows extends Page
             'name'           => $this->newName ?: 'Flow sin nombre',
             'trigger_type'   => $this->newTriggerType,
             'lead_status_id' => $this->newTriggerType === 'status_change' ? $this->newStatusId : null,
+            'trigger_source' => $this->newTriggerSource ?: null,
             'active'         => true,
         ]);
 
