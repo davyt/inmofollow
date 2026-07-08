@@ -24,9 +24,17 @@ class AiAgents extends Page
     protected static ?string                 $navigationLabel = 'Agentes IA';
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-cpu-chip';
     protected static ?string                 $title           = 'Agentes IA';
-    protected static ?int                    $navigationSort  = 1;
-    protected static \UnitEnum|string|null         $navigationGroup = 'IA';
+    protected static ?int                    $navigationSort  = 40;
+    protected static \UnitEnum|string|null         $navigationGroup = 'Configuración';
     protected string                         $view            = 'filament.pages.ai-agents';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
+    }
+
+    // Tab activo: 'config' | 'playground'
+    public string  $activeTab    = 'config';
 
     // Agent config
     public ?int    $agentId      = null;

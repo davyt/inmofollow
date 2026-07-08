@@ -13,11 +13,17 @@ use Illuminate\Support\Facades\Auth;
 
 class Broadcasts extends Page
 {
-    protected static ?string                 $navigationLabel = 'Broadcasts';
+    protected static ?string                 $navigationLabel = 'Broadcast';
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-megaphone';
-    protected static ?string                 $title           = 'Broadcasts';
-    protected static ?int                    $navigationSort  = 2;
+    protected static ?string                 $title           = 'Broadcast';
+    protected static ?int                    $navigationSort  = 20;
     protected static \UnitEnum|string|null         $navigationGroup = 'Comunicación';
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->isAdmin() || $user->isSupervisor());
+    }
     protected string                         $view            = 'filament.pages.broadcasts';
 
     // Form fields

@@ -48,7 +48,7 @@ class ScheduledMessageResource extends Resource
     
     public static function getNavigationGroup(): ?string
     {
-        return 'Automatización';
+        return 'Comunicación';
     }
 
     protected static ?string $recordTitleAttribute = 'id';

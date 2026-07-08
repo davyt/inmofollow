@@ -26,7 +26,7 @@ class UserResource extends Resource
     
     protected static ?string $navigationLabel = 'Usuarios';
     
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 50;
     
     public static function getNavigationGroup(): ?string
     {

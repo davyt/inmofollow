@@ -28,11 +28,16 @@ class MessageTemplateResource extends Resource
 
     protected static ?string $navigationLabel = 'Plantillas';
     
-    protected static ?int $navigationSort = 10;
-    
+    protected static ?int $navigationSort = 30;
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Automatización';
+        return 'Configuración';
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->isAdmin();
     }
 
     public static function form(Schema $schema): Schema

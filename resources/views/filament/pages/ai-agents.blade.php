@@ -27,8 +27,19 @@
 .ai-provider-opt.selected { border-color: #f59e0b; background: #1f1a0a; }
 .ai-free-badge { display: inline-block; font-size: 9px; font-weight: 700; background: #052e16; color: #4ade80; border-radius: 3px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
 .ai-info    { background: #0f172a; border: 1px solid #1e3a5f; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #60a5fa; line-height: 1.6; }
+.ai-tabs    { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #2d2d42; }
+.ai-tab     { padding: 10px 20px; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
+.ai-tab:hover { color: #e2e8f0; }
+.ai-tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
 </style>
 
+{{-- Tab bar --}}
+<div class="ai-tabs">
+    <button class="ai-tab {{ $activeTab === 'config' ? 'active' : '' }}" wire:click="$set('activeTab','config')">⚙ Configuración</button>
+    <button class="ai-tab {{ $activeTab === 'playground' ? 'active' : '' }}" wire:click="$set('activeTab','playground')">🧪 Playground</button>
+</div>
+
+@if($activeTab === 'config')
 <div class="ai-grid">
 
     {{-- Columna izquierda: configuración --}}
@@ -326,10 +337,13 @@
 
 </div>
 
+@endif
+
 {{-- ============================================================ --}}
 {{-- Playground --}}
 {{-- ============================================================ --}}
-<div style="margin-top: 20px;" class="ai-card">
+@if($activeTab === 'playground')
+<div class="ai-card">
 
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
         <div>
@@ -433,6 +447,8 @@
     @endif
 
 </div>
+
+@endif
 
 <script>
 document.addEventListener('livewire:updated', function () {

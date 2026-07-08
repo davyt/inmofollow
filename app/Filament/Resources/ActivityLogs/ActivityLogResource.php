@@ -27,16 +27,16 @@ class ActivityLogResource extends Resource
     
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 60;
 
     public static function getNavigationGroup(): ?string
     {
         return 'Configuración';
     }
-    
+
     public static function canViewAny(): bool
     {
-        return auth()->user()?->isAdmin() || auth()->user()?->isSupervisor();
+        return auth()->user()?->isAdmin();
     }
     
     public static function canCreate(): bool

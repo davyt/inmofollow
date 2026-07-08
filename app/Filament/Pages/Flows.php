@@ -16,8 +16,14 @@ class Flows extends Page
     protected static ?string                 $navigationLabel = 'Flows';
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-arrow-path';
     protected static ?string                 $title           = 'Flujos de automatización';
-    protected static ?int                    $navigationSort  = 1;
-    protected static \UnitEnum|string|null   $navigationGroup = 'Automatización';
+    protected static ?int                    $navigationSort  = 10;
+    protected static \UnitEnum|string|null   $navigationGroup = 'Automatizaciones';
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->isAdmin() || $user->isSupervisor());
+    }
     protected string                         $view            = 'filament.pages.flows';
 
     public array   $sequences  = [];
