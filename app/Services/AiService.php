@@ -84,7 +84,7 @@ class AiService
             'Tipo de propiedad: ' . ($lead->property_type ?? null),
         ]) : ['(Modo prueba — sin lead real)'];
 
-        $system = $agent->system_prompt . "\n\nContexto del lead:\n" . implode("\n", $contextLines);
+        $system = $agent->system_prompt . $this->buildLeadContext(array_values($contextLines));
 
         $kb = $this->buildKnowledgeContext($companyId);
         if ($kb) {
@@ -125,7 +125,7 @@ class AiService
             'Tipo de propiedad: '. ($lead->property_type ?? null),
         ]);
 
-        $system = $agent->system_prompt . "\n\nContexto del lead:\n" . implode("\n", $contextLines);
+        $system = $agent->system_prompt . $this->buildLeadContext(array_values($contextLines));
 
         $kb = $this->buildKnowledgeContext($lead->company_id);
         if ($kb) {
@@ -169,9 +169,21 @@ class AiService
             ];
         }
 
-        $reply = trim(preg_replace('/\[(ESTADO|AGENTE|SECUENCIA):\d+\]/i', '', $raw));
+        // Remove recognized action tags
+        $reply = preg_replace('/\[(ESTADO|AGENTE|SECUENCIA):\d+\]/i', '', $raw);
+
+        // Remove any other [Word: Value] brackets the AI may echo from the context
+        $reply = preg_replace('/\[[^\[\]]{1,60}:[^\[\]]{1,120}\]/', '', $reply);
+
+        $reply = trim(preg_replace('/\n{3,}/', "\n\n", $reply));
 
         return ['reply' => $reply, 'actions' => $actions];
+    }
+
+    private function buildLeadContext(array $lines): string
+    {
+        $content = implode("\n", $lines);
+        return "\n\n--- CONTEXTO INTERNO (solo para tu uso — NO lo incluyas ni menciones en tu respuesta al cliente) ---\n{$content}\n--- FIN CONTEXTO ---";
     }
 
     // -------------------------------------------------------------------------
