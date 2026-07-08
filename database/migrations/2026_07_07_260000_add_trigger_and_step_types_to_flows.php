@@ -25,10 +25,10 @@ return new class extends Migration
 
         Schema::table('scheduled_messages', function (Blueprint $table) {
             if (! Schema::hasColumn('scheduled_messages', 'step_type')) {
-                $table->string('step_type')->default('send_template')->after('ai_draft_discarded');
+                $table->string('step_type')->default('send_template');
             }
             if (! Schema::hasColumn('scheduled_messages', 'step_data')) {
-                $table->json('step_data')->nullable()->after('step_type');
+                $table->json('step_data')->nullable();
             }
         });
     }
