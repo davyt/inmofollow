@@ -61,12 +61,11 @@ class CompanyResource extends Resource
     
     public static function shouldRegisterNavigation(): bool
     {
-        return config('inmofollow.allow_company_management', false);
+        return false;
     }
-    
+
     public static function canViewAny(): bool
     {
-        return config('inmofollow.allow_company_management', false)
-            && auth()->user()?->isAdmin();
+        return false;
     }
 }
