@@ -17,8 +17,13 @@ class Pipeline extends Page
     protected static \UnitEnum|string|null         $navigationGroup = 'Comercial';
     protected string                         $view            = 'filament.pages.pipeline';
 
-    public array $statuses      = [];
-    public array $leadsByStatus = [];
+    public array  $statuses         = [];
+    public array  $leadsByStatus    = [];
+
+    // Nuevo estado inline
+    public bool   $showNewStatus    = false;
+    public string $newStatusName    = '';
+    public string $newStatusColor   = '#6366f1';
 
     public function mount(): void
     {
@@ -63,6 +68,27 @@ class Pipeline extends Page
         }
 
         $lead->update(['lead_status_id' => $newStatusId]);
+        $this->loadBoard();
+    }
+
+    public function createStatus(): void
+    {
+        $name = trim($this->newStatusName);
+        if (! $name) return;
+
+        $user     = Auth::user();
+        $maxOrder = LeadStatus::where('company_id', $user->company_id)->max('sort_order') ?? -1;
+
+        LeadStatus::create([
+            'company_id' => $user->company_id,
+            'name'       => $name,
+            'color'      => $this->newStatusColor,
+            'sort_order' => $maxOrder + 1,
+        ]);
+
+        $this->newStatusName  = '';
+        $this->newStatusColor = '#6366f1';
+        $this->showNewStatus  = false;
         $this->loadBoard();
     }
 
