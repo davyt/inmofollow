@@ -16,13 +16,10 @@
   }
   body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--slate); line-height: 1.7; }
   a { color: var(--blue); }
-
-  /* LAYOUT */
   .layout { display: flex; min-height: 100vh; }
   .sidebar { width: 260px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); padding: 32px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
   .content { flex: 1; padding: 48px 48px 80px; max-width: 820px; }
-
-  /* SIDEBAR */
+  @media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; padding: 20px; } .sidebar nav { flex-direction: row; flex-wrap: wrap; } .content { padding: 24px 20px 60px; } }
   .sidebar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--blue); margin-bottom: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
   .sidebar-back { font-size: 13px; color: var(--slate-light); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 20px; }
   .sidebar-back:hover { color: var(--blue); }
@@ -30,29 +27,16 @@
   .sidebar nav a { font-size: 13px; color: var(--slate-mid); text-decoration: none; padding: 7px 12px; border-radius: 8px; display: block; }
   .sidebar nav a:hover { background: var(--bg); color: var(--slate); }
   .sidebar-section { font-size: 11px; font-weight: 600; color: var(--slate-light); letter-spacing: .08em; text-transform: uppercase; padding: 16px 12px 6px; }
-
-  /* TOPBAR MOBILE */
-  @media (max-width: 768px) {
-    .layout { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; position: relative; padding: 20px; }
-    .sidebar nav { flex-direction: row; flex-wrap: wrap; }
-    .content { padding: 24px 20px 60px; }
-  }
-
-  /* CONTENT TYPOGRAPHY */
   .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
   .page-label { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
   .page-title { font-size: clamp(24px, 3vw, 36px); font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
   .page-subtitle { color: var(--slate-mid); font-size: 17px; }
-
   h2 { font-size: 22px; font-weight: 700; margin-top: 52px; margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
   h3 { font-size: 16px; font-weight: 600; margin-top: 28px; margin-bottom: 10px; color: var(--slate); }
   p  { margin-bottom: 14px; color: var(--slate-mid); font-size: 15px; }
   ul, ol { margin: 12px 0 16px 20px; color: var(--slate-mid); font-size: 15px; }
   li { margin-bottom: 6px; }
   strong { color: var(--slate); font-weight: 600; }
-
-  /* CALLOUTS */
   .callout { border-radius: 12px; padding: 16px 20px; margin: 20px 0; display: flex; gap: 12px; font-size: 14px; }
   .callout.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
   .callout.warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
@@ -60,15 +44,11 @@
   .callout.danger  { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; }
   .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
   .callout p { margin: 0; color: inherit; font-size: 14px; }
-
-  /* MODULES GRID */
   .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 24px 0; }
   .module-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
   .module-card .icon { font-size: 24px; margin-bottom: 10px; }
   .module-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
   .module-card p { font-size: 13px; color: var(--slate-mid); margin: 0; }
-
-  /* FLOW */
   .flow { display: flex; flex-direction: column; gap: 0; margin: 24px 0; }
   .flow-step { display: flex; gap: 16px; }
   .flow-line { display: flex; flex-direction: column; align-items: center; }
@@ -77,26 +57,22 @@
   .flow-body { padding-bottom: 24px; flex: 1; }
   .flow-body h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .flow-body p { font-size: 14px; color: var(--slate-mid); margin: 0; }
-
-  /* TABLE */
   table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
   th { background: var(--bg); font-weight: 600; text-align: left; padding: 10px 14px; border: 1px solid var(--border); color: var(--slate); }
   td { padding: 10px 14px; border: 1px solid var(--border); color: var(--slate-mid); vertical-align: top; }
   tr:hover td { background: #fafafa; }
-
-  /* TAG */
   .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 4px; }
   .tag.blue  { background: #eff6ff; color: #1d4ed8; }
   .tag.green { background: #f0fdf4; color: #15803d; }
   .tag.amber { background: #fffbeb; color: #b45309; }
   .tag.red   { background: #fef2f2; color: #b91c1c; }
   .tag.gray  { background: #f1f5f9; color: #475569; }
+  code { background: #f1f5f9; border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; font-size: 13px; font-family: monospace; color: var(--slate); }
 </style>
 </head>
 <body>
 <div class="layout">
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-brand">🏠 InmoFollow</div>
   <a class="sidebar-back" href="index.html">← Volver al índice</a>
@@ -109,14 +85,14 @@
     <a href="#whatsapp">Integración WhatsApp</a>
     <a href="#ia">IA y automatización</a>
     <a href="#importacion">Importación de leads</a>
+    <a href="#expediente">Expediente de propiedad</a>
+    <a href="#flows">Flows y orígenes</a>
     <a href="#roles">Roles de usuario</a>
-    <a href="#integraciones">Integraciones futuras</a>
     <a href="#requisitos">Requisitos técnicos</a>
     <a href="#limitaciones">Limitaciones actuales</a>
   </nav>
 </aside>
 
-<!-- CONTENT -->
 <main class="content">
 
   <div class="page-header">
@@ -125,24 +101,27 @@
     <p class="page-subtitle">Visión general del sistema: módulos, flujos, integraciones y limitaciones.</p>
   </div>
 
-  <!-- QUÉ ES -->
   <h2 id="que-es">¿Qué es InmoFollow?</h2>
-  <p>InmoFollow es una plataforma de <strong>automatización de marketing por WhatsApp</strong> diseñada para inmobiliarias. Permite gestionar leads, programar secuencias de mensajes y enviarlos automáticamente a través de la API oficial de WhatsApp Business.</p>
-  <p>El sistema está pensado para trabajar junto a un CRM existente (como 2clics.app): el CRM maneja la operativa comercial del negocio, mientras que InmoFollow se encarga de la comunicación masiva y automatizada por WhatsApp.</p>
+  <p>InmoFollow es una plataforma de <strong>automatización de marketing por WhatsApp</strong> diseñada para inmobiliarias. Permite gestionar leads, registrar las propiedades de interés, programar secuencias de mensajes y enviarlos automáticamente a través de la API oficial de WhatsApp Business.</p>
+  <p>El sistema está pensado para trabajar junto a un CRM existente (como 2clics.app) o como punto de entrada para leads de MercadoLibre: el CRM maneja la operativa comercial del negocio, mientras que InmoFollow se encarga de la comunicación masiva y automatizada por WhatsApp.</p>
 
   <div class="callout info">
     <span class="callout-icon">💡</span>
-    <p><strong>En resumen:</strong> InmoFollow no reemplaza tu CRM, lo complementa. Te da el motor de mensajería que el CRM no tiene.</p>
+    <p><strong>En resumen:</strong> InmoFollow no reemplaza tu CRM, lo complementa. Te da el motor de mensajería que el CRM no tiene, más el expediente de cada propiedad que el lead publicó o consultó.</p>
   </div>
 
-  <!-- MÓDULOS -->
   <h2 id="modulos">Módulos del sistema</h2>
 
   <div class="module-grid">
     <div class="module-card">
       <div class="icon">👥</div>
       <h4>Leads</h4>
-      <p>Registro de clientes potenciales con datos de contacto, zona, tipo de propiedad, estado, agente asignado e historial de actividad.</p>
+      <p>Registro de clientes potenciales con datos de contacto, zona, tipo de propiedad, estado, agente asignado e historial de actividad. Cada lead puede tener uno o varios expedientes de propiedad.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">🏠</div>
+      <h4>Expediente de propiedad</h4>
+      <p>Registro de la propiedad publicada por el lead (desde MercadoLibre u otro origen): tipo, operación, precio, m², dormitorios, baños, zona y link a la publicación. La IA los usa como contexto automáticamente.</p>
     </div>
     <div class="module-card">
       <div class="icon">🗂️</div>
@@ -151,18 +130,18 @@
     </div>
     <div class="module-card">
       <div class="icon">💬</div>
-      <h4>Inbox</h4>
+      <h4>Conversaciones (Inbox)</h4>
       <p>Bandeja de mensajes entrantes de WhatsApp. Permite responder, ver el historial de conversación y aprobar o descartar respuestas generadas por la IA.</p>
     </div>
     <div class="module-card">
       <div class="icon">📢</div>
-      <h4>Broadcasts</h4>
+      <h4>Broadcast</h4>
       <p>Envíos masivos a un conjunto de leads seleccionados. Usa plantillas aprobadas por Meta para outreach frío.</p>
     </div>
     <div class="module-card">
       <div class="icon">⚡</div>
       <h4>Flows</h4>
-      <p>Flujos de automatización con múltiples tipos de pasos: enviar plantilla, enviar mensaje libre, cambiar estado del lead, asignar agente. Se disparan solos al crear un lead o al cambiar su estado.</p>
+      <p>Flujos de automatización con múltiples tipos de pasos. Se disparan al crear un lead o al cambiar su estado, y pueden filtrarse por el <strong>origen</strong> del lead (ej: solo MercadoLibre).</p>
     </div>
     <div class="module-card">
       <div class="icon">📝</div>
@@ -172,7 +151,7 @@
     <div class="module-card">
       <div class="icon">🤖</div>
       <h4>Agentes IA</h4>
-      <p>Agente de respuesta automática por WhatsApp. Soporta múltiples proveedores (Groq, OpenAI, Anthropic, Gemini, OpenRouter), base de conocimiento propia y manipulación del pipeline.</p>
+      <p>Agente de respuesta automática por WhatsApp. Incluye pestaña de Playground para probar el agente en tiempo real. Soporta Groq, OpenAI, Anthropic, Gemini y OpenRouter.</p>
     </div>
     <div class="module-card">
       <div class="icon">📅</div>
@@ -180,28 +159,26 @@
       <p>Log de todos los mensajes enviados por el sistema: estado (enviado, fallido, cancelado), fecha y canal.</p>
     </div>
     <div class="module-card">
-      <div class="icon">🏢</div>
+      <div class="icon">⚙️</div>
       <h4>Configuración</h4>
-      <p>Empresa, usuarios, WhatsApp y estados de lead. Accesible solo para administradores y supervisores.</p>
+      <p>Dos páginas separadas: <strong>Mi empresa</strong> (datos básicos y opciones de leads) y <strong>WhatsApp / Meta</strong> (credenciales de la API y test de conexión). Solo accesible para administradores.</p>
     </div>
   </div>
 
-  <!-- NAVEGACIÓN -->
   <h2 id="nav">Estructura de navegación</h2>
-  <p>El menú lateral está organizado en cinco grupos funcionales:</p>
+  <p>El menú lateral está organizado en cinco grupos funcionales. La visibilidad de cada sección depende del rol del usuario.</p>
 
   <table>
-    <thead><tr><th>Grupo</th><th>Secciones incluidas</th></tr></thead>
+    <thead><tr><th>Grupo</th><th>Secciones incluidas</th><th>Visible para</th></tr></thead>
     <tbody>
-      <tr><td><strong>Comercial</strong></td><td>Leads, Pipeline</td></tr>
-      <tr><td><strong>Comunicación</strong></td><td>Inbox (bandeja de entrada), Broadcasts</td></tr>
-      <tr><td><strong>Automatización</strong></td><td>Flows, Historial de envíos</td></tr>
-      <tr><td><strong>IA</strong></td><td>Agentes IA (configuración de proveedor, modelo, KB y comportamiento)</td></tr>
-      <tr><td><strong>Configuración</strong></td><td>Mi empresa, Usuarios, Plantillas de mensajes, Logs de actividad</td></tr>
+      <tr><td><em>(Sin grupo)</em></td><td>Escritorio</td><td>Todos</td></tr>
+      <tr><td><strong>Comercial</strong></td><td>Leads, Pipeline</td><td>Todos</td></tr>
+      <tr><td><strong>Comunicación</strong></td><td>Conversaciones, Broadcast, Historial de envíos</td><td>Broadcast: solo admins y supervisores. El resto: todos.</td></tr>
+      <tr><td><strong>Automatizaciones</strong></td><td>Flows</td><td>Admins y supervisores</td></tr>
+      <tr><td><strong>Configuración</strong></td><td>Mi empresa, WhatsApp / Meta, Plantillas, Agentes IA, Usuarios, Registro de actividad</td><td>Solo admins</td></tr>
     </tbody>
   </table>
 
-  <!-- FLUJO -->
   <h2 id="flujo">Flujo de trabajo típico</h2>
 
   <div class="flow">
@@ -209,21 +186,21 @@
       <div class="flow-line"><div class="flow-dot">1</div><div class="flow-connector"></div></div>
       <div class="flow-body">
         <h4>Ingreso de leads</h4>
-        <p>Los leads entran al sistema por importación CSV, carga manual, o en el futuro, desde 2clics.app o MercadoLibre automáticamente.</p>
+        <p>Los leads entran al sistema por importación CSV desde 2clics, desde MercadoLibre, o por carga manual. Al importar de ML, el expediente de propiedad se genera automáticamente desde las columnas del CSV.</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-line"><div class="flow-dot">2</div><div class="flow-connector"></div></div>
       <div class="flow-body">
         <h4>Asignación a agente</h4>
-        <p>El administrador asigna leads a los agentes, individualmente o en lotes desde la tabla de leads.</p>
+        <p>El administrador asigna leads a los agentes, individualmente o en lotes desde la tabla de leads. También puede hacerlo un flow automáticamente (paso "Asignar agente" en Día 0).</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-line"><div class="flow-dot">3</div><div class="flow-connector"></div></div>
       <div class="flow-body">
         <h4>Disparo automático de flows</h4>
-        <p>Cuando el lead se crea o cambia de estado, el sistema busca automáticamente un flow asociado y ejecuta sus pasos: puede enviar mensajes, cambiar el estado o asignar un agente, sin intervención del usuario.</p>
+        <p>Cuando el lead se crea o cambia de estado, el sistema busca un flow asociado y ejecuta sus pasos. Si el flow tiene un filtro de origen (ej: <code>ml</code>), solo se dispara para leads de esa fuente.</p>
       </div>
     </div>
     <div class="flow-step">
@@ -237,19 +214,18 @@
       <div class="flow-line"><div class="flow-dot">5</div><div class="flow-connector"></div></div>
       <div class="flow-body">
         <h4>Respuesta del lead</h4>
-        <p>Cuando el lead responde por WhatsApp, el sistema lo registra. Esto activa una "sesión de 24 horas" que permite enviar mensajes libres (no solo plantillas aprobadas).</p>
+        <p>Cuando el lead responde por WhatsApp, el sistema lo registra vía webhook y abre una sesión de 24 horas (mensajes libres). La IA puede responder automáticamente con contexto del expediente de propiedad del lead.</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-line"><div class="flow-dot">6</div><div class="flow-connector"></div></div>
       <div class="flow-body">
         <h4>Seguimiento y notas</h4>
-        <p>El agente puede ver todo lo relacionado a cada lead, separado en dos vistas: la <strong>Conversación</strong> de WhatsApp (mensajes enviados y recibidos, actualizada en vivo) y la <strong>Actividad</strong> (notas y cambios de datos).</p>
+        <p>El agente ve todo lo del lead en dos vistas: <strong>Conversación</strong> (mensajes de WhatsApp, actualizada en vivo) y <strong>Actividad</strong> (notas y cambios de datos).</p>
       </div>
     </div>
   </div>
 
-  <!-- WHATSAPP -->
   <h2 id="whatsapp">Integración con WhatsApp Business</h2>
   <p>InmoFollow usa la <strong>API oficial de WhatsApp Cloud (Meta)</strong>, no WhatsApp Web ni soluciones de terceros. Esto garantiza estabilidad y cumplimiento de las políticas de Meta.</p>
 
@@ -272,137 +248,144 @@
 
   <div class="callout warning">
     <span class="callout-icon">⚠️</span>
-    <p>WhatsApp no permite enviar mensajes comerciales a personas que no te escribieron primero (o que pasaron más de 24hs sin responder) usando texto libre. Para esos casos <strong>es obligatorio usar una plantilla aprobada por Meta</strong>. Este proceso tiene un tiempo de aprobación de 24-48hs y lo gestiona el administrador.</p>
+    <p>WhatsApp no permite enviar mensajes comerciales a personas que no te escribieron primero usando texto libre. Para esos casos <strong>es obligatorio usar una plantilla aprobada por Meta</strong>. El proceso de aprobación demora 24-48hs y lo gestiona el administrador.</p>
   </div>
 
-  <h3>Detección de sesión activa</h3>
-  <p>Cuando un lead te escribe por WhatsApp, el sistema recibe la notificación automáticamente (via webhook) y registra la fecha y hora. Mientras esa sesión esté activa (menos de 24hs), el agente puede enviar cualquier mensaje libremente. El sistema gestiona esto de forma transparente.</p>
-
-  <!-- IA -->
   <h2 id="ia">IA y automatización inteligente</h2>
 
   <h3>Generación de plantillas con IA</h3>
-  <p>Al crear o editar una plantilla de mensaje, el botón <strong>"Generar con IA"</strong> permite describir qué tipo de mensaje se necesita y la IA genera el texto completo, adaptado al canal (WhatsApp o email) y al tono inmobiliario uruguayo.</p>
-  <p>Esta funcionalidad usa el proveedor configurado en <em>Agentes IA</em>. Si no hay agente configurado, usa la clave de Anthropic de Mi empresa como fallback.</p>
+  <p>Al crear o editar una plantilla de mensaje, el botón <strong>"Generar con IA"</strong> permite describir qué tipo de mensaje se necesita y la IA genera el texto completo, adaptado al canal y al tono inmobiliario uruguayo.</p>
 
   <h3>Agente de respuesta automática</h3>
-  <p>El Agente IA responde automáticamente los mensajes entrantes de WhatsApp. Puede configurarse con cualquier proveedor de IA:</p>
+  <p>El Agente IA (en <em>Configuración → Agentes IA</em>) tiene dos pestañas: <strong>⚙ Configuración</strong> (proveedor, modelo, system prompt, base de conocimiento) y <strong>🧪 Playground</strong> (para probar respuestas antes de activar el agente). Soporta 5 proveedores:</p>
 
   <table>
     <thead><tr><th>Proveedor</th><th>Ejemplo de modelos</th><th>Notas</th></tr></thead>
     <tbody>
       <tr><td><strong>Groq</strong></td><td>llama-3.1-8b-instant, mixtral-8x7b</td><td>Muy rápido, gratuito para volumen moderado</td></tr>
       <tr><td><strong>OpenAI</strong></td><td>gpt-4o-mini, gpt-4o</td><td>Ampliamente conocido</td></tr>
-      <tr><td><strong>Anthropic</strong></td><td>claude-haiku-4-5, claude-sonnet-5</td><td>Excelente para contexto inmobiliario</td></tr>
+      <tr><td><strong>Anthropic</strong></td><td>claude-haiku-4-5, claude-sonnet-5</td><td>Excelente para español inmobiliario</td></tr>
       <tr><td><strong>Gemini</strong></td><td>gemini-1.5-flash, gemini-2.0-flash</td><td>Gratuito con cuota diaria</td></tr>
       <tr><td><strong>OpenRouter</strong></td><td>meta-llama/llama-3.1-8b, deepseek</td><td>Acceso unificado a múltiples modelos</td></tr>
     </tbody>
   </table>
 
-  <h3>Base de conocimiento del agente</h3>
-  <p>El agente puede recibir información contextual sobre la empresa en tres formatos:</p>
-  <ul>
-    <li><strong>Texto libre</strong> — descripción de la empresa, políticas, zonas de trabajo</li>
-    <li><strong>URL</strong> — el sistema extrae automáticamente el contenido de una página web</li>
-    <li><strong>PDF</strong> — se sube un documento y el sistema extrae su texto</li>
-  </ul>
-  <p>Esta información se incluye en cada respuesta del agente para que responda con datos reales de la empresa.</p>
+  <h3>Contexto de propiedad en la IA</h3>
+  <p>Si el lead tiene un expediente de propiedad primario (importado desde ML u otra fuente), el agente IA recibe automáticamente esos datos en cada conversación: operación (venta/alquiler), precio publicado, dormitorios, m² cubiertos y link a la publicación. Esto permite respuestas precisas sin configuración adicional.</p>
 
   <h3>La IA puede manipular el pipeline</h3>
-  <p>El agente IA conoce los estados del pipeline, los agentes disponibles y los flows activos. Si la conversación lo justifica, puede incluir en su respuesta comandos que el sistema ejecuta automáticamente <strong>sin que el cliente los vea</strong>:</p>
-  <ul>
-    <li>Cambiar el estado del lead en el pipeline</li>
-    <li>Asignar el lead a un agente específico</li>
-    <li>Disparar un flow de seguimiento</li>
-  </ul>
+  <p>El agente conoce los estados del pipeline, los agentes disponibles y los flows activos. Si la conversación lo justifica, puede incluir en su respuesta comandos que el sistema ejecuta automáticamente <strong>sin que el cliente los vea</strong>: cambiar estado, asignar agente o disparar un flow.</p>
 
   <div class="callout info">
     <span class="callout-icon">🤖</span>
     <p>La IA es opcional. El sistema funciona perfectamente sin ella. Cada empresa configura su propio proveedor y clave API, por lo que el costo de IA corre por cuenta de la empresa.</p>
   </div>
 
-  <!-- IMPORTACIÓN -->
   <h2 id="importacion">Importación de leads</h2>
-  <p>El sistema acepta importaciones masivas de leads en formato <strong>CSV</strong>. El administrador puede subir un archivo exportado desde otro sistema (por ejemplo, el CRM actual) y los leads se cargan automáticamente.</p>
+  <p>El sistema acepta importaciones masivas desde archivos <strong>CSV o Excel (.xlsx)</strong>. El importador es un proceso de 3 pasos: subir archivo → mapear columnas → ver resultado.</p>
 
-  <h3>Campos que se pueden importar</h3>
+  <table>
+    <thead><tr><th>Fuente</th><th>Qué se importa</th><th>Cómo se mapea</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>2clics CRM</strong></td>
+        <td>Datos de contacto con estados, zona, tipo de propiedad.</td>
+        <td>Mapeo manual de columnas en el paso 2</td>
+      </tr>
+      <tr>
+        <td><strong>MercadoLibre</strong></td>
+        <td>Datos del propietario + expediente completo de propiedad (título, tipo, operación, precio, m², dormitorios, baños, zona, link).</td>
+        <td>Botón <strong>"⚡ Preset MercadoLibre"</strong> autoasigna las 9 columnas del CSV en un clic</td>
+      </tr>
+      <tr>
+        <td><strong>Cualquier CSV/XLSX</strong></td>
+        <td>Lo que tenga el archivo.</td>
+        <td>Mapeo manual libre</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>El mapper tiene dos secciones</h3>
+  <p>El paso 2 del importador muestra dos tablas de mapeo independientes:</p>
   <ul>
-    <li><strong>Nombre</strong> (requerido)</li>
-    <li>Teléfono, email</li>
-    <li>Zona, tipo de propiedad, origen</li>
-    <li>Estado del lead, agente asignado</li>
-    <li>Consentimiento de WhatsApp y email</li>
-    <li>Notas iniciales</li>
+    <li><strong>📋 Datos del contacto</strong> — columnas del CSV que van al perfil del lead: nombre (opcional), teléfono, email, zona, tipo de propiedad, origen, estado, agente, consentimientos, notas</li>
+    <li><strong>🏠 Datos de la propiedad</strong> — columnas del CSV que van al expediente de propiedad: ID externo (ML item ID), título, tipo, operación, precio, zona descriptiva, link publicación, atributos (m², dormitorios, baños)</li>
   </ul>
-  <p>Los campos de texto libre (zona, tipo, origen) aceptan cualquier valor, por lo que una importación desde un sistema externo no requiere ajuste previo de las opciones.</p>
+  <p>Si no se mapea ningún campo de propiedad, no se crea expediente. Ambas secciones son opcionales excepto el teléfono (o al menos algún campo para identificar al lead).</p>
 
-  <!-- ROLES -->
+  <h3>Deduplicación</h3>
+  <ul>
+    <li><strong>Lead duplicado (mismo teléfono):</strong> no se crea un lead nuevo. Se agrega la propiedad al lead existente y se cuenta en "Ya existían" en el resultado.</li>
+    <li><strong>Propiedad duplicada (mismo external_id de ML):</strong> se actualiza en lugar de duplicar. Al reimportar el mismo CSV no se crean registros dobles.</li>
+    <li><strong>Sin nombre en el CSV:</strong> si hay datos de propiedad mapeados, se usa el teléfono como nombre del lead. Aplica a ML que no exporta nombre del propietario.</li>
+  </ul>
+
+  <h3>Origen del lead</h3>
+  <p>El campo <strong>Origen fijo</strong> en el paso 2 permite etiquetar todos los leads de una importación: <code>ml</code>, <code>2clics</code>, <code>web</code>, etc. Este origen se usa para filtrar flows automáticos.</p>
+
+  <h2 id="expediente">Expediente de propiedad</h2>
+  <p>Cada lead puede tener uno o varios expedientes de propiedad (<em>lead_listings</em>). El primero importado queda marcado como <strong>primario</strong>. El expediente primario es el que:</p>
+  <ul>
+    <li>La IA incluye en cada conversación como contexto</li>
+    <li>Se muestra como referencia principal en el perfil del lead</li>
+  </ul>
+  <p>Los expedientes posteriores del mismo lead se agregan sin reemplazar el primario. Cada expediente almacena: tipo de propiedad, operación, precio (parseado a número), moneda, m² cubiertos, m² totales, dormitorios, baños, zona descriptiva y link a la publicación original.</p>
+
+  <h3>Parseo automático desde CSV de MercadoLibre</h3>
+  <p>El importador detecta y convierte automáticamente los formatos que trae el export de ML:</p>
+  <ul>
+    <li><em>"145000 dólares"</em> → precio: 145.000 | moneda: USD</li>
+    <li><em>"680000 pesos"</em> → precio: 680.000 | moneda: UYU</li>
+    <li><em>"4 dormitorios | 2 baños | 174 m² cubiertos"</em> → dormitorios: 4, baños: 2, m²: 174</li>
+  </ul>
+
+  <h2 id="flows">Flows y filtro por origen</h2>
+  <p>Los flows se disparan cuando un lead se crea o cambia de estado. Pueden configurarse para activarse <strong>solo si el lead tiene un origen determinado</strong> — por ejemplo, un flow de bienvenida específico para MercadoLibre que mencione la propiedad publicada.</p>
+
+  <h3>Cómo funciona el filtro de origen</h3>
+  <p>Al crear un flow, el campo <strong>"Solo si Origen es"</strong> permite elegir un valor (<code>ml</code>, <code>2clics</code>, <code>web</code>, <code>manual</code>) o dejarlo vacío para que dispare para cualquier origen.</p>
+  <p>Lógica de prioridad:</p>
+  <ol>
+    <li>Flow personal + mismo trigger + mismo estado + mismo origen del lead</li>
+    <li>Flow global + mismo trigger + mismo estado + mismo origen del lead</li>
+    <li>Flow personal + mismo trigger + mismo estado + sin filtro de origen</li>
+    <li>Flow global + mismo trigger + mismo estado + sin filtro de origen</li>
+  </ol>
+
   <h2 id="roles">Roles de usuario</h2>
   <table>
     <thead><tr><th>Rol</th><th>Qué puede hacer</th></tr></thead>
     <tbody>
       <tr>
         <td><strong>Administrador</strong></td>
-        <td>Acceso total: configuración de la empresa, WhatsApp, IA, todos los leads, usuarios, plantillas globales, secuencias, importaciones y logs.</td>
+        <td>Acceso total: configuración de empresa, WhatsApp/Meta, IA, todos los leads, usuarios, plantillas globales, flows, broadcasts, importaciones y logs.</td>
       </tr>
       <tr>
         <td><strong>Supervisor</strong></td>
-        <td>Acceso a todos los leads y mensajes del equipo. Puede ver reportes y actividad. No puede modificar la configuración de la empresa.</td>
+        <td>Acceso a todos los leads y mensajes del equipo. Puede ver Broadcast y Flows. No puede modificar la configuración de la empresa ni la IA.</td>
       </tr>
       <tr>
         <td><strong>Agente</strong></td>
-        <td>Ve y gestiona solo sus leads asignados. Puede crear plantillas personales, enviar mensajes y ver el historial de sus leads.</td>
+        <td>Ve y gestiona solo sus leads asignados. Puede crear plantillas personales, enviar mensajes y ver el historial de sus leads. No ve Broadcast, Flows ni Configuración.</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- INTEGRACIONES FUTURAS -->
-  <h2 id="integraciones">Integraciones futuras</h2>
-  <p>El sistema está preparado para conectarse con fuentes externas de leads. Cuando estén disponibles los endpoints correspondientes, se agregarán las siguientes integraciones:</p>
-
-  <table>
-    <thead><tr><th>Integración</th><th>Estado</th><th>Descripción</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong>2clics.app</strong></td>
-        <td><span class="tag amber">En desarrollo</span></td>
-        <td>Sincronización de leads desde el CRM 2clics directamente a InmoFollow.</td>
-      </tr>
-      <tr>
-        <td><strong>MercadoLibre</strong></td>
-        <td><span class="tag amber">En desarrollo</span></td>
-        <td>Importación automática de consultas recibidas en MercadoLibre Inmuebles.</td>
-      </tr>
-      <tr>
-        <td><strong>CSV / manual</strong></td>
-        <td><span class="tag green">Disponible</span></td>
-        <td>Importación desde archivo. Compatible con exportaciones de la mayoría de CRMs.</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="callout success">
-    <span class="callout-icon">🔌</span>
-    <p>El diseño del sistema permite agregar nuevas fuentes de leads con cambios mínimos, ya que la estructura de importación es genérica.</p>
-  </div>
-
-  <!-- REQUISITOS -->
   <h2 id="requisitos">Requisitos técnicos</h2>
   <ul>
-    <li><strong>Servidor:</strong> PHP 8.3+, SQLite (incluido) o MySQL, acceso SSH, soporte de cron jobs</li>
+    <li><strong>Servidor:</strong> PHP 8.3+, MySQL (producción) o SQLite (desarrollo), acceso SSH, soporte de cron jobs</li>
     <li><strong>WhatsApp Business:</strong> Cuenta de Meta Business Manager verificada, número de teléfono habilitado para la API</li>
     <li><strong>Para plantillas aprobadas:</strong> WhatsApp Business Account ID (WABA ID)</li>
-    <li><strong>Para la IA (opcional):</strong> Clave de API de Anthropic (claude.ai/settings)</li>
-    <li><strong>Para envíos automáticos:</strong> Cron job configurado en el servidor</li>
+    <li><strong>Para la IA (opcional):</strong> Clave de API de alguno de los 5 proveedores soportados</li>
+    <li><strong>Para envíos automáticos:</strong> Cron job configurado en el servidor (<code>php artisan schedule:run</code> cada minuto)</li>
   </ul>
 
-  <!-- LIMITACIONES -->
   <h2 id="limitaciones">Limitaciones actuales</h2>
   <table>
     <thead><tr><th>Limitación</th><th>Detalle</th></tr></thead>
     <tbody>
       <tr>
-        <td>Solo texto en WhatsApp (mensajes libres)</td>
+        <td>Solo texto en mensajes libres</td>
         <td>Los mensajes de texto libre enviados en la ventana de 24hs no soportan imágenes ni botones. Las plantillas aprobadas por Meta sí pueden tener header de imagen.</td>
       </tr>
       <tr>
@@ -411,19 +394,23 @@
       </tr>
       <tr>
         <td>Plantillas Meta: creación manual en Meta Business Manager</td>
-        <td>Las plantillas deben crearse primero en Meta Business Manager y luego sincronizarse a InmoFollow con el botón "Sync desde Meta". El proceso de aprobación demora 24-48hs.</td>
+        <td>Las plantillas deben crearse en Meta Business Manager y luego sincronizarse a InmoFollow. El proceso de aprobación demora 24-48hs.</td>
       </tr>
       <tr>
         <td>Sin reportes avanzados</td>
-        <td>El dashboard muestra métricas básicas (leads totales, mensajes enviados, sin responder). No hay gráficos históricos ni exportación de reportes todavía.</td>
+        <td>El dashboard muestra métricas básicas. No hay gráficos históricos ni exportación de reportes.</td>
       </tr>
       <tr>
-        <td>Flows: un flow por evento por empresa</td>
-        <td>Si hay múltiples flows con el mismo trigger y estado, solo se ejecuta el primero encontrado (prioridad: personal sobre global).</td>
+        <td>Flows: un flow activo por evento/estado/origen</td>
+        <td>Si hay múltiples flows con el mismo trigger, estado y origen, solo se ejecuta el primero (prioridad: personal sobre global).</td>
       </tr>
       <tr>
-        <td>IA: sin condiciones (If/Else) en flows</td>
-        <td>Los flows no soportan ramificaciones condicionales todavía. Todos los pasos se ejecutan en secuencia.</td>
+        <td>Sin ramificaciones condicionales en flows</td>
+        <td>Los flows no soportan If/Else todavía. Todos los pasos se ejecutan en secuencia.</td>
+      </tr>
+      <tr>
+        <td>Expediente de propiedad: solo por importación</td>
+        <td>Los expedientes se crean al importar. La creación o edición manual desde el panel no está implementada todavía.</td>
       </tr>
     </tbody>
   </table>

@@ -43,14 +43,10 @@
   .callout.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
   .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
   .callout p { margin: 0; color: inherit; font-size: 14px; }
-
-  /* SCREEN MOCKUP */
   .screen { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
   .screen-bar { background: #f1f5f9; border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; gap: 6px; }
   .screen-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
   .screen-body { padding: 20px; }
-
-  /* STAT CARDS DEMO */
   .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
   .stat-card { border-radius: 10px; padding: 14px 16px; }
   .stat-card.blue   { background: #eff6ff; border: 1px solid #bfdbfe; }
@@ -63,8 +59,6 @@
   .stat-card.red    .stat-num { color: #b91c1c; }
   .stat-card.green  .stat-num { color: #15803d; }
   .stat-label { font-size: 12px; color: var(--slate-mid); margin-top: 4px; }
-
-  /* TABLE DEMO */
   .demo-table { width: 100%; font-size: 13px; }
   .demo-table th { background: #f8fafc; padding: 8px 12px; text-align: left; font-weight: 600; color: var(--slate); border-bottom: 1px solid var(--border); }
   .demo-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--slate-mid); }
@@ -74,24 +68,19 @@
   .badge.blue   { background: #eff6ff; color: #1d4ed8; }
   .badge.green  { background: #f0fdf4; color: #15803d; }
   .badge.gray   { background: #f1f5f9; color: #475569; }
-
-  /* ACTION BUTTONS DEMO */
   .action-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid; cursor: default; }
   .action-btn.green-btn { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
   .action-btn.gray-btn  { background: #f1f5f9; border-color: var(--border); color: #475569; }
   .action-btn.blue-btn  { background: var(--blue-light); border-color: #bfdbfe; color: var(--blue); }
-
-  /* FLOW INLINE */
   .mini-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
   .mini-step { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 500; }
   .mini-arrow { color: var(--slate-light); font-size: 18px; }
-
-  /* FAQ */
   .faq { margin: 16px 0; }
   .faq-item { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
   .faq-q { padding: 14px 18px; font-size: 15px; font-weight: 600; background: var(--white); cursor: default; }
   .faq-a { padding: 12px 18px 16px; font-size: 14px; color: var(--slate-mid); background: var(--bg); border-top: 1px solid var(--border); }
   .faq-a p { margin: 0; font-size: 14px; }
+  code { background: #f1f5f9; border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; font-size: 13px; font-family: monospace; color: var(--slate); }
 </style>
 </head>
 <body>
@@ -106,12 +95,13 @@
     <a href="#escritorio">El escritorio</a>
     <div class="sidebar-section">Leads</div>
     <a href="#ver-leads">Ver mis leads</a>
+    <a href="#propiedad">Propiedad del lead</a>
     <a href="#conversacion">Conversación con el lead</a>
     <a href="#actividad">Actividad del lead</a>
     <a href="#notas">Agregar notas</a>
     <div class="sidebar-section">Mensajes</div>
     <a href="#automatico">Envío automático</a>
-    <a href="#programados">Mensajes programados</a>
+    <a href="#historial">Historial de envíos</a>
     <a href="#plantillas">Mis plantillas</a>
     <div class="sidebar-section">Ayuda</div>
     <a href="#faq">Preguntas frecuentes</a>
@@ -126,7 +116,6 @@
     <p class="page-subtitle">Todo lo que necesitás saber para gestionar tus leads y mensajes día a día.</p>
   </div>
 
-  <!-- ACCESO -->
   <h2 id="acceso">Ingresar al sistema</h2>
   <p>El administrador te va a dar un email y una contraseña. Con esos datos entrás en:</p>
   <div style="background: var(--blue); border-radius: 10px; padding: 16px 20px; margin: 16px 0;">
@@ -135,7 +124,6 @@
   </div>
   <p>Si olvidaste tu contraseña, contactá al administrador — puede generarte una nueva directamente desde el panel de usuarios.</p>
 
-  <!-- ESCRITORIO -->
   <h2 id="escritorio">El escritorio</h2>
   <p>Lo primero que ves al entrar es el escritorio. Te muestra un resumen de tu situación actual.</p>
 
@@ -167,28 +155,34 @@
     <li><strong>Vencidos (rojo):</strong> leads con seguimiento que no se hizo a tiempo. Necesitan atención urgente.</li>
     <li><strong>Enviados esta semana (verde):</strong> mensajes de WhatsApp que salieron esta semana.</li>
   </ul>
+  <p>La tabla te muestra los leads a contactar ordenados por urgencia. Hacé clic en <strong>"Ver lead"</strong> para ir al perfil del lead.</p>
 
-  <p>La tabla de abajo te muestra los leads a contactar ordenados por urgencia. Hacé clic en <strong>"Ver lead"</strong> para ir directamente al perfil del lead.</p>
-
-  <!-- VER LEADS -->
   <h2 id="ver-leads">Ver mis leads</h2>
-  <p>Desde el menú lateral → <strong>Leads</strong> verás la lista completa de tus leads asignados.</p>
+  <p>Desde el menú lateral → <em>Comercial → Leads</em> verás la lista completa de tus leads asignados.</p>
 
   <h3>Filtros útiles</h3>
   <ul>
     <li><strong>Estado:</strong> para ver solo los que están en una etapa específica (ej: "Nuevo", "En seguimiento")</li>
     <li><strong>Seguimiento vencido:</strong> para ver los que debías contactar y no lo hiciste aún</li>
     <li><strong>Acepta WhatsApp:</strong> para ver solo los que dieron consentimiento</li>
-    <li><strong>Rango de seguimiento:</strong> para ver quién tiene seguimiento entre dos fechas</li>
+    <li><strong>Origen:</strong> para filtrar leads por fuente (ej: solo los de MercadoLibre)</li>
   </ul>
 
   <h3>Editar un lead</h3>
   <p>Hacé clic en el ícono de editar (lápiz) junto a cualquier lead para ver y modificar su información: zona, tipo de propiedad, estado, próximo seguimiento, notas, etc.</p>
 
-  <!-- CONVERSACIÓN -->
+  <h2 id="propiedad">Propiedad del lead</h2>
+  <p>Cuando un lead viene de MercadoLibre (importado por el administrador), tiene asociado un <strong>expediente de propiedad</strong> con los datos de lo que publicó: tipo, operación (venta o alquiler), precio, dormitorios, baños, m² y link a la publicación original.</p>
+  <p>Esta información es útil para personalizar tus mensajes y saber de qué propiedad hablar con el lead antes de contactarlo. Si el sistema tiene IA configurada, el agente usa estos datos automáticamente en sus respuestas.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">🏠</span>
+    <p>Si ves en el perfil del lead datos de propiedad (precio, dormitorios, link de ML), es información que el admin importó desde el CSV de MercadoLibre. Úsala para personalizar tu primer mensaje.</p>
+  </div>
+
   <h2 id="conversacion">Conversación con el lead</h2>
   <p>Para ver los mensajes de WhatsApp con un lead y responderle, hacé clic en el ícono de globo de chat <strong>💬</strong> (<strong>Conversación</strong>) que aparece en la fila del lead.</p>
-  <p>Se abre una ventana con el hilo completo de mensajes — los que le mandaste vos (en verde) y los que te escribió él (en gris) — y, debajo, el formulario para responder. Si te llega una respuesta nueva mientras tenés la ventana abierta, aparece sola a los pocos segundos, sin que tengas que cerrar y volver a abrir.</p>
+  <p>Se abre una ventana con el hilo completo de mensajes — los que le mandaste vos (en verde) y los que te escribió él (en gris) — y, debajo, el formulario para responder. Si te llega una respuesta nueva mientras tenés la ventana abierta, aparece sola a los pocos segundos sin necesidad de recargar la página.</p>
 
   <div class="mini-flow">
     <div class="mini-step">Clic en 💬 (Conversación)</div>
@@ -199,12 +193,16 @@
   </div>
 
   <h3>Plantilla vs. mensaje personalizado</h3>
-  <p>Debajo del hilo de mensajes siempre vas a poder elegir una <strong>plantilla</strong>. Si el lead te escribió hace menos de 24 horas, además aparece la opción <strong>"Mensaje personalizado"</strong>, que te deja escribir cualquier texto libre (sin necesidad de plantilla).</p>
+  <p>Debajo del hilo de mensajes siempre vas a poder elegir una <strong>plantilla</strong>. Si el lead te escribió hace menos de 24 horas, además aparece la opción <strong>"Mensaje personalizado"</strong>, que te deja escribir cualquier texto libre sin necesidad de usar una plantilla aprobada.</p>
 
   <div class="callout info">
     <span class="callout-icon">💡</span>
     <p>El "mensaje personalizado" solo aparece cuando hay una conversación activa reciente. Pasadas las 24hs sin que el lead responda, WhatsApp exige usar una plantilla aprobada — es una regla de Meta, no una limitación del sistema.</p>
   </div>
+
+  <h3>Respuesta de la IA</h3>
+  <p>Si el administrador configuró el agente IA con auto-send desactivado, vas a ver borradores de respuesta en el Inbox cuando un lead te escribe. Podés <strong>aprobar</strong> el mensaje para que salga tal cual, <strong>editarlo</strong> antes de enviarlo, o <strong>descartarlo</strong> si preferís responder manualmente.</p>
+  <p>Si el agente tiene auto-send activado, responde directamente sin que tengas que hacer nada — vas a ver la respuesta en el hilo de conversación como cualquier otro mensaje.</p>
 
   <h3>¿Por qué a veces no puedo enviar?</h3>
   <p>El formulario de envío puede no estar disponible en estos casos:</p>
@@ -213,11 +211,10 @@
     <li>El lead tiene marcado "No contactar"</li>
     <li>El lead no dio consentimiento de WhatsApp</li>
   </ul>
-  <p>Si ves el mensaje <em>"Este lead no te escribió en las últimas 24hs y no hay plantillas configuradas para primer contacto"</em>, el sistema ya tiene mensajes programados automáticos — no hace falta que hagas nada.</p>
+  <p>Si ves <em>"Este lead no te escribió en las últimas 24hs y no hay plantillas configuradas para primer contacto"</em>, el sistema puede ya tener mensajes automáticos programados — revisá el Historial de envíos para confirmarlo.</p>
 
-  <!-- ACTIVIDAD -->
   <h2 id="actividad">Actividad del lead</h2>
-  <p>Desde la tabla de leads, hacé clic en el ícono de reloj 🕐 (<strong>Actividad</strong>) para ver todo lo demás que pasó con ese lead, aparte de los mensajes de WhatsApp:</p>
+  <p>Desde la tabla de leads, hacé clic en el ícono de reloj 🕐 (<strong>Actividad</strong>) para ver todo lo que pasó con ese lead, aparte de los mensajes de WhatsApp:</p>
   <ul>
     <li>Notas que agregaste</li>
     <li>Cambios de datos (estado, agente asignado, etc.)</li>
@@ -225,59 +222,56 @@
   </ul>
   <p>Todo está ordenado del más reciente al más antiguo. Los mensajes de WhatsApp enviados y recibidos <strong>no aparecen acá</strong> — están en "Conversación" (💬).</p>
 
-  <!-- NOTAS -->
   <h2 id="notas">Agregar notas</h2>
-  <p>Las notas sirven para registrar lo que pasó en una llamada, una reunión o cualquier interacción que no es por WhatsApp. Quedán guardadas en la actividad del lead para que las puedas consultar cuando quieras.</p>
+  <p>Las notas sirven para registrar lo que pasó en una llamada, una reunión o cualquier interacción que no es por WhatsApp. Quedan guardadas en la actividad del lead para consultarlas cuando quieras.</p>
   <ol>
     <li>Entrá a la actividad del lead (ícono 🕐)</li>
     <li>O directamente editá el lead y buscá la sección de notas</li>
     <li>Escribí la nota y guardá</li>
   </ol>
 
-  <!-- AUTOMÁTICO -->
   <h2 id="automatico">Envío automático — cómo funciona</h2>
   <p>El sistema envía mensajes <strong>solo</strong>, sin que tengas que hacer nada. Así funciona:</p>
 
   <div class="callout success">
     <span class="callout-icon">🤖</span>
-    <p>Cuando a un lead se le asigna una secuencia (por su estado), el sistema crea automáticamente los mensajes programados y los envía en los momentos indicados. Vos solo tenés que mantener el estado del lead actualizado.</p>
+    <p>Cuando a un lead se le asigna una secuencia (por su estado u origen), el sistema crea automáticamente los mensajes programados y los envía en los momentos indicados. Vos solo tenés que mantener el estado del lead actualizado.</p>
   </div>
 
-  <p>Por ejemplo, si tu empresa tiene configurada una secuencia para leads en estado "Nuevo":</p>
+  <p>Por ejemplo, si tu empresa tiene configurada una secuencia para leads nuevos de MercadoLibre:</p>
   <div class="mini-flow">
-    <div class="mini-step">Lead entra como "Nuevo"</div>
+    <div class="mini-step">Lead de ML se crea</div>
     <div class="mini-arrow">→</div>
-    <div class="mini-step">Sistema crea mensajes: día 1, día 3, día 7</div>
+    <div class="mini-step">Sistema dispara el flow "ML Bienvenida"</div>
     <div class="mini-arrow">→</div>
-    <div class="mini-step">Los envía automáticamente</div>
+    <div class="mini-step">Se envían los mensajes automáticamente (día 0, día 3, día 7…)</div>
   </div>
 
-  <p>Si el lead responde, vos seguís la conversación directamente desde el ícono 💬 (Conversación) de ese lead.</p>
+  <p>Si el lead responde, vos seguís la conversación desde el ícono 💬 (Conversación) de ese lead.</p>
 
-  <!-- MENSAJES PROGRAMADOS -->
-  <h2 id="programados">Mensajes programados</h2>
-  <p>Desde el menú → <strong>Mensajes programados</strong> podés ver todos los mensajes que el sistema tiene planificados para tus leads.</p>
+  <h2 id="historial">Historial de envíos</h2>
+  <p>Desde el menú → <em>Comunicación → Historial de envíos</em> podés ver todos los mensajes que el sistema envió o tiene pendientes para tus leads.</p>
   <ul>
     <li><span class="badge gray">Pendiente</span> — todavía no se envió, está en la cola</li>
     <li><span class="badge green">Enviado</span> — se envió correctamente</li>
     <li><span class="badge red">Fallido</span> — hubo un error al enviar (avisá al administrador)</li>
-    <li><span class="badge gray">Cancelado</span> — el mensaje se canceló (el lead fue marcado como "no contactar", etc.)</li>
+    <li><span class="badge gray">Cancelado</span> — el mensaje se canceló (el lead fue marcado como "no contactar" u otro motivo)</li>
   </ul>
 
-  <!-- PLANTILLAS PERSONALES -->
   <h2 id="plantillas">Mis plantillas personales</h2>
   <p>Además de las plantillas globales que configuró el administrador, podés crear tus propias plantillas para usarlas cuando enviás mensajes puntuales.</p>
 
   <h3>Crear una plantilla personal</h3>
   <ol>
-    <li>Ir a <em>Plantillas de mensajes</em> → <em>Nueva plantilla</em></li>
+    <li>Ir a <em>Configuración → Plantillas</em> → <em>Nueva plantilla</em></li>
     <li>El tipo se fija automáticamente en <strong>Personal</strong></li>
-    <li>Escribí el nombre y el mensaje. Podés usar las variables:</li>
+    <li>Escribí el nombre y el mensaje con las variables que necesites:</li>
   </ol>
 
   <div style="background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 12px 0; font-size: 14px; color: var(--slate-mid);">
     <code style="color: var(--blue);">{{nombre}}</code> → nombre del lead &nbsp;|&nbsp;
     <code style="color: var(--blue);">{{zona}}</code> → zona que busca &nbsp;|&nbsp;
+    <code style="color: var(--blue);">{{tipo_propiedad}}</code> → tipo de propiedad &nbsp;|&nbsp;
     <code style="color: var(--blue);">{{agente}}</code> → tu nombre
   </div>
 
@@ -286,10 +280,9 @@
 
   <div class="callout info">
     <span class="callout-icon">💡</span>
-    <p>Tus plantillas personales <strong>solo las ves vos</strong>. No aparecen para otros agentes. Son tuyas para usar cuando querés contactar a tus propios leads.</p>
+    <p>Tus plantillas personales <strong>solo las ves vos</strong>. No aparecen para otros agentes. Son tuyas para usar cuando querés contactar a tus propios leads de forma puntual.</p>
   </div>
 
-  <!-- FAQ -->
   <h2 id="faq">Preguntas frecuentes</h2>
 
   <div class="faq">
@@ -298,8 +291,12 @@
       <div class="faq-a"><p>Solo ves los leads que el administrador te asignó. Si falta alguno, pedile al admin que te lo asigne.</p></div>
     </div>
     <div class="faq-item">
+      <div class="faq-q">¿Qué son los datos de propiedad que veo en algunos leads?</div>
+      <div class="faq-a"><p>Son los datos de la propiedad que publicó ese propietario en MercadoLibre. El administrador los importó junto con los datos de contacto. Te sirven para saber de qué propiedad hablar cuando contactás al lead.</p></div>
+    </div>
+    <div class="faq-item">
       <div class="faq-q">¿Qué pasa si el sistema envía un mensaje y el lead no lo recibe?</div>
-      <div class="faq-a"><p>El mensaje quedará como "Fallido" en mensajes programados. Avisale al administrador para que revise la conexión con WhatsApp.</p></div>
+      <div class="faq-a"><p>El mensaje quedará como "Fallido" en el Historial de envíos. Avisale al administrador para que revise la conexión con WhatsApp.</p></div>
     </div>
     <div class="faq-item">
       <div class="faq-q">¿Puedo enviar mensajes a cualquier hora?</div>
@@ -310,16 +307,24 @@
       <div class="faq-a"><p>No. Los mensajes llegan desde el número de WhatsApp de tu empresa, igual que si los hubieras enviado manualmente.</p></div>
     </div>
     <div class="faq-item">
+      <div class="faq-q">¿La IA puede responder por mí?</div>
+      <div class="faq-a"><p>Si el admin activó el agente IA, puede responder automáticamente o generar borradores para que vos los apruebes. En el Inbox (Comunicación → Conversaciones) ves los mensajes entrantes y los borradores pendientes de aprobación. Si hay datos de la propiedad del lead, la IA los usa para dar respuestas más precisas.</p></div>
+    </div>
+    <div class="faq-item">
       <div class="faq-q">¿Cómo cambio mi contraseña?</div>
       <div class="faq-a"><p>Por ahora el administrador puede cambiártela. Contactalo si necesitás resetearla.</p></div>
     </div>
     <div class="faq-item">
       <div class="faq-q">¿Puedo ver los mensajes que se enviaron automáticamente?</div>
-      <div class="faq-a"><p>Sí. En "Conversación" (ícono 💬) aparecen todos los mensajes enviados, automáticos y manuales, junto con los que respondió el lead, con fecha y hora.</p></div>
+      <div class="faq-a"><p>Sí, de dos formas. En "Conversación" (💬) aparecen todos los mensajes enviados y recibidos con ese lead. En "Historial de envíos" (Comunicación → Historial) ves todos los mensajes de todos tus leads con su estado.</p></div>
     </div>
     <div class="faq-item">
       <div class="faq-q">¿Qué hago si un lead me dice que no quiere más mensajes?</div>
-      <div class="faq-a"><p>Editá el lead y activá la opción <strong>"No contactar"</strong>. El sistema deja de enviarle mensajes automáticamente.</p></div>
+      <div class="faq-a"><p>Editá el lead y activá la opción <strong>"No contactar"</strong>. El sistema deja de enviarle mensajes automáticos de inmediato y cancela los pendientes.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Qué es el "origen" del lead?</div>
+      <div class="faq-a"><p>Es la fuente por la que llegó el lead: MercadoLibre (<code>ml</code>), 2clics, web, etc. Lo usamos internamente para configurar qué mensajes automáticos reciben según de dónde vienen. Vos lo ves en el perfil del lead como referencia.</p></div>
     </div>
   </div>
 

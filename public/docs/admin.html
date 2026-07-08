@@ -45,35 +45,24 @@
   .callout.danger  { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; }
   .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
   .callout p { margin: 0; color: inherit; font-size: 14px; }
-
-  /* CHECKLIST */
   .checklist { list-style: none; margin-left: 0; }
   .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--slate-mid); }
   .checklist li:last-child { border-bottom: none; }
   .check-box { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
-
-  /* STEPS */
   .steps { counter-reset: step; margin: 20px 0; }
   .step { display: flex; gap: 16px; margin-bottom: 20px; }
   .step-num { counter-increment: step; content: counter(step); width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
   .step-body h4 { font-size: 15px; font-weight: 600; color: var(--slate); margin: 0 0 4px; }
   .step-body p { font-size: 14px; color: var(--slate-mid); margin: 0; }
   .step-body .link-out { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--blue); text-decoration: none; margin-top: 8px; background: var(--blue-light); padding: 4px 10px; border-radius: 6px; }
-
-  /* CODE */
   code { background: #f1f5f9; border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; font-size: 13px; font-family: monospace; color: var(--slate); }
-
-  /* TABLE */
   table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
   th { background: var(--bg); font-weight: 600; text-align: left; padding: 10px 14px; border: 1px solid var(--border); color: var(--slate); }
   td { padding: 10px 14px; border: 1px solid var(--border); color: var(--slate-mid); vertical-align: top; }
-
-  /* FIELD CARD */
   .field-list { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
   .field-item { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
   .field-item label { font-size: 13px; font-weight: 600; color: var(--slate); display: block; margin-bottom: 4px; }
   .field-item p { font-size: 13px; color: var(--slate-mid); margin: 0; }
-
   .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
   .tag.green { background: #f0fdf4; color: #15803d; }
   .tag.amber { background: #fffbeb; color: #b45309; }
@@ -90,7 +79,7 @@
     <div class="sidebar-section">Configuración inicial</div>
     <a href="#checklist">Checklist de inicio</a>
     <a href="#empresa">Mi empresa</a>
-    <a href="#whatsapp-setup">Configurar WhatsApp</a>
+    <a href="#whatsapp-setup">Configurar WhatsApp / Meta</a>
     <a href="#meta-templates">Plantillas aprobadas por Meta</a>
     <div class="sidebar-section">Operativa diaria</div>
     <a href="#usuarios">Gestión de usuarios</a>
@@ -101,8 +90,6 @@
     <a href="#importar">Importar leads</a>
     <a href="#asignar">Asignar leads</a>
     <a href="#ia">Agentes IA</a>
-    <div class="sidebar-section">Futuro</div>
-    <a href="#integraciones">Integraciones CRM</a>
   </nav>
 </aside>
 
@@ -114,56 +101,63 @@
     <p class="page-subtitle">Todo lo que el administrador necesita saber para poner en marcha y mantener InmoFollow.</p>
   </div>
 
-  <!-- CHECKLIST -->
   <h2 id="checklist">Checklist de puesta en marcha</h2>
   <p>Seguí este orden para dejar el sistema listo para los agentes:</p>
   <ul class="checklist">
-    <li><span class="check-box"></span> Crear la empresa en <em>Mi empresa</em> con nombre y datos básicos</li>
-    <li><span class="check-box"></span> Completar las credenciales de WhatsApp Business (Phone Number ID y Access Token)</li>
-    <li><span class="check-box"></span> Agregar el WhatsApp Business Account ID (para ver plantillas aprobadas)</li>
-    <li><span class="check-box"></span> Crear los estados de lead del Pipeline (Ej: Nuevo, En seguimiento, Calificado, Cerrado) — desde el Pipeline directamente</li>
+    <li><span class="check-box"></span> Completar los datos básicos de la empresa en <em>Configuración → Mi empresa</em> (nombre, email, teléfono)</li>
+    <li><span class="check-box"></span> Completar las credenciales de WhatsApp en <em>Configuración → WhatsApp / Meta</em> (Phone Number ID y Access Token)</li>
+    <li><span class="check-box"></span> Agregar el WhatsApp Business Account ID (WABA ID) — necesario para ver plantillas aprobadas</li>
+    <li><span class="check-box"></span> Probar la conexión con el botón <strong>"Probar conexión"</strong> en la página de WhatsApp / Meta</li>
+    <li><span class="check-box"></span> Crear los estados del Pipeline (ej: Nuevo, En seguimiento, Calificado, Cerrado) — desde el Pipeline directamente</li>
     <li><span class="check-box"></span> Crear las plantillas de mensajes globales (primer contacto, seguimiento, etc.) — con IA o manual</li>
-    <li><span class="check-box"></span> Crear los flows de automatización y asociarlos a triggers (cambio de estado o lead creado)</li>
-    <li><span class="check-box"></span> Crear los usuarios (agentes)</li>
-    <li><span class="check-box"></span> Configurar el Agente IA (proveedor, modelo, system prompt, base de conocimiento) — opcional</li>
+    <li><span class="check-box"></span> Crear los flows de automatización y asociarlos a triggers (cambio de estado o lead creado), con filtro de origen si corresponde</li>
+    <li><span class="check-box"></span> Crear los usuarios (agentes y supervisores)</li>
+    <li><span class="check-box"></span> Configurar el Agente IA en <em>Configuración → Agentes IA</em> — opcional pero recomendado</li>
     <li><span class="check-box"></span> Importar los leads iniciales o cargarlos manualmente</li>
     <li><span class="check-box"></span> Asignar los leads a los agentes</li>
-    <li><span class="check-box"></span> Configurar el cron job en el servidor (envío automático)</li>
+    <li><span class="check-box"></span> Verificar que el cron job esté activo en el servidor (<code>php artisan schedule:run</code> cada minuto)</li>
   </ul>
 
-  <!-- MI EMPRESA -->
   <h2 id="empresa">Mi empresa</h2>
-  <p>Accedé desde el menú lateral → <strong>Mi empresa</strong>. Aquí se centralizan todas las configuraciones.</p>
+  <p>Accedé desde el menú lateral → <em>Configuración → Mi empresa</em>. Aquí se configuran los datos básicos de la organización y las opciones de los campos de leads.</p>
 
   <div class="field-list">
-    <div class="field-item"><label>Nombre de la empresa</label><p>El nombre que aparecerá en el sistema.</p></div>
-    <div class="field-item"><label>WhatsApp — Phone Number ID</label><p>El identificador del número de teléfono en la API de Meta. Se obtiene en Meta Developers.</p></div>
-    <div class="field-item"><label>WhatsApp — Access Token</label><p>La clave de acceso a la API. Se recomienda usar un System User Token permanente (ver sección de configuración).</p></div>
-    <div class="field-item"><label>WhatsApp Business Account ID (WABA ID)</label><p>Identificador de la cuenta de WhatsApp Business. Necesario para consultar las plantillas aprobadas desde el panel.</p></div>
-    <div class="field-item"><label>Clave de API de IA (Anthropic)</label><p>Opcional. Permite generar mensajes con inteligencia artificial. Se obtiene en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</p></div>
+    <div class="field-item"><label>Nombre de la empresa</label><p>Aparece en el sistema y en los logs de actividad.</p></div>
+    <div class="field-item"><label>Email y teléfono de la empresa</label><p>Datos de contacto de referencia. No afectan el funcionamiento del sistema.</p></div>
+    <div class="field-item"><label>Zonas disponibles</label><p>Listado de zonas que aparecen como opciones al crear o editar un lead. Una zona por línea.</p></div>
+    <div class="field-item"><label>Tipos de propiedad</label><p>Listado de tipos de propiedad disponibles (ej: Apartamento, Casa, Local). Una opción por línea.</p></div>
+    <div class="field-item"><label>Orígenes de lead</label><p>Listado de fuentes disponibles para clasificar de dónde viene el lead (ej: ml, 2clics, web, referido). Una opción por línea.</p></div>
+  </div>
+
+  <h2 id="whatsapp-setup">Configurar WhatsApp / Meta</h2>
+  <p>Accedé desde <em>Configuración → WhatsApp / Meta</em>. Aquí van las credenciales de la API y la configuración del agente de IA (clave de Anthropic como fallback).</p>
+
+  <div class="field-list">
+    <div class="field-item"><label>Phone Number ID</label><p>El identificador del número de teléfono en la API de Meta. Se obtiene en Meta Developers.</p></div>
+    <div class="field-item"><label>WhatsApp Business Account ID (WABA ID)</label><p>Identificador de la cuenta de WhatsApp Business. Necesario para consultar las plantillas aprobadas.</p></div>
+    <div class="field-item"><label>Access Token</label><p>La clave de acceso a la API. Se recomienda usar un System User Token permanente. El campo es de tipo contraseña — se muestra como puntos y solo se actualiza si ingresás un valor nuevo.</p></div>
+    <div class="field-item"><label>Clave de API de Anthropic</label><p>Opcional. Permite generar mensajes con IA si no tenés otro proveedor configurado en Agentes IA. También campo de contraseña.</p></div>
   </div>
 
   <div class="callout info">
-    <span class="callout-icon">🔑</span>
-    <p>Después de guardar las credenciales de WhatsApp, usá el botón <strong>"Probar conexión WhatsApp"</strong> para verificar que todo esté bien antes de empezar a enviar mensajes. Arriba de las credenciales vas a ver un indicador de estado: 🟢 conectado, 🔴 error (con el detalle exacto que devuelve Meta), o ⚪ si todavía no configuraste nada.</p>
+    <span class="callout-icon">🔌</span>
+    <p>Después de guardar las credenciales, usá el botón <strong>"Probar conexión"</strong> para verificar que todo esté bien. El resultado aparece junto al botón: <strong>🟢 Conectado</strong> si funciona, <strong>🔴 error</strong> con el mensaje exacto que devuelve Meta si hay algún problema.</p>
   </div>
 
-  <!-- WHATSAPP SETUP -->
-  <h2 id="whatsapp-setup">Configurar WhatsApp Business</h2>
-  <p>Para poder enviar mensajes desde InmoFollow, necesitás tener acceso a la <strong>API de WhatsApp Cloud</strong> de Meta. Este proceso se hace una sola vez.</p>
+  <h3>Configurar WhatsApp Business desde cero</h3>
+  <p>Si todavía no tenés la API de WhatsApp configurada, seguí estos pasos:</p>
 
   <div class="callout warning">
     <span class="callout-icon">⚠️</span>
     <p>Este proceso requiere una cuenta de <strong>Meta Business Manager verificada</strong> y un número de teléfono que <strong>no esté siendo usado en la app de WhatsApp</strong>. Si el número ya tiene WhatsApp instalado, hay que desvincularlo primero.</p>
   </div>
 
-  <h3>Paso a paso</h3>
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-body">
         <h4>Crear o acceder a Meta Business Manager</h4>
-        <p>Entrá a Meta Business Manager con tu cuenta de Facebook. Si no tenés una cuenta de empresa, creá una.</p>
+        <p>Entrá a Meta Business Manager con tu cuenta de Facebook.</p>
         <a class="link-out" href="https://business.facebook.com" target="_blank">↗ business.facebook.com</a>
       </div>
     </div>
@@ -171,7 +165,7 @@
       <div class="step-num">2</div>
       <div class="step-body">
         <h4>Crear una aplicación en Meta Developers</h4>
-        <p>Entrá a Meta Developers → <em>Mis Apps</em> → <em>Crear app</em>. Seleccioná el tipo <strong>"Empresa"</strong> y completá el nombre de la app.</p>
+        <p>Meta Developers → <em>Mis Apps</em> → <em>Crear app</em>. Tipo <strong>"Empresa"</strong>, completá el nombre.</p>
         <a class="link-out" href="https://developers.facebook.com/apps" target="_blank">↗ developers.facebook.com/apps</a>
       </div>
     </div>
@@ -179,141 +173,98 @@
       <div class="step-num">3</div>
       <div class="step-body">
         <h4>Agregar el producto WhatsApp a la app</h4>
-        <p>Dentro de la app recién creada, buscá el producto <strong>WhatsApp</strong> en el panel de productos y hacé clic en <em>Configurar</em>.</p>
+        <p>Dentro de la app, buscá el producto <strong>WhatsApp</strong> en el panel de productos y hacé clic en <em>Configurar</em>.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-body">
         <h4>Agregar y verificar el número de teléfono</h4>
-        <p>En <em>WhatsApp → Configuración → Números de teléfono</em>, agregá el número que vas a usar. Meta te enviará un código de verificación por SMS o llamada.</p>
+        <p>En <em>WhatsApp → Configuración → Números de teléfono</em>, agregá el número. Meta enviará un código de verificación por SMS o llamada.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">5</div>
       <div class="step-body">
-        <h4>Obtener el Phone Number ID</h4>
-        <p>Una vez verificado el número, en el mismo panel verás el <strong>Phone Number ID</strong>. Copialo — lo necesitás para InmoFollow.</p>
+        <h4>Obtener el Phone Number ID y WABA ID</h4>
+        <p>Una vez verificado, en el mismo panel verás el <strong>Phone Number ID</strong>. En Meta Business Manager → <em>Configuración del negocio → Cuentas de WhatsApp</em> encontrás el <strong>WABA ID</strong>.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">6</div>
       <div class="step-body">
-        <h4>Obtener el Access Token (recomendado: System User Token)</h4>
+        <h4>Obtener el Access Token (System User recomendado)</h4>
         <p>El token temporal que muestra Meta Developers vence pronto. Para producción, creá un <strong>System User</strong> en Meta Business Manager con permisos de WhatsApp y generá un token permanente.</p>
-        <p style="margin-top:8px;">Ruta: Meta Business Manager → <em>Configuración del negocio</em> → <em>Usuarios del sistema</em> → <em>Agregar</em> → Asignale el activo de WhatsApp con rol de administrador → <em>Generar token</em>.</p>
+        <p style="margin-top:8px;">Ruta: Meta Business Manager → <em>Configuración del negocio → Usuarios del sistema → Agregar</em> → Asignale el activo de WhatsApp con rol de administrador → <em>Generar token</em>.</p>
         <a class="link-out" href="https://business.facebook.com/settings/system-users" target="_blank">↗ Usuarios del sistema</a>
       </div>
     </div>
     <div class="step">
       <div class="step-num">7</div>
       <div class="step-body">
-        <h4>Obtener el WhatsApp Business Account ID</h4>
-        <p>En Meta Business Manager → <em>Configuración del negocio</em> → <em>Cuentas de WhatsApp</em>, verás el ID de tu cuenta (WABA ID). Copialo también.</p>
+        <h4>Configurar el Webhook</h4>
+        <p>Para que el sistema detecte respuestas entrantes, configurá el webhook en Meta Developers → <em>Webhooks</em>:</p>
+        <p style="margin-top:8px;"><strong>URL:</strong> <code>https://tudominio.com/webhooks/whatsapp</code><br>
+        <strong>Identificador de verificación:</strong> valor de <code>WHATSAPP_VERIFY_TOKEN</code> en el <code>.env</code> del servidor (por defecto <code>inmofollow_wh_token</code>).<br>
+        Suscribite al campo <strong>messages</strong>.</p>
+        <p style="margin-top:8px;"><strong>Paso que se suele olvidar:</strong> andá a <em>WhatsApp → Introducción → Configuración de producción</em>, buscá tu número y activá <strong>"Suscribirse a webhooks"</strong>. Sin este paso, el webhook nunca recibe mensajes aunque la configuración de arriba esté perfecta.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">8</div>
       <div class="step-body">
-        <h4>Configurar el Webhook (dos partes — no te olvides de la segunda)</h4>
-        <p>Para que el sistema detecte cuando un lead te responde, tenés que configurar el webhook en Meta Developers → <em>Webhooks</em>.</p>
-        <p style="margin-top:8px;"><strong>URL de devolución de llamada:</strong> <code>https://tudominio.com/webhooks/whatsapp</code><br>
-        <strong>Identificador de verificación:</strong> el valor de <code>WHATSAPP_VERIFY_TOKEN</code> en el archivo <code>.env</code> del servidor (por defecto <code>inmofollow_wh_token</code>).</p>
-        <p style="margin-top:8px;">Suscribite al campo <strong>messages</strong> para recibir los mensajes entrantes.</p>
-        <p style="margin-top:8px;"><strong>Paso que se suele olvidar:</strong> esta configuración es a nivel de la App, pero cada número de WhatsApp Business tiene que suscribirse a esa App por separado. Andá a <em>WhatsApp → Introducción → Configuración de producción</em>, buscá tu número y activá el toggle <strong>"Suscribirse a webhooks"</strong>. Sin este paso, el webhook nunca recibe nada aunque la configuración de arriba esté perfecta.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">9</div>
-      <div class="step-body">
         <h4>Cargar las credenciales en InmoFollow</h4>
-        <p>Ingresá el Phone Number ID, el Access Token y el WABA ID en <em>Mi empresa</em> y guardá. Luego usá el botón <strong>"Probar conexión WhatsApp"</strong> para confirmar que todo funciona.</p>
+        <p>Ingresá el Phone Number ID, el Access Token y el WABA ID en <em>Configuración → WhatsApp / Meta</em> y guardá. Luego usá <strong>"Probar conexión"</strong> para confirmar.</p>
       </div>
     </div>
   </div>
 
-  <div class="callout warning">
-    <span class="callout-icon">🧪</span>
-    <p>Para confirmar que el webhook realmente funciona (no solo que Meta dice que está configurado), escribile un mensaje al número de negocio desde tu teléfono y fijate si aparece en la <strong>Conversación</strong> de ese lead dentro de InmoFollow. Si no aparece nada, revisá el toggle "Suscribirse a webhooks" del paso anterior — es la causa más común.</p>
-  </div>
-
-  <!-- META TEMPLATES -->
   <h2 id="meta-templates">Plantillas aprobadas por Meta</h2>
-  <p>Para poder contactar leads que nunca te escribieron (o que no respondieron hace más de 24hs), WhatsApp exige usar una <strong>plantilla aprobada previamente por Meta</strong>. Este es el requisito central para hacer outreach frío.</p>
+  <p>Para contactar leads que nunca te escribieron (o que pasaron más de 24hs sin responder), WhatsApp exige usar una <strong>plantilla aprobada previamente por Meta</strong>.</p>
 
-  <h3>¿Por qué es necesario?</h3>
-  <p>WhatsApp prohíbe el envío de mensajes comerciales a personas que no iniciaron la conversación, salvo que uses una plantilla aprobada. Es una medida anti-spam. Las plantillas pasan por una revisión de Meta antes de poder usarse.</p>
-
-  <h3>Crear una plantilla en Meta Business Manager</h3>
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-body">
-        <h4>Ir a Plantillas de mensajes</h4>
-        <p>En Meta Business Manager → <em>Herramientas para empresas</em> → <em>Gestor de WhatsApp</em> → <em>Plantillas de mensajes</em>.</p>
-        <a class="link-out" href="https://business.facebook.com/wa/manage/message-templates/" target="_blank">↗ Plantillas de mensajes</a>
+        <h4>Ir a Plantillas de mensajes en Meta</h4>
+        <a class="link-out" href="https://business.facebook.com/wa/manage/message-templates/" target="_blank">↗ Meta → Plantillas de mensajes</a>
       </div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-body">
         <h4>Crear nueva plantilla</h4>
-        <p>Elegí categoría <strong>Marketing</strong>, dá un nombre en minúsculas y sin espacios (ejemplo: <code>primer_contacto_piso</code>) y seleccioná el idioma.</p>
+        <p>Categoría <strong>Marketing</strong>, nombre en minúsculas sin espacios (ej: <code>primer_contacto_ml</code>), idioma español.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-body">
         <h4>Escribir el mensaje con variables</h4>
-        <p>Escribí el texto del mensaje. Usá <code>{{1}}</code>, <code>{{2}}</code>, etc. donde van datos variables (nombre del lead, zona, etc.).</p>
-        <p style="margin-top:8px;">Ejemplo: <em>"Hola {{1}}, te contactamos desde [Tu Inmobiliaria]. Vimos que consultaste por propiedades en {{2}}. ¿Querés que te contemos las opciones disponibles?"</em></p>
+        <p>Usá <code>{{1}}</code>, <code>{{2}}</code>, etc. donde van datos del lead. Ejemplo: <em>"Hola {{1}}, vimos tu publicación en MercadoLibre sobre la propiedad en {{2}}. ¿Podemos charlar?"</em></p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-body">
-        <h4>Enviar y esperar aprobación</h4>
-        <p>Una vez enviada, Meta la revisa. El proceso demora entre <strong>24 y 48 horas</strong>. Te notifican por email. El estado cambia a <span class="tag green">Aprobada</span>.</p>
+        <h4>Esperar aprobación (24-48hs)</h4>
+        <p>Meta revisa la plantilla. El estado cambia a <span class="tag green">Aprobada</span>. Si la rechazan, ajustá el texto y reenviá.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">5</div>
       <div class="step-body">
         <h4>Conectarla a una plantilla en InmoFollow</h4>
-        <p>Una vez aprobada, andá a <em>Plantillas de mensajes</em> en InmoFollow, editá la plantilla correspondiente y completá la sección <strong>"Primer contacto por WhatsApp"</strong>:</p>
-        <ul style="margin-top:8px;">
-          <li><strong>Nombre de la plantilla en Meta:</strong> exactamente igual al nombre que usaste en Meta (ej: <code>primer_contacto_piso</code>)</li>
-          <li><strong>Idioma:</strong> el mismo que seleccionaste en Meta</li>
-          <li><strong>Variables en orden:</strong> agregá las variables de InmoFollow en el mismo orden que los <code>{{1}}</code>, <code>{{2}}</code> en Meta. Si <code>{{1}}</code> es el nombre y <code>{{2}}</code> es la zona, ponés: <em>nombre, zona</em></li>
-        </ul>
+        <p>Andá a <em>Configuración → Plantillas</em>, editá la plantilla y completá la sección <strong>"Primer contacto por WhatsApp"</strong>: nombre de la plantilla en Meta (idéntico), idioma y variables en orden.</p>
       </div>
     </div>
   </div>
 
   <div class="callout success">
     <span class="callout-icon">✅</span>
-    <p>Desde <em>Mi empresa</em> → <strong>"Ver plantillas aprobadas"</strong> podés ver en tiempo real qué plantillas están aprobadas, pendientes o rechazadas en tu cuenta de Meta.</p>
+    <p>Desde <em>Configuración → WhatsApp / Meta</em> → <strong>"Ver plantillas aprobadas"</strong> podés ver en tiempo real qué plantillas están aprobadas, pendientes o rechazadas en tu cuenta de Meta.</p>
   </div>
 
-  <div class="callout danger">
-    <span class="callout-icon">🚫</span>
-    <p>Meta puede <strong>rechazar</strong> una plantilla si considera que el texto es demasiado promocional o genérico. Si eso pasa, hay que ajustar el texto y volver a enviarla para aprobación.</p>
-  </div>
-
-  <h3>Imagen, video o botón con link (opcional)</h3>
-  <p>Si en Meta creaste la plantilla con un <strong>header de imagen, video o documento</strong> (por ejemplo el logo de la empresa), o con un <strong>botón de "URL dinámica"</strong>, completá también estos campos en la sección "Primer contacto por WhatsApp" de la plantilla en InmoFollow:</p>
-  <ul>
-    <li><strong>Tipo de header:</strong> tiene que coincidir exactamente con lo que configuraste en Meta (Imagen, Video o Documento)</li>
-    <li><strong>URL pública del archivo:</strong> un link https accesible públicamente (por ejemplo, el logo alojado en el sitio web de la inmobiliaria)</li>
-    <li><strong>Botón con URL dinámica:</strong> solo si la plantilla tiene un botón de este tipo como <strong>primer botón</strong>. Elegís qué dato del lead (nombre, zona, tipo de propiedad, agente) reemplaza la parte variable de esa URL</li>
-  </ul>
-
-  <div class="callout warning">
-    <span class="callout-icon">⚠️</span>
-    <p>Estos campos son opcionales y solo tienen efecto si la plantilla <strong>ya fue aprobada en Meta con esos mismos componentes</strong>. Completar "Tipo de header" acá no le agrega una imagen a una plantilla que en Meta es de solo texto — tiene que coincidir con lo aprobado.</p>
-  </div>
-
-  <!-- USUARIOS -->
   <h2 id="usuarios">Gestión de usuarios</h2>
   <p>Accedé desde <em>Configuración → Usuarios</em>. Podés crear, editar y desactivar usuarios.</p>
 
@@ -321,18 +272,15 @@
   <ol>
     <li>Clic en <strong>"Nuevo usuario"</strong></li>
     <li>Completá nombre, email y contraseña inicial</li>
-    <li>Seleccioná rol: <strong>Agente</strong></li>
-    <li>Guardá</li>
-    <li>Compartí el email y contraseña con el agente</li>
+    <li>Seleccioná rol: <strong>Agente</strong> o <strong>Supervisor</strong></li>
+    <li>Guardá y compartí las credenciales</li>
   </ol>
 
   <h3>Cambiar contraseña de un agente</h3>
-  <p>Si un agente olvidó su contraseña, desde la tabla de usuarios hacé clic en <strong>"Nueva contraseña"</strong> junto a su nombre. Ingresá la nueva contraseña y el agente puede usarla de inmediato.</p>
+  <p>Desde la tabla de usuarios hacé clic en <strong>"Nueva contraseña"</strong> junto a su nombre. El agente puede usarla de inmediato.</p>
 
-  <!-- PLANTILLAS -->
   <h2 id="plantillas">Plantillas de mensajes</h2>
-  <p>Las plantillas <strong>globales</strong> están disponibles para todos los agentes. Las <strong>personales</strong> solo las ve el agente que las creó.</p>
-  <p>Como administrador, podés crear todas las plantillas globales que el equipo va a necesitar: primer contacto, seguimiento a los 3 días, recordatorio de visita, etc.</p>
+  <p>Las plantillas <strong>globales</strong> están disponibles para todos los agentes. Las <strong>personales</strong> solo las ve el agente que las creó. Como administrador, solo vos podés crear y editar plantillas globales (accedé desde <em>Configuración → Plantillas</em>).</p>
 
   <h3>Variables disponibles en el texto</h3>
   <table>
@@ -345,37 +293,38 @@
     </tbody>
   </table>
 
-  <!-- PIPELINE -->
   <h2 id="pipeline">Pipeline comercial</h2>
   <p>El Pipeline es la vista Kanban del proceso de ventas. Los leads se arrastran entre columnas para cambiar su estado. Accedé desde el menú <em>Comercial → Pipeline</em>.</p>
 
-  <h3>Gestionar los estados del Pipeline</h3>
-  <p>Hacé clic en el ícono ⚙ del encabezado de cualquier columna para editar ese estado:</p>
-  <ul>
-    <li><strong>Renombrar</strong> — editá el nombre y presioná Enter o "Guardar"</li>
-    <li><strong>Cambiar color</strong> — hacé clic en uno de los 10 colores disponibles</li>
-    <li><strong>Reordenar</strong> — usá las flechas ← → para mover la columna</li>
-    <li><strong>Eliminar</strong> — los leads de esa columna quedan sin estado asignado (sin perder datos)</li>
-  </ul>
-  <p>Para agregar un nuevo estado, usá el botón "+ Añadir estado" al final del tablero.</p>
+  <h3>Gestionar los estados</h3>
+  <p>Hacé clic en el ícono ⚙ del encabezado de cualquier columna para editar ese estado: renombrar, cambiar color, reordenar con las flechas ← →, o eliminar (los leads quedan sin estado, sin perder datos). Usá "+ Añadir estado" al final del tablero para crear uno nuevo.</p>
 
   <div class="callout info">
     <span class="callout-icon">💡</span>
-    <p>Cuando movés un lead de columna (drag & drop o directamente), el sistema dispara automáticamente el flow asociado a ese nuevo estado si existe uno activo.</p>
+    <p>Cuando movés un lead de columna (drag & drop), el sistema dispara automáticamente el flow asociado a ese nuevo estado si existe uno activo y compatible con el origen del lead.</p>
   </div>
 
-  <!-- FLOWS -->
   <h2 id="flows">Flows de automatización</h2>
-  <p>Los flows son secuencias de acciones que se ejecutan automáticamente cuando ocurre un evento. Accedé desde <em>Automatización → Flows</em>.</p>
+  <p>Los flows son secuencias de acciones que se ejecutan automáticamente cuando ocurre un evento. Accedé desde <em>Automatizaciones → Flows</em>.</p>
 
   <h3>Tipos de trigger (disparador)</h3>
   <table>
     <thead><tr><th>Trigger</th><th>Cuándo se dispara</th></tr></thead>
     <tbody>
       <tr><td><strong>Cambio de estado</strong></td><td>Cuando el lead pasa al estado seleccionado (por drag & drop en Pipeline, cambio manual, o acción de IA)</td></tr>
-      <tr><td><strong>Lead creado</strong></td><td>Cada vez que se crea un lead nuevo (manual, importación CSV, o desde API futura)</td></tr>
+      <tr><td><strong>Lead creado</strong></td><td>Cada vez que se crea un lead nuevo (manual, importación CSV)</td></tr>
     </tbody>
   </table>
+
+  <h3>Filtro por origen del lead</h3>
+  <p>Al crear un flow, el campo <strong>"Solo si Origen es"</strong> permite que el flow solo se dispare cuando el lead viene de una fuente específica:</p>
+  <ul>
+    <li><code>ml</code> — solo leads de MercadoLibre</li>
+    <li><code>2clics</code> — solo leads importados de 2clics</li>
+    <li><code>web</code> / <code>manual</code> — otros orígenes</li>
+    <li>(vacío) — se dispara para cualquier origen</li>
+  </ul>
+  <p>Esto permite tener un flow de bienvenida diferente para leads de MercadoLibre (que ya tenés su propiedad) versus leads genéricos.</p>
 
   <h3>Tipos de pasos disponibles</h3>
   <table>
@@ -383,34 +332,32 @@
     <tbody>
       <tr><td><strong>📋 Enviar plantilla</strong></td><td>Envía una plantilla aprobada por WhatsApp o email al número de días indicado</td><td>Primer contacto, seguimientos programados</td></tr>
       <tr><td><strong>💬 Mensaje libre</strong></td><td>Envía texto libre por WhatsApp (solo funciona si hay sesión activa de 24hs)</td><td>Confirmaciones rápidas dentro de una conversación activa</td></tr>
-      <tr><td><strong>🔄 Cambiar estado</strong></td><td>Mueve el lead a otro estado del pipeline</td><td>Automatizar el avance por etapas (ej: pasar de "Nuevo" a "Contactado" luego del primer mensaje)</td></tr>
+      <tr><td><strong>🔄 Cambiar estado</strong></td><td>Mueve el lead a otro estado del pipeline</td><td>Automatizar el avance (ej: "Nuevo" → "Contactado" después del primer mensaje)</td></tr>
       <tr><td><strong>👤 Asignar agente</strong></td><td>Asigna el lead a un agente específico</td><td>Distribución automática de leads nuevos</td></tr>
     </tbody>
   </table>
 
   <h3>Crear un flow</h3>
   <ol>
-    <li>Ir a <em>Automatización → Flows</em> → <strong>"+ Nuevo"</strong></li>
-    <li>Elegir el tipo de trigger y, si es por estado, seleccionar el estado</li>
+    <li>Ir a <em>Automatizaciones → Flows</em> → <strong>"+ Nuevo"</strong></li>
+    <li>Elegir tipo de trigger (cambio de estado / lead creado), el estado si aplica, y el origen si querés filtrarlo</li>
     <li>Crear el flow</li>
-    <li>Agregar pasos: para cada uno elegir el tipo, los datos correspondientes y el número de días desde el inicio</li>
+    <li>Agregar pasos con el tipo, datos y número de días</li>
     <li>Activar el flow con el botón "▶ Activar"</li>
   </ol>
 
   <div class="callout info">
     <span class="callout-icon">💡</span>
-    <p>Los pasos con <strong>Día 0</strong> se ejecutan de inmediato. Los pasos de acción (Cambiar estado, Asignar agente) con Día 0 se aplican en el momento, sin pasar por la cola de mensajes programados.</p>
+    <p>Los pasos con <strong>Día 0</strong> se ejecutan de inmediato. Las acciones (cambiar estado, asignar agente) en Día 0 se aplican en el momento, sin pasar por la cola de mensajes.</p>
   </div>
 
   <div class="callout warning">
     <span class="callout-icon">⚠️</span>
-    <p>El primer paso de un flow para leads nuevos debería ser <strong>Enviar plantilla</strong> (aprobada por Meta), ya que el lead no habrá iniciado conversación. Un "Mensaje libre" en Día 0 no puede enviarse sin sesión activa.</p>
+    <p>El primer paso de un flow para leads nuevos debería ser <strong>Enviar plantilla</strong> (aprobada por Meta), ya que el lead no habrá iniciado conversación. Un "Mensaje libre" en Día 0 no puede enviarse sin sesión activa de 24hs.</p>
   </div>
 
-  <!-- BROADCASTS -->
   <h2 id="broadcasts">Broadcasts (envíos masivos)</h2>
-  <p>Los broadcasts permiten enviar una plantilla aprobada por Meta a un conjunto de leads a la vez. Accedé desde <em>Comunicación → Broadcasts</em>.</p>
-
+  <p>Los broadcasts permiten enviar una plantilla aprobada por Meta a un conjunto de leads a la vez. Accedé desde <em>Comunicación → Broadcast</em>.</p>
   <ol>
     <li>Elegir la plantilla (debe estar aprobada por Meta)</li>
     <li>Seleccionar los leads destinatarios (filtros por estado, agente, zona, etc.)</li>
@@ -422,46 +369,61 @@
     <p>Solo se envía a leads con <strong>consentimiento de WhatsApp</strong> activo. Los mensajes se procesan a través del mismo cron que los mensajes de flows, respetando el límite de 20 por corrida.</p>
   </div>
 
-  <!-- IMPORTAR -->
   <h2 id="importar">Importar leads</h2>
-  <p>Desde <em>Leads</em> → <em>Importar</em> podés subir un archivo CSV con leads masivos.</p>
+  <p>Desde <em>Comercial → Leads</em> → <em>Importar</em> podés subir un archivo CSV o Excel con leads masivos. El proceso tiene 3 pasos.</p>
 
-  <h3>Requisitos del archivo CSV</h3>
+  <h3>Paso 1: Subir el archivo</h3>
+  <p>El sistema acepta CSV (.csv, .txt) y Excel (.xlsx). Detecta la fila de cabecera automáticamente.</p>
+
+  <h3>Paso 2: Mapear columnas</h3>
+  <p>Encontrás tres elementos en este paso:</p>
   <ul>
-    <li>Formato UTF-8 (para que los acentos se vean bien)</li>
-    <li>Primera fila con los nombres de las columnas</li>
-    <li>El campo <strong>nombre</strong> o <strong>name</strong> es el único requerido</li>
-    <li>El teléfono puede estar en formato local (<code>09XXXXXXXX</code>) o internacional (<code>598XXXXXXXX</code>)</li>
-    <li>La columna <strong>Estado</strong> es opcional, pero tiene que coincidir <strong>exactamente</strong> (sin importar mayúsculas) con el nombre de un estado ya creado en <em>Estados de lead</em>. Si no coincide, el lead se importa igual pero sin estado, y el sistema te avisa cuáles no matchearon al final del import</li>
+    <li><strong>Botón "⚡ Preset MercadoLibre"</strong> — si el archivo viene del export de ML, este botón asigna automáticamente las 9 columnas (Item ID, Teléfono, Título, Tipo, Operación, Zona, Precio, Atributos, Link). También fija el origen en <code>ml</code>.</li>
+    <li><strong>Origen fijo</strong> — etiqueta a todos los leads del archivo con ese origen. Usá valores cortos: <code>ml</code>, <code>2clics</code>, <code>web</code>. Este valor activa los flows que filtrán por origen.</li>
+    <li><strong>Perfil guardado</strong> — podés guardar el mapeo actual con un nombre para reutilizarlo en futuras importaciones del mismo tipo.</li>
   </ul>
+
+  <h4>📋 Sección: Datos del contacto</h4>
+  <p>Columnas que van al perfil del lead: nombre (opcional si hay propiedad), teléfono, email, zona, tipo de propiedad, origen, estado, agente, consentimientos, notas.</p>
+
+  <h4>🏠 Sección: Datos de la propiedad</h4>
+  <p>Columnas que van al expediente de propiedad del lead. Si dejás todo vacío, no se crea expediente. Campos disponibles:</p>
+  <ul>
+    <li><strong>ID externo</strong> — Item ID de MercadoLibre. Sirve para no duplicar al reimportar.</li>
+    <li><strong>Título</strong> — título de la publicación</li>
+    <li><strong>Tipo de propiedad</strong> — (apartamento, casa, etc.)</li>
+    <li><strong>Operación</strong> — venta o alquiler</li>
+    <li><strong>Precio</strong> — acepta el formato del CSV de ML: "145000 dólares" o "680000 pesos"</li>
+    <li><strong>Zona descriptiva</strong> — texto libre de la zona</li>
+    <li><strong>Link publicación</strong> — URL de la publicación en ML</li>
+    <li><strong>Atributos</strong> — acepta el formato: "4 dormitorios | 2 baños | 174 m² cubiertos"</li>
+  </ul>
+
+  <h3>Paso 3: Resultado</h3>
+  <p>Muestra 4 contadores: <strong>Leads nuevos</strong> (creados), <strong>Ya existían</strong> (duplicados por teléfono — se les agregó la propiedad), <strong>Omitidos</strong> y <strong>Errores</strong>. Si hay estados que no coincidieron con ninguno del pipeline, se listan por separado.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">💡</span>
+    <p>Si un lead con el mismo teléfono ya existe, <strong>no se duplica</strong> — se agrega la propiedad al lead existente y se cuenta en "Ya existían". Al reimportar el mismo CSV de ML, las propiedades ya importadas tampoco se duplican (se actualizan por el Item ID).</p>
+  </div>
 
   <div class="callout warning">
     <span class="callout-icon">⚠️</span>
-    <p>Antes de importar, asegurate de que el archivo tiene la columna de <strong>consentimiento de WhatsApp</strong> si los leads ya dieron su ok. Sin consentimiento, el sistema no les envía mensajes.</p>
+    <p>Antes de importar, asegurate de que la columna de <strong>consentimiento de WhatsApp</strong> esté mapeada si los leads ya dieron su ok. Sin consentimiento, el sistema no les envía mensajes automáticos.</p>
   </div>
 
-  <h3>Importaciones grandes (cientos de leads)</h3>
-  <p>Importar el archivo en sí no dispara ningún mensaje — las secuencias solo se activan a mano por lead (botón "Generar seguimiento") o cuando vos las asignás. Pero si después vas a generar seguimientos para muchos leads importados a la vez, tené en cuenta que el envío automático:</p>
-  <ul>
-    <li>Procesa como máximo <strong>20 mensajes por corrida</strong> del cron (configurable en el servidor con <code>WHATSAPP_MAX_SENDS_PER_RUN</code>), con una pequeña pausa entre cada uno</li>
-    <li>No reenvía duplicados si una corrida tarda más de lo esperado</li>
-  </ul>
-  <p>Esto hace que el envío a un lote grande de leads se haga de forma progresiva a lo largo de varios minutos, en vez de una ráfaga que podría afectar la calidad del número de WhatsApp.</p>
-
-  <!-- ASIGNAR -->
   <h2 id="asignar">Asignar leads a agentes</h2>
-  <p>Tenés dos opciones:</p>
   <ul>
     <li><strong>Individual:</strong> editá el lead y seleccioná el agente en el campo "Agente".</li>
-    <li><strong>Masivo:</strong> en la tabla de leads, seleccioná varios con el checkbox, luego clic en <em>Acciones → Asignar agente</em>, elegí el agente y confirmá.</li>
+    <li><strong>Masivo:</strong> en la tabla de leads, seleccioná varios con el checkbox → <em>Acciones → Asignar agente</em>.</li>
   </ul>
 
-  <!-- IA -->
   <h2 id="ia">Configurar Agentes IA</h2>
-  <p>Accedé desde el menú <em>IA → Agentes IA</em>. Aquí configurás el agente que responde automáticamente los mensajes de WhatsApp y genera textos de plantillas.</p>
+  <p>Accedé desde el menú <em>Configuración → Agentes IA</em>. La página tiene dos pestañas: <strong>⚙ Configuración</strong> y <strong>🧪 Playground</strong>.</p>
 
-  <h3>Elegir proveedor y modelo</h3>
-  <p>El sistema soporta 5 proveedores. Elegís uno, pegás la API Key y seleccionás el modelo:</p>
+  <h3>Pestaña Configuración</h3>
+  <p>Elegís el proveedor, pegás la API Key, seleccionás el modelo, escribís el system prompt y cargás la base de conocimiento.</p>
+
   <table>
     <thead><tr><th>Proveedor</th><th>Dónde obtener la API Key</th><th>Modelos recomendados</th></tr></thead>
     <tbody>
@@ -474,7 +436,7 @@
   </table>
 
   <h3>System prompt</h3>
-  <p>El system prompt define el comportamiento del agente: su nombre, tono, qué puede y qué no puede responder. Ejemplo:</p>
+  <p>Define el comportamiento del agente: nombre, tono, qué puede y no puede responder. Ejemplo:</p>
   <p><em>"Sos Valentina, asistente virtual de Inmobiliaria Rivera. Respondé en español rioplatense, de forma cálida y profesional. Solo respondé consultas sobre propiedades en venta o alquiler. Si el cliente quiere agendar una visita, decile que un agente lo contactará en el día."</em></p>
 
   <h3>Modo de operación</h3>
@@ -482,54 +444,29 @@
     <thead><tr><th>Modo</th><th>Qué pasa</th></tr></thead>
     <tbody>
       <tr><td><strong>Auto-send activado</strong></td><td>El agente genera y envía la respuesta automáticamente al cliente</td></tr>
-      <tr><td><strong>Auto-send desactivado</strong></td><td>El agente genera un borrador que aparece en el Inbox para que el agente humano lo apruebe o descarte antes de enviarlo</td></tr>
+      <tr><td><strong>Auto-send desactivado</strong></td><td>El agente genera un borrador que aparece en el Inbox para que el agente humano lo apruebe o descarte</td></tr>
     </tbody>
   </table>
 
   <h3>Base de conocimiento</h3>
-  <p>Agregá contexto específico de tu empresa para que el agente responda con información real:</p>
+  <p>Agregá contexto específico para que el agente responda con información real:</p>
   <ul>
-    <li><strong>Texto</strong> — pegá directamente descripción de servicios, zonas de cobertura, precios, horarios</li>
-    <li><strong>URL</strong> — el sistema visita la página y extrae el contenido de texto automáticamente</li>
-    <li><strong>PDF</strong> — subí un documento (tarifario, listado de propiedades, reglamento) y el sistema extrae el texto</li>
+    <li><strong>Texto</strong> — descripción de servicios, zonas, horarios, precios</li>
+    <li><strong>URL</strong> — el sistema visita la página y extrae el contenido automáticamente</li>
+    <li><strong>PDF</strong> — subí un documento (tarifario, reglamento, listado) y el sistema extrae el texto</li>
   </ul>
   <p>Cada entrada se puede activar o desactivar sin eliminarla. El agente usa hasta 6.000 caracteres de la base de conocimiento por respuesta.</p>
 
-  <h3>Acciones automáticas del agente</h3>
-  <p>El agente puede cambiar el estado del lead, asignarlo a un agente o disparar un flow, según lo que detecte en la conversación. Esto lo hace incluyendo comandos ocultos en su respuesta que el sistema procesa antes de enviársela al cliente.</p>
-  <p>No requiere configuración adicional — el agente recibe automáticamente la lista de estados, agentes y flows disponibles en cada conversación.</p>
+  <h3>Contexto de propiedad automático</h3>
+  <p>Si el lead tiene un expediente de propiedad primario (importado desde ML), el agente lo recibe automáticamente en cada conversación: operación, precio publicado, dormitorios, m² cubiertos y link. No requiere configuración adicional.</p>
+
+  <h3>Pestaña Playground</h3>
+  <p>Permite probar el agente con mensajes de prueba antes de activarlo. Podés escribir una consulta como si fueras un lead y ver exactamente qué responde el agente con la configuración actual. Ideal para ajustar el system prompt y la base de conocimiento antes de activar el auto-send.</p>
 
   <div class="callout info">
     <span class="callout-icon">💰</span>
-    <p>El costo de la IA se descuenta de la cuenta del proveedor que configuraste. Para generación de textos de plantillas, el consumo es muy bajo. Para respuestas automáticas, depende del volumen de mensajes recibidos.</p>
+    <p>El costo de la IA se descuenta de la cuenta del proveedor que configuraste. Para generación de textos de plantillas, el consumo es muy bajo. Para respuestas automáticas, depende del volumen de mensajes.</p>
   </div>
-
-  <!-- INTEGRACIONES -->
-  <h2 id="integraciones">Integraciones con CRM externos</h2>
-  <p>El sistema está preparado para recibir leads automáticamente desde otras plataformas. Cuando tengamos los endpoints de cada sistema, las integraciones se agregarán sin cambios en la estructura de leads.</p>
-
-  <table>
-    <thead><tr><th>Plataforma</th><th>Estado</th><th>Qué significa</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong>2clics.app</strong></td>
-        <td><span class="tag amber">Pendiente</span></td>
-        <td>Leads del CRM 2clics se sincronizarán automáticamente a InmoFollow. Estamos esperando los detalles técnicos de su API.</td>
-      </tr>
-      <tr>
-        <td><strong>MercadoLibre</strong></td>
-        <td><span class="tag amber">Pendiente</span></td>
-        <td>Consultas de MercadoLibre Inmuebles entrarán directamente como leads. También esperando acceso a la API.</td>
-      </tr>
-      <tr>
-        <td><strong>Importación CSV</strong></td>
-        <td><span class="tag green">Disponible</span></td>
-        <td>Disponible ahora. Compatible con exportaciones de la mayoría de sistemas.</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p>Mientras tanto, la importación CSV permite trabajar con leads de cualquier origen. Exportá desde tu sistema actual y subí el archivo a InmoFollow.</p>
 
 </main>
 </div>
