@@ -45,6 +45,28 @@ class MessageTemplatesTable
                     ->limit(80)
                     ->searchable(),
 
+                TextColumn::make('meta_status')
+                    ->label('Estado Meta')
+                    ->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'APPROVED'       => 'success',
+                        'PENDING',
+                        'PENDING_REVIEW' => 'warning',
+                        'REJECTED'       => 'danger',
+                        default          => 'gray',
+                    })
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'APPROVED'       => 'Aprobada',
+                        'PENDING'        => 'Pendiente',
+                        'PENDING_REVIEW' => 'En revisión',
+                        'REJECTED'       => 'Rechazada',
+                        'PAUSED'         => 'Pausada',
+                        'DISABLED'       => 'Desactivada',
+                        null             => 'Sin sync',
+                        default          => $state,
+                    })
+                    ->placeholder('—'),
+
                 IconColumn::make('active')
                     ->label('Activa')
                     ->boolean(),
