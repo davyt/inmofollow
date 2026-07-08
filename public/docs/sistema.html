@@ -104,9 +104,10 @@
     <div class="sidebar-section">Contenido</div>
     <a href="#que-es">¿Qué es InmoFollow?</a>
     <a href="#modulos">Módulos del sistema</a>
+    <a href="#nav">Estructura de navegación</a>
     <a href="#flujo">Flujo de trabajo</a>
     <a href="#whatsapp">Integración WhatsApp</a>
-    <a href="#ia">Integración de IA</a>
+    <a href="#ia">IA y automatización</a>
     <a href="#importacion">Importación de leads</a>
     <a href="#roles">Roles de usuario</a>
     <a href="#integraciones">Integraciones futuras</a>
@@ -141,34 +142,64 @@
     <div class="module-card">
       <div class="icon">👥</div>
       <h4>Leads</h4>
-      <p>Registro de clientes potenciales. Cada lead tiene datos de contacto, zona, tipo de propiedad, estado y agente asignado.</p>
+      <p>Registro de clientes potenciales con datos de contacto, zona, tipo de propiedad, estado, agente asignado e historial de actividad.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">🗂️</div>
+      <h4>Pipeline</h4>
+      <p>Vista Kanban del proceso comercial. Los estados se crean, colorean, reordenan y eliminan directamente desde el tablero, sin salir del Pipeline.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">💬</div>
+      <h4>Inbox</h4>
+      <p>Bandeja de mensajes entrantes de WhatsApp. Permite responder, ver el historial de conversación y aprobar o descartar respuestas generadas por la IA.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">📢</div>
+      <h4>Broadcasts</h4>
+      <p>Envíos masivos a un conjunto de leads seleccionados. Usa plantillas aprobadas por Meta para outreach frío.</p>
+    </div>
+    <div class="module-card">
+      <div class="icon">⚡</div>
+      <h4>Flows</h4>
+      <p>Flujos de automatización con múltiples tipos de pasos: enviar plantilla, enviar mensaje libre, cambiar estado del lead, asignar agente. Se disparan solos al crear un lead o al cambiar su estado.</p>
     </div>
     <div class="module-card">
       <div class="icon">📝</div>
       <h4>Plantillas de mensajes</h4>
-      <p>Mensajes reutilizables con variables dinámicas. Pueden ser globales (para todo el equipo) o personales (de un agente).</p>
+      <p>Mensajes reutilizables con variables dinámicas. Incluye generación con IA y sincronización del estado de aprobación desde Meta.</p>
     </div>
     <div class="module-card">
-      <div class="icon">🔄</div>
-      <h4>Secuencias</h4>
-      <p>Cadenas de mensajes que se envían automáticamente en tiempos definidos. Ej: mensaje al día 1, otro al día 3, otro al día 7.</p>
+      <div class="icon">🤖</div>
+      <h4>Agentes IA</h4>
+      <p>Agente de respuesta automática por WhatsApp. Soporta múltiples proveedores (Groq, OpenAI, Anthropic, Gemini, OpenRouter), base de conocimiento propia y manipulación del pipeline.</p>
     </div>
     <div class="module-card">
       <div class="icon">📅</div>
-      <h4>Mensajes programados</h4>
-      <p>Cola de mensajes listos para salir. El sistema los revisa periódicamente y los envía cuando llega el momento.</p>
+      <h4>Historial de envíos</h4>
+      <p>Log de todos los mensajes enviados por el sistema: estado (enviado, fallido, cancelado), fecha y canal.</p>
     </div>
     <div class="module-card">
       <div class="icon">🏢</div>
-      <h4>Empresa</h4>
-      <p>Configuración central: credenciales de WhatsApp, clave de IA, nombre de la empresa.</p>
-    </div>
-    <div class="module-card">
-      <div class="icon">👤</div>
-      <h4>Usuarios</h4>
-      <p>Administradores, supervisores y agentes. Cada rol tiene acceso diferente al sistema.</p>
+      <h4>Configuración</h4>
+      <p>Empresa, usuarios, WhatsApp y estados de lead. Accesible solo para administradores y supervisores.</p>
     </div>
   </div>
+
+  <!-- NAVEGACIÓN -->
+  <h2 id="nav">Estructura de navegación</h2>
+  <p>El menú lateral está organizado en cinco grupos funcionales:</p>
+
+  <table>
+    <thead><tr><th>Grupo</th><th>Secciones incluidas</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Comercial</strong></td><td>Leads, Pipeline</td></tr>
+      <tr><td><strong>Comunicación</strong></td><td>Inbox (bandeja de entrada), Broadcasts</td></tr>
+      <tr><td><strong>Automatización</strong></td><td>Flows, Historial de envíos</td></tr>
+      <tr><td><strong>IA</strong></td><td>Agentes IA (configuración de proveedor, modelo, KB y comportamiento)</td></tr>
+      <tr><td><strong>Configuración</strong></td><td>Mi empresa, Usuarios, Plantillas de mensajes, Logs de actividad</td></tr>
+    </tbody>
+  </table>
 
   <!-- FLUJO -->
   <h2 id="flujo">Flujo de trabajo típico</h2>
@@ -191,8 +222,8 @@
     <div class="flow-step">
       <div class="flow-line"><div class="flow-dot">3</div><div class="flow-connector"></div></div>
       <div class="flow-body">
-        <h4>Generación de secuencia</h4>
-        <p>Según el estado del lead, el sistema puede generar automáticamente los mensajes programados de una secuencia. El agente también puede generarla manualmente.</p>
+        <h4>Disparo automático de flows</h4>
+        <p>Cuando el lead se crea o cambia de estado, el sistema busca automáticamente un flow asociado y ejecuta sus pasos: puede enviar mensajes, cambiar el estado o asignar un agente, sin intervención del usuario.</p>
       </div>
     </div>
     <div class="flow-step">
@@ -248,13 +279,46 @@
   <p>Cuando un lead te escribe por WhatsApp, el sistema recibe la notificación automáticamente (via webhook) y registra la fecha y hora. Mientras esa sesión esté activa (menos de 24hs), el agente puede enviar cualquier mensaje libremente. El sistema gestiona esto de forma transparente.</p>
 
   <!-- IA -->
-  <h2 id="ia">Integración de inteligencia artificial</h2>
-  <p>InmoFollow incluye un generador de mensajes con IA basado en <strong>Claude (Anthropic)</strong>. Al crear una plantilla, el agente o administrador puede describir qué tipo de mensaje quiere y la IA genera el texto completo, adaptado al canal (WhatsApp o email) y al tono del negocio inmobiliario.</p>
-  <p>La clave de API de Anthropic se configura desde el panel de <em>Mi empresa</em>. Cada empresa usa su propia clave, por lo que el costo del uso de IA corre por cuenta de la empresa.</p>
+  <h2 id="ia">IA y automatización inteligente</h2>
+
+  <h3>Generación de plantillas con IA</h3>
+  <p>Al crear o editar una plantilla de mensaje, el botón <strong>"Generar con IA"</strong> permite describir qué tipo de mensaje se necesita y la IA genera el texto completo, adaptado al canal (WhatsApp o email) y al tono inmobiliario uruguayo.</p>
+  <p>Esta funcionalidad usa el proveedor configurado en <em>Agentes IA</em>. Si no hay agente configurado, usa la clave de Anthropic de Mi empresa como fallback.</p>
+
+  <h3>Agente de respuesta automática</h3>
+  <p>El Agente IA responde automáticamente los mensajes entrantes de WhatsApp. Puede configurarse con cualquier proveedor de IA:</p>
+
+  <table>
+    <thead><tr><th>Proveedor</th><th>Ejemplo de modelos</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Groq</strong></td><td>llama-3.1-8b-instant, mixtral-8x7b</td><td>Muy rápido, gratuito para volumen moderado</td></tr>
+      <tr><td><strong>OpenAI</strong></td><td>gpt-4o-mini, gpt-4o</td><td>Ampliamente conocido</td></tr>
+      <tr><td><strong>Anthropic</strong></td><td>claude-haiku-4-5, claude-sonnet-5</td><td>Excelente para contexto inmobiliario</td></tr>
+      <tr><td><strong>Gemini</strong></td><td>gemini-1.5-flash, gemini-2.0-flash</td><td>Gratuito con cuota diaria</td></tr>
+      <tr><td><strong>OpenRouter</strong></td><td>meta-llama/llama-3.1-8b, deepseek</td><td>Acceso unificado a múltiples modelos</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Base de conocimiento del agente</h3>
+  <p>El agente puede recibir información contextual sobre la empresa en tres formatos:</p>
+  <ul>
+    <li><strong>Texto libre</strong> — descripción de la empresa, políticas, zonas de trabajo</li>
+    <li><strong>URL</strong> — el sistema extrae automáticamente el contenido de una página web</li>
+    <li><strong>PDF</strong> — se sube un documento y el sistema extrae su texto</li>
+  </ul>
+  <p>Esta información se incluye en cada respuesta del agente para que responda con datos reales de la empresa.</p>
+
+  <h3>La IA puede manipular el pipeline</h3>
+  <p>El agente IA conoce los estados del pipeline, los agentes disponibles y los flows activos. Si la conversación lo justifica, puede incluir en su respuesta comandos que el sistema ejecuta automáticamente <strong>sin que el cliente los vea</strong>:</p>
+  <ul>
+    <li>Cambiar el estado del lead en el pipeline</li>
+    <li>Asignar el lead a un agente específico</li>
+    <li>Disparar un flow de seguimiento</li>
+  </ul>
 
   <div class="callout info">
     <span class="callout-icon">🤖</span>
-    <p>La IA es opcional. El sistema funciona perfectamente sin ella; simplemente se escribe el mensaje manualmente en las plantillas.</p>
+    <p>La IA es opcional. El sistema funciona perfectamente sin ella. Cada empresa configura su propio proveedor y clave API, por lo que el costo de IA corre por cuenta de la empresa.</p>
   </div>
 
   <!-- IMPORTACIÓN -->
@@ -338,24 +402,28 @@
     <thead><tr><th>Limitación</th><th>Detalle</th></tr></thead>
     <tbody>
       <tr>
-        <td>Solo texto en WhatsApp</td>
-        <td>El sistema envía mensajes de texto. No envía imágenes, documentos ni botones interactivos (por ahora).</td>
+        <td>Solo texto en WhatsApp (mensajes libres)</td>
+        <td>Los mensajes de texto libre enviados en la ventana de 24hs no soportan imágenes ni botones. Las plantillas aprobadas por Meta sí pueden tener header de imagen.</td>
       </tr>
       <tr>
         <td>Un número de WhatsApp por empresa</td>
         <td>La empresa tiene un único número de WhatsApp Business configurado. Multi-número no está implementado.</td>
       </tr>
       <tr>
-        <td>Plantillas Meta: aprobación manual</td>
-        <td>Las plantillas aprobadas por Meta deben crearse manualmente en Meta Business Manager. El proceso demora 24-48hs.</td>
+        <td>Plantillas Meta: creación manual en Meta Business Manager</td>
+        <td>Las plantillas deben crearse primero en Meta Business Manager y luego sincronizarse a InmoFollow con el botón "Sync desde Meta". El proceso de aprobación demora 24-48hs.</td>
       </tr>
       <tr>
         <td>Sin reportes avanzados</td>
-        <td>El dashboard muestra métricas básicas. No hay gráficos históricos ni exportación de reportes todavía.</td>
+        <td>El dashboard muestra métricas básicas (leads totales, mensajes enviados, sin responder). No hay gráficos históricos ni exportación de reportes todavía.</td>
       </tr>
       <tr>
-        <td>Base de datos SQLite</td>
-        <td>En instalaciones de alto volumen (miles de leads activos simultáneos), se recomienda migrar a MySQL.</td>
+        <td>Flows: un flow por evento por empresa</td>
+        <td>Si hay múltiples flows con el mismo trigger y estado, solo se ejecuta el primero encontrado (prioridad: personal sobre global).</td>
+      </tr>
+      <tr>
+        <td>IA: sin condiciones (If/Else) en flows</td>
+        <td>Los flows no soportan ramificaciones condicionales todavía. Todos los pasos se ejecutan en secuencia.</td>
       </tr>
     </tbody>
   </table>

@@ -95,10 +95,12 @@
     <div class="sidebar-section">Operativa diaria</div>
     <a href="#usuarios">Gestión de usuarios</a>
     <a href="#plantillas">Plantillas de mensajes</a>
-    <a href="#secuencias">Secuencias</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#flows">Flows</a>
+    <a href="#broadcasts">Broadcasts</a>
     <a href="#importar">Importar leads</a>
     <a href="#asignar">Asignar leads</a>
-    <a href="#ia">Configurar IA</a>
+    <a href="#ia">Agentes IA</a>
     <div class="sidebar-section">Futuro</div>
     <a href="#integraciones">Integraciones CRM</a>
   </nav>
@@ -119,10 +121,11 @@
     <li><span class="check-box"></span> Crear la empresa en <em>Mi empresa</em> con nombre y datos básicos</li>
     <li><span class="check-box"></span> Completar las credenciales de WhatsApp Business (Phone Number ID y Access Token)</li>
     <li><span class="check-box"></span> Agregar el WhatsApp Business Account ID (para ver plantillas aprobadas)</li>
-    <li><span class="check-box"></span> Crear los estados de lead que usa tu inmobiliaria (Ej: Nuevo, En seguimiento, Calificado, Cerrado)</li>
-    <li><span class="check-box"></span> Crear las plantillas de mensajes globales (primer contacto, seguimiento, etc.)</li>
-    <li><span class="check-box"></span> Crear las secuencias de seguimiento y asociarlas a estados</li>
+    <li><span class="check-box"></span> Crear los estados de lead del Pipeline (Ej: Nuevo, En seguimiento, Calificado, Cerrado) — desde el Pipeline directamente</li>
+    <li><span class="check-box"></span> Crear las plantillas de mensajes globales (primer contacto, seguimiento, etc.) — con IA o manual</li>
+    <li><span class="check-box"></span> Crear los flows de automatización y asociarlos a triggers (cambio de estado o lead creado)</li>
     <li><span class="check-box"></span> Crear los usuarios (agentes)</li>
+    <li><span class="check-box"></span> Configurar el Agente IA (proveedor, modelo, system prompt, base de conocimiento) — opcional</li>
     <li><span class="check-box"></span> Importar los leads iniciales o cargarlos manualmente</li>
     <li><span class="check-box"></span> Asignar los leads a los agentes</li>
     <li><span class="check-box"></span> Configurar el cron job en el servidor (envío automático)</li>
@@ -342,21 +345,81 @@
     </tbody>
   </table>
 
-  <!-- SECUENCIAS -->
-  <h2 id="secuencias">Secuencias de seguimiento</h2>
-  <p>Una secuencia es una cadena de mensajes que se envían automáticamente con intervalos de tiempo definidos. Se asocian a un estado de lead (ej: la secuencia "Primer contacto" se activa cuando el lead está en estado "Nuevo").</p>
+  <!-- PIPELINE -->
+  <h2 id="pipeline">Pipeline comercial</h2>
+  <p>El Pipeline es la vista Kanban del proceso de ventas. Los leads se arrastran entre columnas para cambiar su estado. Accedé desde el menú <em>Comercial → Pipeline</em>.</p>
 
-  <h3>Crear una secuencia</h3>
+  <h3>Gestionar los estados del Pipeline</h3>
+  <p>Hacé clic en el ícono ⚙ del encabezado de cualquier columna para editar ese estado:</p>
+  <ul>
+    <li><strong>Renombrar</strong> — editá el nombre y presioná Enter o "Guardar"</li>
+    <li><strong>Cambiar color</strong> — hacé clic en uno de los 10 colores disponibles</li>
+    <li><strong>Reordenar</strong> — usá las flechas ← → para mover la columna</li>
+    <li><strong>Eliminar</strong> — los leads de esa columna quedan sin estado asignado (sin perder datos)</li>
+  </ul>
+  <p>Para agregar un nuevo estado, usá el botón "+ Añadir estado" al final del tablero.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">💡</span>
+    <p>Cuando movés un lead de columna (drag & drop o directamente), el sistema dispara automáticamente el flow asociado a ese nuevo estado si existe uno activo.</p>
+  </div>
+
+  <!-- FLOWS -->
+  <h2 id="flows">Flows de automatización</h2>
+  <p>Los flows son secuencias de acciones que se ejecutan automáticamente cuando ocurre un evento. Accedé desde <em>Automatización → Flows</em>.</p>
+
+  <h3>Tipos de trigger (disparador)</h3>
+  <table>
+    <thead><tr><th>Trigger</th><th>Cuándo se dispara</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Cambio de estado</strong></td><td>Cuando el lead pasa al estado seleccionado (por drag & drop en Pipeline, cambio manual, o acción de IA)</td></tr>
+      <tr><td><strong>Lead creado</strong></td><td>Cada vez que se crea un lead nuevo (manual, importación CSV, o desde API futura)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Tipos de pasos disponibles</h3>
+  <table>
+    <thead><tr><th>Tipo</th><th>Qué hace</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><strong>📋 Enviar plantilla</strong></td><td>Envía una plantilla aprobada por WhatsApp o email al número de días indicado</td><td>Primer contacto, seguimientos programados</td></tr>
+      <tr><td><strong>💬 Mensaje libre</strong></td><td>Envía texto libre por WhatsApp (solo funciona si hay sesión activa de 24hs)</td><td>Confirmaciones rápidas dentro de una conversación activa</td></tr>
+      <tr><td><strong>🔄 Cambiar estado</strong></td><td>Mueve el lead a otro estado del pipeline</td><td>Automatizar el avance por etapas (ej: pasar de "Nuevo" a "Contactado" luego del primer mensaje)</td></tr>
+      <tr><td><strong>👤 Asignar agente</strong></td><td>Asigna el lead a un agente específico</td><td>Distribución automática de leads nuevos</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Crear un flow</h3>
   <ol>
-    <li>Ir a <em>Secuencias</em> → <em>Nueva secuencia</em></li>
-    <li>Dar un nombre y asociarla a un estado de lead (opcional)</li>
-    <li>Agregar pasos: cada paso tiene una plantilla de mensaje y un número de días de retraso desde el paso anterior</li>
-    <li>Guardar y activar</li>
+    <li>Ir a <em>Automatización → Flows</em> → <strong>"+ Nuevo"</strong></li>
+    <li>Elegir el tipo de trigger y, si es por estado, seleccionar el estado</li>
+    <li>Crear el flow</li>
+    <li>Agregar pasos: para cada uno elegir el tipo, los datos correspondientes y el número de días desde el inicio</li>
+    <li>Activar el flow con el botón "▶ Activar"</li>
   </ol>
 
   <div class="callout info">
     <span class="callout-icon">💡</span>
-    <p>El primer mensaje de una secuencia para leads nuevos debería usar una <strong>plantilla aprobada por Meta</strong>, ya que el lead aún no habrá iniciado conversación.</p>
+    <p>Los pasos con <strong>Día 0</strong> se ejecutan de inmediato. Los pasos de acción (Cambiar estado, Asignar agente) con Día 0 se aplican en el momento, sin pasar por la cola de mensajes programados.</p>
+  </div>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <p>El primer paso de un flow para leads nuevos debería ser <strong>Enviar plantilla</strong> (aprobada por Meta), ya que el lead no habrá iniciado conversación. Un "Mensaje libre" en Día 0 no puede enviarse sin sesión activa.</p>
+  </div>
+
+  <!-- BROADCASTS -->
+  <h2 id="broadcasts">Broadcasts (envíos masivos)</h2>
+  <p>Los broadcasts permiten enviar una plantilla aprobada por Meta a un conjunto de leads a la vez. Accedé desde <em>Comunicación → Broadcasts</em>.</p>
+
+  <ol>
+    <li>Elegir la plantilla (debe estar aprobada por Meta)</li>
+    <li>Seleccionar los leads destinatarios (filtros por estado, agente, zona, etc.)</li>
+    <li>Confirmar el envío</li>
+  </ol>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <p>Solo se envía a leads con <strong>consentimiento de WhatsApp</strong> activo. Los mensajes se procesan a través del mismo cron que los mensajes de flows, respetando el límite de 20 por corrida.</p>
   </div>
 
   <!-- IMPORTAR -->
@@ -394,19 +457,51 @@
   </ul>
 
   <!-- IA -->
-  <h2 id="ia">Configurar la inteligencia artificial</h2>
-  <p>InmoFollow usa la IA de Anthropic para generar textos de plantillas. Para activarla:</p>
-  <ol>
-    <li>Creá una cuenta en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></li>
-    <li>Generá una API Key desde <em>Settings → API Keys</em></li>
-    <li>En InmoFollow, andá a <em>Mi empresa</em> y pegá la clave en el campo <strong>"Clave de API de IA"</strong></li>
-    <li>Guardá</li>
-  </ol>
-  <p>A partir de ese momento, el botón <strong>"Generar con IA"</strong> estará disponible al crear o editar plantillas de mensajes.</p>
+  <h2 id="ia">Configurar Agentes IA</h2>
+  <p>Accedé desde el menú <em>IA → Agentes IA</em>. Aquí configurás el agente que responde automáticamente los mensajes de WhatsApp y genera textos de plantillas.</p>
+
+  <h3>Elegir proveedor y modelo</h3>
+  <p>El sistema soporta 5 proveedores. Elegís uno, pegás la API Key y seleccionás el modelo:</p>
+  <table>
+    <thead><tr><th>Proveedor</th><th>Dónde obtener la API Key</th><th>Modelos recomendados</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Groq</strong></td><td>console.groq.com</td><td>llama-3.1-8b-instant (rápido y gratuito)</td></tr>
+      <tr><td><strong>OpenAI</strong></td><td>platform.openai.com/api-keys</td><td>gpt-4o-mini (buena relación calidad/precio)</td></tr>
+      <tr><td><strong>Anthropic</strong></td><td>console.anthropic.com</td><td>claude-haiku-4-5 (excelente para español)</td></tr>
+      <tr><td><strong>Gemini</strong></td><td>aistudio.google.com</td><td>gemini-2.0-flash (gratuito con cuota)</td></tr>
+      <tr><td><strong>OpenRouter</strong></td><td>openrouter.ai/keys</td><td>Acceso a decenas de modelos con un solo token</td></tr>
+    </tbody>
+  </table>
+
+  <h3>System prompt</h3>
+  <p>El system prompt define el comportamiento del agente: su nombre, tono, qué puede y qué no puede responder. Ejemplo:</p>
+  <p><em>"Sos Valentina, asistente virtual de Inmobiliaria Rivera. Respondé en español rioplatense, de forma cálida y profesional. Solo respondé consultas sobre propiedades en venta o alquiler. Si el cliente quiere agendar una visita, decile que un agente lo contactará en el día."</em></p>
+
+  <h3>Modo de operación</h3>
+  <table>
+    <thead><tr><th>Modo</th><th>Qué pasa</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Auto-send activado</strong></td><td>El agente genera y envía la respuesta automáticamente al cliente</td></tr>
+      <tr><td><strong>Auto-send desactivado</strong></td><td>El agente genera un borrador que aparece en el Inbox para que el agente humano lo apruebe o descarte antes de enviarlo</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Base de conocimiento</h3>
+  <p>Agregá contexto específico de tu empresa para que el agente responda con información real:</p>
+  <ul>
+    <li><strong>Texto</strong> — pegá directamente descripción de servicios, zonas de cobertura, precios, horarios</li>
+    <li><strong>URL</strong> — el sistema visita la página y extrae el contenido de texto automáticamente</li>
+    <li><strong>PDF</strong> — subí un documento (tarifario, listado de propiedades, reglamento) y el sistema extrae el texto</li>
+  </ul>
+  <p>Cada entrada se puede activar o desactivar sin eliminarla. El agente usa hasta 6.000 caracteres de la base de conocimiento por respuesta.</p>
+
+  <h3>Acciones automáticas del agente</h3>
+  <p>El agente puede cambiar el estado del lead, asignarlo a un agente o disparar un flow, según lo que detecte en la conversación. Esto lo hace incluyendo comandos ocultos en su respuesta que el sistema procesa antes de enviársela al cliente.</p>
+  <p>No requiere configuración adicional — el agente recibe automáticamente la lista de estados, agentes y flows disponibles en cada conversación.</p>
 
   <div class="callout info">
     <span class="callout-icon">💰</span>
-    <p>El costo de la IA se descuenta de la cuenta de Anthropic que configuraste. El uso típico para generar textos de mensajes es muy bajo. Podés ver el consumo en el dashboard de Anthropic.</p>
+    <p>El costo de la IA se descuenta de la cuenta del proveedor que configuraste. Para generación de textos de plantillas, el consumo es muy bajo. Para respuestas automáticas, depende del volumen de mensajes recibidos.</p>
   </div>
 
   <!-- INTEGRACIONES -->
