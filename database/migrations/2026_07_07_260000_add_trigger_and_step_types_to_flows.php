@@ -9,17 +9,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sequences', function (Blueprint $table) {
-            $table->string('trigger_type')->default('status_change')->after('active');
+            if (! Schema::hasColumn('sequences', 'trigger_type')) {
+                $table->string('trigger_type')->default('status_change')->after('active');
+            }
         });
 
         Schema::table('sequence_steps', function (Blueprint $table) {
-            $table->string('step_type')->default('send_template')->after('active');
-            $table->json('step_data')->nullable()->after('step_type');
+            if (! Schema::hasColumn('sequence_steps', 'step_type')) {
+                $table->string('step_type')->default('send_template')->after('active');
+            }
+            if (! Schema::hasColumn('sequence_steps', 'step_data')) {
+                $table->json('step_data')->nullable()->after('step_type');
+            }
         });
 
         Schema::table('scheduled_messages', function (Blueprint $table) {
-            $table->string('step_type')->default('send_template')->after('ai_draft_discarded');
-            $table->json('step_data')->nullable()->after('step_type');
+            if (! Schema::hasColumn('scheduled_messages', 'step_type')) {
+                $table->string('step_type')->default('send_template')->after('ai_draft_discarded');
+            }
+            if (! Schema::hasColumn('scheduled_messages', 'step_data')) {
+                $table->json('step_data')->nullable()->after('step_type');
+            }
         });
     }
 
