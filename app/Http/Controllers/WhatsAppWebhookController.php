@@ -154,7 +154,6 @@ class WhatsAppWebhookController extends Controller
 
                     ScheduledMsg::create([
                         'lead_id'       => $lead->id,
-                        'company_id'    => $lead->company_id,
                         'channel'       => 'whatsapp',
                         'message_body'  => $reply,
                         'status'        => 'sent',
