@@ -26,7 +26,7 @@ class LeadStatusResource extends Resource
     
     protected static ?string $navigationLabel = 'Estados de leads';
     
-    protected static ?int $navigationSort = 20;
+    protected static bool $shouldRegisterNavigation = false;
     
     public static function getNavigationGroup(): ?string
     {
