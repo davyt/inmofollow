@@ -23,21 +23,8 @@ class FollowUpGenerator
         $sequence = $this->resolveSequence($lead, $triggerType);
 
         if (! $sequence) {
-            \Illuminate\Support\Facades\Log::info('FollowUpGenerator: no sequence found', [
-                'lead_id'        => $lead->id,
-                'company_id'     => $lead->company_id,
-                'lead_status_id' => $lead->lead_status_id,
-                'trigger_type'   => $triggerType,
-                'user_id'        => $lead->user_id,
-            ]);
             return 0;
         }
-
-        \Illuminate\Support\Facades\Log::info('FollowUpGenerator: sequence found', [
-            'sequence_id'  => $sequence->id,
-            'sequence_name' => $sequence->name,
-            'lead_id'      => $lead->id,
-        ]);
 
         $steps = $sequence->steps()
             ->where('active', true)

@@ -146,7 +146,6 @@ class WhatsAppWebhookController extends Controller
             $reply   = $result['reply'];
             $actions = $result['actions'];
 
-            Log::info('AI reply', ['lead_id' => $lead->id, 'reply' => $reply, 'actions' => $actions]);
 
             if ($agent->auto_send) {
                 $company = $lead->company;
