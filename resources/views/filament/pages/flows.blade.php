@@ -15,33 +15,41 @@
 .fl-seq-item.active { background: #23233a; }
 
 /* Flow nodes */
-.fl-node       { width: 280px; border-radius: 10px; border: 1.5px solid #2d2d42; overflow: hidden; position: relative; }
+.fl-node       { width: 300px; border-radius: 10px; border: 1.5px solid #2d2d42; overflow: hidden; position: relative; }
 .fl-node-trigger { border-color: #f59e0b88; background: #1a1a2e; }
 .fl-node-step  { background: #1a1a2e; transition: border-color .15s; }
 .fl-node-step:hover { border-color: #4b5563; }
 .fl-connector  { width: 2px; height: 32px; background: #2d2d42; margin: 0 auto; position: relative; }
 .fl-connector::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #2d2d42; }
-.fl-add-btn    { width: 280px; border: 2px dashed #2d2d42; border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; color: #374151; font-size: 13px; transition: all .15s; }
+.fl-add-btn    { width: 300px; border: 2px dashed #2d2d42; border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; color: #374151; font-size: 13px; transition: all .15s; }
 .fl-add-btn:hover { border-color: #f59e0b88; color: #f59e0b; }
 
 /* Modal overlay */
 .fl-modal-bg   { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 999; display: flex; align-items: center; justify-content: center; }
-.fl-modal      { background: #1a1a2e; border: 1px solid #2d2d42; border-radius: 12px; padding: 24px; width: 360px; max-width: 95vw; }
+.fl-modal      { background: #1a1a2e; border: 1px solid #2d2d42; border-radius: 12px; padding: 24px; width: 380px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
 .fl-label      { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 5px; }
 .fl-input      { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 7px; padding: 8px 11px; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box; }
 .fl-input:focus { border-color: #f59e0b; }
 .fl-select     { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 7px; padding: 8px 11px; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box; }
+.fl-textarea   { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 7px; padding: 8px 11px; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box; resize: vertical; min-height: 80px; }
+
+/* Step type badges */
+.badge-wa      { color: #25d366; }
+.badge-email   { color: #60a5fa; }
+.badge-status  { color: #f59e0b; }
+.badge-agent   { color: #a78bfa; }
+.badge-msg     { color: #34d399; }
 </style>
 
-<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+<div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:8px;">
     <a href="/davyt/message-templates/create"
-       style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#23233a;border:1px solid #2d2d42;border-radius:7px;color:#94a3b8;font-size:12px;font-weight:600;text-decoration:none;transition:border-color .15s;"
+       style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#23233a;border:1px solid #2d2d42;border-radius:7px;color:#94a3b8;font-size:12px;font-weight:600;text-decoration:none;"
        onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2d2d42'">
         <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Nueva plantilla
     </a>
     <a href="/davyt/message-templates"
-       style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#23233a;border:1px solid #2d2d42;border-radius:7px;color:#94a3b8;font-size:12px;font-weight:600;text-decoration:none;transition:border-color .15s;margin-left:8px;"
+       style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#23233a;border:1px solid #2d2d42;border-radius:7px;color:#94a3b8;font-size:12px;font-weight:600;text-decoration:none;"
        onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#2d2d42'">
         <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         Ver plantillas
@@ -68,7 +76,9 @@
                     <div style="font-size: 13px; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $seq['name'] }}</div>
                     <div style="font-size: 11px; color: #4b5563; margin-top: 1px;">
                         {{ $seq['steps_count'] }} paso{{ $seq['steps_count'] !== 1 ? 's' : '' }}
-                        @if($seq['trigger_name'])
+                        @if($seq['trigger_type'] === 'lead_created')
+                        · Lead creado
+                        @elseif($seq['trigger_name'])
                         · {{ $seq['trigger_name'] }}
                         @endif
                     </div>
@@ -95,14 +105,23 @@
                     <input class="fl-input" wire:model="newName" placeholder="Ej: Bienvenida" style="width: 200px;">
                 </div>
                 <div>
-                    <label class="fl-label">Trigger (estado del lead)</label>
+                    <label class="fl-label">Tipo de trigger</label>
+                    <select class="fl-select" wire:model.live="newTriggerType" style="width: 200px;">
+                        <option value="status_change">⚡ Cambio de estado</option>
+                        <option value="lead_created">🆕 Lead creado</option>
+                    </select>
+                </div>
+                @if($newTriggerType === 'status_change')
+                <div>
+                    <label class="fl-label">Estado que dispara</label>
                     <select class="fl-select" wire:model="newStatusId" style="width: 200px;">
-                        <option value="">Sin trigger de estado</option>
+                        <option value="">Sin filtro de estado</option>
                         @foreach($statuses as $s)
                         <option value="{{ $s['id'] }}">{{ $s['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
+                @endif
                 <button class="fl-btn fl-btn-amber" wire:click="createSequence">Crear</button>
                 <button class="fl-btn fl-btn-ghost" wire:click="$set('showNewForm', false)">Cancelar</button>
             </div>
@@ -126,7 +145,7 @@
             <button
                 class="fl-btn fl-btn-red"
                 wire:click="deleteSequence({{ $flow['id'] }})"
-                onclick="return confirm('¿Eliminar este flow y todos sus pasos?')"
+                wire:confirm="¿Eliminar este flow y todos sus pasos?"
                 style="font-size: 11px;"
             >
                 Eliminar
@@ -141,7 +160,10 @@
                 <div style="height: 3px; background: #f59e0b;"></div>
                 <div style="padding: 14px 16px;">
                     <div style="font-size: 10px; font-weight: 700; color: #f59e0b; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px;">⚡ Trigger</div>
-                    @if($flow['trigger_name'])
+                    @if($flow['trigger_type'] === 'lead_created')
+                    <div style="font-size: 13px; color: #e2e8f0; font-weight: 600;">🆕 Lead creado</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 3px;">Se dispara cuando se crea un lead nuevo</div>
+                    @elseif($flow['trigger_name'])
                     <div style="font-size: 13px; color: #e2e8f0; font-weight: 600;">Lead cambia a "{{ $flow['trigger_name'] }}"</div>
                     @else
                     <div style="font-size: 13px; color: #4b5563; font-style: italic;">Sin trigger de estado (manual)</div>
@@ -149,40 +171,59 @@
                 </div>
             </div>
 
-            @if(!empty($flow['steps']))
-
             @foreach($flow['steps'] as $step)
 
             {{-- Conector --}}
             <div class="fl-connector"></div>
 
+            {{-- Día badge si > 0 --}}
+            @if($step['day_offset'] > 0)
+            <div style="font-size: 11px; color: #64748b; background: #1a1a2e; border: 1px solid #2d2d42; border-radius: 999px; padding: 2px 10px; margin: -4px 0;">
+                ⏱ Esperar {{ $step['day_offset'] }} día{{ $step['day_offset'] !== 1 ? 's' : '' }}
+            </div>
+            <div class="fl-connector"></div>
+            @endif
+
             {{-- Nodo paso --}}
+            @php
+                $stepType = $step['step_type'];
+                $accentColor = match($stepType) {
+                    'send_template' => $step['channel'] === 'whatsapp' ? '#25d366' : '#3b82f6',
+                    'send_message'  => '#34d399',
+                    'update_status' => '#f59e0b',
+                    'assign_agent'  => '#8b5cf6',
+                    default         => '#6b7280',
+                };
+                $badgeLabel = match($stepType) {
+                    'send_template' => $step['channel'] === 'whatsapp' ? '📱 Plantilla WhatsApp' : '✉️ Plantilla Email',
+                    'send_message'  => '💬 Mensaje libre',
+                    'update_status' => '🔄 Cambiar estado',
+                    'assign_agent'  => '👤 Asignar agente',
+                    default         => $stepType,
+                };
+            @endphp
             <div class="fl-node fl-node-step" style="{{ !$step['active'] ? 'opacity:.5;' : '' }}">
-                <div style="height: 3px; background: {{ $step['channel'] === 'whatsapp' ? '#25d366' : '#3b82f6' }};"></div>
+                <div style="height: 3px; background: {{ $accentColor }};"></div>
                 <div style="padding: 12px 16px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 10px; font-weight: 700; color: {{ $step['channel'] === 'whatsapp' ? '#25d366' : '#60a5fa' }}; text-transform: uppercase; letter-spacing: .06em;">
-                                {{ $step['channel'] === 'whatsapp' ? '📱 WhatsApp' : '✉️ Email' }}
-                            </span>
-                        </div>
+                        <span style="font-size: 10px; font-weight: 700; color: {{ $accentColor }}; text-transform: uppercase; letter-spacing: .06em;">
+                            {{ $badgeLabel }}
+                        </span>
                         <span style="font-size: 11px; background: #23233a; color: #94a3b8; border-radius: 999px; padding: 2px 8px;">
                             Día {{ $step['day_offset'] }}
                         </span>
                     </div>
                     <div style="font-size: 13px; color: #e2e8f0; font-weight: 500; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        {{ $step['template_name'] }}
+                        {{ $step['label'] }}
                     </div>
                     <div style="display: flex; gap: 6px;">
                         <button class="fl-btn fl-btn-ghost" wire:click="openEditStep({{ $step['id'] }})" style="font-size: 10px; padding: 4px 10px;">Editar</button>
-                        <button class="fl-btn fl-btn-red" wire:click="deleteStep({{ $step['id'] }})" style="font-size: 10px; padding: 4px 10px;" onclick="return confirm('¿Eliminar este paso?')">Eliminar</button>
+                        <button class="fl-btn fl-btn-red" wire:click="deleteStep({{ $step['id'] }})" wire:confirm="¿Eliminar este paso?" style="font-size: 10px; padding: 4px 10px;">Eliminar</button>
                     </div>
                 </div>
             </div>
 
             @endforeach
-
-            @endif
 
             {{-- Botón agregar paso --}}
             <div class="fl-connector" style="background: #1e1e35;"></div>
@@ -214,6 +255,19 @@
             {{ $editStepId ? 'Editar paso' : 'Nuevo paso' }}
         </div>
 
+        {{-- Tipo de paso --}}
+        <div style="margin-bottom: 14px;">
+            <label class="fl-label">Tipo de acción</label>
+            <select class="fl-select" wire:model.live="stepType">
+                <option value="send_template">📋 Enviar plantilla</option>
+                <option value="send_message">💬 Enviar mensaje libre</option>
+                <option value="update_status">🔄 Cambiar estado del lead</option>
+                <option value="assign_agent">👤 Asignar agente</option>
+            </select>
+        </div>
+
+        {{-- Campos por tipo --}}
+        @if($stepType === 'send_template')
         <div style="margin-bottom: 14px;">
             <label class="fl-label">Canal</label>
             <select class="fl-select" wire:model="stepChannel">
@@ -221,7 +275,6 @@
                 <option value="email">✉️ Email</option>
             </select>
         </div>
-
         <div style="margin-bottom: 14px;">
             <label class="fl-label">Plantilla</label>
             <select class="fl-select" wire:model="stepTemplateId">
@@ -232,10 +285,45 @@
             </select>
         </div>
 
+        @elseif($stepType === 'send_message')
+        <div style="margin-bottom: 14px;">
+            <label class="fl-label">Mensaje</label>
+            <textarea class="fl-textarea" wire:model="stepMessage" placeholder="Escribí el mensaje... Podés usar {{nombre}}, {{zona}}, {{agente}}"></textarea>
+        </div>
+
+        @elseif($stepType === 'update_status')
+        <div style="margin-bottom: 14px;">
+            <label class="fl-label">Nuevo estado</label>
+            <select class="fl-select" wire:model="stepTargetStatusId">
+                <option value="">Seleccioná un estado</option>
+                @foreach($statuses as $s)
+                <option value="{{ $s['id'] }}">{{ $s['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        @elseif($stepType === 'assign_agent')
+        <div style="margin-bottom: 14px;">
+            <label class="fl-label">Agente</label>
+            <select class="fl-select" wire:model="stepTargetAgentId">
+                <option value="">Seleccioná un agente</option>
+                @foreach($agents as $a)
+                <option value="{{ $a['id'] }}">{{ $a['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
+        @endif
+
+        {{-- Días --}}
         <div style="margin-bottom: 20px;">
             <label class="fl-label">Días desde el inicio del flow</label>
             <input type="number" class="fl-input" wire:model="stepDayOffset" min="0" style="width: 100px;">
-            <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">0 = mismo día del trigger, 7 = una semana después</div>
+            <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">
+                0 = mismo día del trigger · 1 = al día siguiente
+                @if(in_array($stepType, ['update_status', 'assign_agent']))
+                <span style="color: #f59e0b;"> · Con 0 se ejecuta de inmediato al crear el flow.</span>
+                @endif
+            </div>
         </div>
 
         <div style="display: flex; gap: 8px;">

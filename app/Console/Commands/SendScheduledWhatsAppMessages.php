@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Broadcast;
+use App\Models\Lead;
 use App\Models\ScheduledMessage;
 use App\Services\MessageSender;
 use App\Support\Activity;
@@ -105,6 +106,35 @@ class SendScheduledWhatsAppMessages extends Command
                 );
 
                 $this->error("  ✗ Lead #{$lead->id}: " . $e->getMessage());
+            }
+        }
+
+        // Process scheduled action steps (update_status, assign_agent)
+        $actions = ScheduledMessage::query()
+            ->with('lead')
+            ->where('channel', 'action')
+            ->where('status', 'pending')
+            ->where('scheduled_for', '<=', now())
+            ->orderBy('scheduled_for')
+            ->limit($maxPerRun)
+            ->get();
+
+        foreach ($actions as $action) {
+            $lead     = $action->lead;
+            $stepData = $action->step_data ?? [];
+
+            try {
+                match ($action->step_type) {
+                    'update_status' => Lead::where('id', $lead->id)->update(['lead_status_id' => $stepData['status_id'] ?? null]),
+                    'assign_agent'  => Lead::where('id', $lead->id)->update(['user_id' => $stepData['agent_id'] ?? null]),
+                    default         => null,
+                };
+
+                $action->update(['status' => 'sent', 'sent_at' => now()]);
+                $this->line("  ✓ Acción {$action->step_type} → Lead #{$lead?->id}");
+            } catch (\Throwable $e) {
+                $action->update(['status' => 'failed', 'error_message' => $e->getMessage()]);
+                $this->error("  ✗ Acción fallida Lead #{$lead?->id}: " . $e->getMessage());
             }
         }
 

@@ -6,6 +6,7 @@ use App\Models\LeadStatus;
 use App\Models\MessageTemplate;
 use App\Models\Sequence;
 use App\Models\SequenceStep;
+use App\Models\User;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\Auth;
@@ -16,26 +17,32 @@ class Flows extends Page
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-arrow-path';
     protected static ?string                 $title           = 'Flujos de automatización';
     protected static ?int                    $navigationSort  = 1;
-    protected static \UnitEnum|string|null         $navigationGroup = 'Automatización';
+    protected static \UnitEnum|string|null   $navigationGroup = 'Automatización';
     protected string                         $view            = 'filament.pages.flows';
 
-    public array   $sequences    = [];
-    public array   $statuses     = [];
-    public array   $templates    = [];
-    public ?int    $selectedId   = null;
-    public ?array  $flow         = null;
+    public array   $sequences  = [];
+    public array   $statuses   = [];
+    public array   $templates  = [];
+    public array   $agents     = [];
+    public ?int    $selectedId = null;
+    public ?array  $flow       = null;
 
     // New sequence form
-    public bool   $showNewForm   = false;
-    public string $newName       = '';
-    public ?int   $newStatusId   = null;
+    public bool   $showNewForm     = false;
+    public string $newName         = '';
+    public string $newTriggerType  = 'status_change';
+    public ?int   $newStatusId     = null;
 
-    // Edit step modal
-    public bool   $showStepForm  = false;
-    public ?int   $editStepId    = null;  // null = nuevo paso
-    public int    $stepDayOffset = 0;
-    public ?int   $stepTemplateId = null;
-    public string $stepChannel   = 'whatsapp';
+    // Step form
+    public bool   $showStepForm        = false;
+    public ?int   $editStepId          = null;
+    public string $stepType            = 'send_template';
+    public int    $stepDayOffset       = 0;
+    public string $stepChannel         = 'whatsapp';
+    public ?int   $stepTemplateId      = null;
+    public string $stepMessage         = '';
+    public ?int   $stepTargetStatusId  = null;
+    public ?int   $stepTargetAgentId   = null;
 
     public function mount(): void
     {
@@ -61,33 +68,43 @@ class Flows extends Page
         }
 
         $this->templates = $templateQuery->get(['id', 'name'])->toArray();
+
+        $this->agents = User::where('company_id', $user->company_id)
+            ->where('active', true)
+            ->whereIn('role', ['agent', 'supervisor'])
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->toArray();
     }
 
     public function loadSequences(): void
     {
         $user  = Auth::user();
-        $query = Sequence::with(['leadStatus', 'steps.messageTemplate'])
+        $query = Sequence::with(['leadStatus', 'steps'])
             ->where('company_id', $user->company_id)
             ->orderBy('name');
 
         if ($user->isAgent()) {
-            $query->where(fn ($q) => $q->where('scope', 'global')->orWhere(fn ($q2) => $q2->where('scope', 'personal')->where('user_id', $user->id)));
+            $query->where(fn ($q) => $q
+                ->where('scope', 'global')
+                ->orWhere(fn ($q2) => $q2->where('scope', 'personal')->where('user_id', $user->id))
+            );
         }
 
         $this->sequences = $query->get()->map(fn ($s) => [
-            'id'            => $s->id,
-            'name'          => $s->name,
-            'active'        => $s->active,
-            'trigger_name'  => $s->leadStatus?->name,
-            'trigger_color' => $s->leadStatus?->color ?? '#6b7280',
-            'steps_count'   => $s->steps->count(),
+            'id'           => $s->id,
+            'name'         => $s->name,
+            'active'       => $s->active,
+            'trigger_type' => $s->trigger_type ?? 'status_change',
+            'trigger_name' => $s->leadStatus?->name,
+            'steps_count'  => $s->steps->count(),
         ])->toArray();
     }
 
     public function selectSequence(int $id): void
     {
-        $this->selectedId  = $id;
-        $this->showNewForm = false;
+        $this->selectedId   = $id;
+        $this->showNewForm  = false;
         $this->showStepForm = false;
         $this->loadFlow();
     }
@@ -99,8 +116,11 @@ class Flows extends Page
             return;
         }
 
-        $seq = Sequence::with(['leadStatus', 'steps' => fn ($q) => $q->orderBy('sort_order')->orderBy('day_offset'), 'steps.messageTemplate'])
-            ->find($this->selectedId);
+        $seq = Sequence::with([
+            'leadStatus',
+            'steps' => fn ($q) => $q->orderBy('sort_order')->orderBy('day_offset'),
+            'steps.messageTemplate',
+        ])->find($this->selectedId);
 
         if (! $seq) {
             $this->flow = null;
@@ -108,31 +128,48 @@ class Flows extends Page
         }
 
         $this->flow = [
-            'id'            => $seq->id,
-            'name'          => $seq->name,
-            'active'        => $seq->active,
-            'trigger_name'  => $seq->leadStatus?->name,
-            'trigger_color' => $seq->leadStatus?->color ?? '#6b7280',
-            'steps'         => $seq->steps->map(fn ($step) => [
-                'id'            => $step->id,
-                'day_offset'    => $step->day_offset,
-                'channel'       => $step->channel,
-                'template_name' => $step->messageTemplate?->name ?? 'Sin plantilla',
-                'template_id'   => $step->message_template_id,
-                'active'        => $step->active,
+            'id'           => $seq->id,
+            'name'         => $seq->name,
+            'active'       => $seq->active,
+            'trigger_type' => $seq->trigger_type ?? 'status_change',
+            'trigger_name' => $seq->leadStatus?->name,
+            'steps'        => $seq->steps->map(fn ($step) => [
+                'id'          => $step->id,
+                'day_offset'  => $step->day_offset,
+                'step_type'   => $step->step_type ?? 'send_template',
+                'step_data'   => $step->step_data ?? [],
+                'channel'     => $step->channel,
+                'template_id' => $step->message_template_id,
+                'label'       => $this->stepLabel($step),
+                'active'      => $step->active,
             ])->values()->toArray(),
         ];
+    }
+
+    private function stepLabel($step): string
+    {
+        $type = $step->step_type ?? 'send_template';
+        $data = $step->step_data ?? [];
+
+        return match ($type) {
+            'send_template' => $step->messageTemplate?->name ?? 'Sin plantilla',
+            'send_message'  => 'Mensaje: ' . \Illuminate\Support\Str::limit($data['message'] ?? '', 40),
+            'update_status' => 'Cambiar estado → ' . (LeadStatus::find($data['status_id'] ?? 0)?->name ?? '?'),
+            'assign_agent'  => 'Asignar → ' . (User::find($data['agent_id'] ?? 0)?->name ?? '?'),
+            default         => $type,
+        };
     }
 
     // --- New sequence ---
 
     public function openNewForm(): void
     {
-        $this->showNewForm  = true;
-        $this->selectedId   = null;
-        $this->flow         = null;
-        $this->newName      = '';
-        $this->newStatusId  = null;
+        $this->showNewForm     = true;
+        $this->selectedId      = null;
+        $this->flow            = null;
+        $this->newName         = '';
+        $this->newTriggerType  = 'status_change';
+        $this->newStatusId     = null;
     }
 
     public function createSequence(): void
@@ -143,7 +180,8 @@ class Flows extends Page
             'user_id'        => $user->id,
             'scope'          => $user->isAgent() ? 'personal' : 'global',
             'name'           => $this->newName ?: 'Flow sin nombre',
-            'lead_status_id' => $this->newStatusId,
+            'trigger_type'   => $this->newTriggerType,
+            'lead_status_id' => $this->newTriggerType === 'status_change' ? $this->newStatusId : null,
             'active'         => true,
         ]);
 
@@ -176,11 +214,15 @@ class Flows extends Page
 
     public function openNewStep(): void
     {
-        $this->editStepId      = null;
-        $this->stepDayOffset   = 0;
-        $this->stepTemplateId  = null;
-        $this->stepChannel     = 'whatsapp';
-        $this->showStepForm    = true;
+        $this->editStepId         = null;
+        $this->stepType           = 'send_template';
+        $this->stepDayOffset      = 0;
+        $this->stepChannel        = 'whatsapp';
+        $this->stepTemplateId     = null;
+        $this->stepMessage        = '';
+        $this->stepTargetStatusId = null;
+        $this->stepTargetAgentId  = null;
+        $this->showStepForm       = true;
     }
 
     public function openEditStep(int $stepId): void
@@ -188,11 +230,17 @@ class Flows extends Page
         $step = SequenceStep::find($stepId);
         if (! $step) return;
 
-        $this->editStepId      = $stepId;
-        $this->stepDayOffset   = $step->day_offset;
-        $this->stepTemplateId  = $step->message_template_id;
-        $this->stepChannel     = $step->channel;
-        $this->showStepForm    = true;
+        $data = $step->step_data ?? [];
+
+        $this->editStepId         = $stepId;
+        $this->stepType           = $step->step_type ?? 'send_template';
+        $this->stepDayOffset      = $step->day_offset;
+        $this->stepChannel        = $step->channel ?? 'whatsapp';
+        $this->stepTemplateId     = $step->message_template_id;
+        $this->stepMessage        = $data['message'] ?? '';
+        $this->stepTargetStatusId = $data['status_id'] ?? null;
+        $this->stepTargetAgentId  = $data['agent_id'] ?? null;
+        $this->showStepForm       = true;
     }
 
     public function saveStep(): void
@@ -201,21 +249,29 @@ class Flows extends Page
 
         $maxOrder = SequenceStep::where('sequence_id', $this->selectedId)->max('sort_order') ?? -1;
 
+        $stepData = match ($this->stepType) {
+            'send_message'  => ['message' => $this->stepMessage],
+            'update_status' => ['status_id' => $this->stepTargetStatusId],
+            'assign_agent'  => ['agent_id' => $this->stepTargetAgentId],
+            default         => null,
+        };
+
+        $attrs = [
+            'step_type'           => $this->stepType,
+            'step_data'           => $stepData,
+            'day_offset'          => $this->stepDayOffset,
+            'message_template_id' => in_array($this->stepType, ['send_template']) ? $this->stepTemplateId : null,
+            'channel'             => in_array($this->stepType, ['send_template', 'send_message']) ? $this->stepChannel : 'action',
+        ];
+
         if ($this->editStepId) {
-            SequenceStep::find($this->editStepId)?->update([
-                'day_offset'          => $this->stepDayOffset,
-                'message_template_id' => $this->stepTemplateId,
-                'channel'             => $this->stepChannel,
-            ]);
+            SequenceStep::find($this->editStepId)?->update($attrs);
         } else {
-            SequenceStep::create([
-                'sequence_id'         => $this->selectedId,
-                'day_offset'          => $this->stepDayOffset,
-                'message_template_id' => $this->stepTemplateId,
-                'channel'             => $this->stepChannel,
-                'sort_order'          => $maxOrder + 1,
-                'active'              => true,
-            ]);
+            SequenceStep::create(array_merge($attrs, [
+                'sequence_id' => $this->selectedId,
+                'sort_order'  => $maxOrder + 1,
+                'active'      => true,
+            ]));
         }
 
         $this->showStepForm = false;

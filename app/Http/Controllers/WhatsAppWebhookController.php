@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\WaInboundMessage;
 use App\Models\AiAgent;
 use App\Services\AiService;
+use App\Services\FollowUpGenerator;
 use App\Models\ScheduledMessage as ScheduledMsg;
 use Filament\Actions\Action as FilamentAction;
 use Filament\Notifications\Notification;
@@ -141,7 +142,9 @@ class WhatsAppWebhookController extends Controller
         if (! $agent) return;
 
         try {
-            $reply = app(AiService::class)->generateReply($lead, $body, $agent);
+            $result  = app(AiService::class)->generateReply($lead, $body, $agent);
+            $reply   = $result['reply'];
+            $actions = $result['actions'];
 
             if ($agent->auto_send) {
                 $company = $lead->company;
@@ -165,8 +168,27 @@ class WhatsAppWebhookController extends Controller
             } else {
                 $msg->update(['ai_draft_reply' => $reply]);
             }
+
+            // Execute AI-requested actions
+            foreach ($actions as $action) {
+                $this->executeAiAction($lead, $action);
+            }
         } catch (\Throwable $e) {
             Log::warning('AI agent error: ' . $e->getMessage(), ['lead_id' => $lead->id]);
+        }
+    }
+
+    private function executeAiAction(Lead $lead, array $action): void
+    {
+        try {
+            match ($action['type']) {
+                'update_status'   => $lead->updateQuietly(['lead_status_id' => $action['value']]),
+                'assign_agent'    => $lead->updateQuietly(['user_id' => $action['value']]),
+                'trigger_sequence' => app(FollowUpGenerator::class)->generateForLead($lead->fresh(), 'status_change'),
+                default           => null,
+            };
+        } catch (\Throwable $e) {
+            Log::warning("AI action '{$action['type']}' failed: " . $e->getMessage(), ['lead_id' => $lead->id]);
         }
     }
 

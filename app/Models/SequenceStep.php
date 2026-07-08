@@ -11,6 +11,11 @@ class SequenceStep extends Model
     
     protected $guarded = [];
 
+    protected $casts = [
+        'active'    => 'boolean',
+        'step_data' => 'array',
+    ];
+
     public function sequence()
     {
         return $this->belongsTo(Sequence::class);

@@ -6,6 +6,9 @@ use App\Models\AiAgent;
 use App\Models\AiKnowledgeEntry;
 use App\Models\Company;
 use App\Models\Lead;
+use App\Models\LeadStatus;
+use App\Models\Sequence;
+use App\Models\User;
 use App\Models\WaInboundMessage;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -65,7 +68,11 @@ class AiService
     // AI agent reply generation (multi-provider)
     // -------------------------------------------------------------------------
 
-    public function generateReply(Lead $lead, string $inboundMessage, AiAgent $agent): string
+    /**
+     * Generate an AI reply for an inbound WhatsApp message.
+     * Returns ['reply' => string, 'actions' => [['type' => string, 'value' => int], ...]]
+     */
+    public function generateReply(Lead $lead, string $inboundMessage, AiAgent $agent): array
     {
         $apiKey = $this->resolveApiKey($agent, $lead);
 
@@ -85,16 +92,47 @@ class AiService
         if ($kb) {
             $system .= "\n\n---\nBASE DE CONOCIMIENTO:\n" . $kb;
         }
-        $model  = $agent->model ?: $this->defaultModel($agent->provider);
 
-        return match ($agent->provider) {
-            'anthropic'  => $this->callAnthropic($apiKey, $model, $system, $messages, 512),
+        $system .= "\n\n" . $this->buildActionsContext($lead->company_id);
+
+        $model = $agent->model ?: $this->defaultModel($agent->provider);
+
+        $raw = match ($agent->provider) {
+            'anthropic'  => $this->callAnthropic($apiKey, $model, $system, $messages, 600),
             'openai'     => $this->callOpenAiCompat($apiKey, 'https://api.openai.com/v1/chat/completions', $model, $system, $messages),
             'groq'       => $this->callOpenAiCompat($apiKey, 'https://api.groq.com/openai/v1/chat/completions', $model, $system, $messages),
             'gemini'     => $this->callGemini($apiKey, $model, $system, $messages),
             'openrouter' => $this->callOpenAiCompat($apiKey, 'https://openrouter.ai/api/v1/chat/completions', $model, $system, $messages),
             default      => throw new RuntimeException("Proveedor no soportado: {$agent->provider}"),
         };
+
+        return $this->parseActionsFromReply($raw);
+    }
+
+    /**
+     * Parse [ESTADO:N], [AGENTE:N], [SECUENCIA:N] from AI response.
+     * Returns cleaned reply and list of actions to execute.
+     */
+    public function parseActionsFromReply(string $raw): array
+    {
+        $actions = [];
+
+        preg_match_all('/\[(ESTADO|AGENTE|SECUENCIA):(\d+)\]/i', $raw, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $actions[] = [
+                'type'  => match (strtoupper($match[1])) {
+                    'ESTADO'    => 'update_status',
+                    'AGENTE'    => 'assign_agent',
+                    'SECUENCIA' => 'trigger_sequence',
+                },
+                'value' => (int) $match[2],
+            ];
+        }
+
+        $reply = trim(preg_replace('/\[(ESTADO|AGENTE|SECUENCIA):\d+\]/i', '', $raw));
+
+        return ['reply' => $reply, 'actions' => $actions];
     }
 
     // -------------------------------------------------------------------------
@@ -242,6 +280,48 @@ class AiService
         }
 
         return implode("\n\n", $parts);
+    }
+
+    private function buildActionsContext(int $companyId): string
+    {
+        $statuses = LeadStatus::where('company_id', $companyId)
+            ->orderBy('sort_order')
+            ->get(['id', 'name'])
+            ->map(fn ($s) => "{$s->id}={$s->name}")
+            ->implode(', ');
+
+        $agents = User::where('company_id', $companyId)
+            ->where('active', true)
+            ->whereIn('role', ['agent', 'supervisor'])
+            ->get(['id', 'name'])
+            ->map(fn ($u) => "{$u->id}={$u->name}")
+            ->implode(', ');
+
+        $sequences = Sequence::where('company_id', $companyId)
+            ->where('active', true)
+            ->get(['id', 'name'])
+            ->map(fn ($s) => "{$s->id}={$s->name}")
+            ->implode(', ');
+
+        $lines = [
+            '---',
+            'ACCIONES DISPONIBLES (opcionales — solo usá las que sean claramente apropiadas):',
+            'Podés incluir comandos al final de tu respuesta. Se ejecutan automáticamente y el cliente NO los ve.',
+            '',
+            'Comandos:',
+            '  [ESTADO:N]    → cambia el estado del lead al ID N',
+            '  [AGENTE:N]    → asigna al agente con ID N',
+            '  [SECUENCIA:N] → dispara el flow con ID N',
+            '',
+            "Estados: {$statuses}",
+            "Agentes: {$agents}",
+            "Flows: {$sequences}",
+            '',
+            'Ejemplo: "Gracias! Te paso con un agente.[ESTADO:3][AGENTE:2]"',
+            'IMPORTANTE: Solo usá comandos si el contexto lo justifica claramente.',
+        ];
+
+        return implode("\n", $lines);
     }
 
     private function templateSystemPrompt(): string
