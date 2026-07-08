@@ -60,14 +60,18 @@ class Lead extends Model
 
     public static function findByWhatsAppPhone(string $waPhone): ?static
     {
-        $local = strlen($waPhone) >= 11 && str_starts_with($waPhone, '598')
-            ? '0' . substr($waPhone, 3)
-            : null;
+        $core = static::normalizePhone($waPhone);
 
-        return static::where('phone', $waPhone)
+        if (! $core) return null;
+
+        return static::where(fn ($q) => $q
+            ->orWhere('phone', $waPhone)
             ->orWhere('phone', '+' . $waPhone)
-            ->when($local, fn ($q) => $q->orWhere('phone', $local))
-            ->first();
+            ->orWhere('phone', $core)
+            ->orWhere('phone', '0' . $core)
+            ->orWhere('phone', '598' . $core)
+            ->orWhere('phone', '+598' . $core)
+        )->first();
     }
 
     /**

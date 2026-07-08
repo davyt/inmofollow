@@ -299,7 +299,7 @@ class AiService
 
         return $sent->concat($received)
             ->sortBy('at')
-            ->takeLast(10)
+            ->take(-10)
             ->map(fn ($m) => ['role' => $m['role'], 'content' => $m['content']])
             ->values();
     }
