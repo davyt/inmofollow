@@ -14,7 +14,7 @@ class Pipeline extends Page
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-view-columns';
     protected static ?string                 $title           = 'Pipeline Comercial';
     protected static ?int                    $navigationSort  = 2;
-    protected static ?string                 $navigationGroup = 'Comercial';
+    protected static \UnitEnum|string|null         $navigationGroup = 'Comercial';
     protected string                         $view            = 'filament.pages.pipeline';
 
     public array $statuses      = [];

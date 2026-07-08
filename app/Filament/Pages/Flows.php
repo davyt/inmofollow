@@ -16,7 +16,7 @@ class Flows extends Page
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-arrow-path';
     protected static ?string                 $title           = 'Flujos de automatización';
     protected static ?int                    $navigationSort  = 1;
-    protected static ?string                 $navigationGroup = 'Automatización';
+    protected static \UnitEnum|string|null         $navigationGroup = 'Automatización';
     protected string                         $view            = 'filament.pages.flows';
 
     public array   $sequences    = [];

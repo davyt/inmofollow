@@ -20,7 +20,7 @@ class AiAgents extends Page
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-cpu-chip';
     protected static ?string                 $title           = 'Agentes IA';
     protected static ?int                    $navigationSort  = 1;
-    protected static ?string                 $navigationGroup = 'IA';
+    protected static \UnitEnum|string|null         $navigationGroup = 'IA';
     protected string                         $view            = 'filament.pages.ai-agents';
 
     // Agent config

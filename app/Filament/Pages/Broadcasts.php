@@ -17,7 +17,7 @@ class Broadcasts extends Page
     protected static \BackedEnum|string|null $navigationIcon  = 'heroicon-o-megaphone';
     protected static ?string                 $title           = 'Broadcasts';
     protected static ?int                    $navigationSort  = 2;
-    protected static ?string                 $navigationGroup = 'Comunicación';
+    protected static \UnitEnum|string|null         $navigationGroup = 'Comunicación';
     protected string                         $view            = 'filament.pages.broadcasts';
 
     // Form fields
