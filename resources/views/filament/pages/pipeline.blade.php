@@ -21,14 +21,80 @@
             <div style="height: 4px; background: {{ $statusColor }};"></div>
 
             {{-- Cabecera --}}
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid #2d2d42;">
-                <span style="font-weight: 600; font-size: 13px; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #2d2d42;">
+                <span style="font-weight: 600; font-size: 13px; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">
                     {{ $status['name'] }}
                 </span>
-                <span style="font-size: 11px; font-weight: 500; background: #2d2d42; color: #94a3b8; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; margin-left: 8px;">
-                    {{ count($leadsByStatus[$status['id']] ?? []) }}
-                </span>
+                <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: 6px;">
+                    <span style="font-size: 11px; font-weight: 500; background: #2d2d42; color: #94a3b8; border-radius: 999px; padding: 2px 8px;">
+                        {{ count($leadsByStatus[$status['id']] ?? []) }}
+                    </span>
+                    @if(auth()->user()->isAdmin() || auth()->user()->isSupervisor())
+                    <button
+                        wire:click="openEditStatus({{ $status['id'] }})"
+                        title="Configurar"
+                        style="background: none; border: none; cursor: pointer; color: {{ $editingStatusId === $status['id'] ? '#f59e0b' : '#4b5563' }}; padding: 2px; line-height: 0; transition: color .15s;"
+                        onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='{{ $editingStatusId === $status['id'] ? '#f59e0b' : '#4b5563' }}'"
+                    >
+                        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                    @endif
+                </div>
             </div>
+
+            {{-- Panel de configuración inline --}}
+            @if($editingStatusId === $status['id'])
+            <div style="padding: 12px; border-bottom: 1px solid #2d2d42; background: #13131f; display: flex; flex-direction: column; gap: 10px;">
+
+                {{-- Nombre --}}
+                <input
+                    type="text"
+                    wire:model="editStatusName"
+                    wire:keydown.enter="saveStatus"
+                    wire:keydown.escape="$set('editingStatusId', null)"
+                    placeholder="Nombre del estado"
+                    style="width: 100%; background: #1a1a2e; border: 1px solid #2d2d42; border-radius: 6px; padding: 7px 10px; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box;"
+                >
+
+                {{-- Paleta de colores --}}
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    @foreach(['#6366f1','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#ec4899','#f97316','#14b8a6','#64748b'] as $c)
+                    <button
+                        type="button"
+                        wire:click="$set('editStatusColor', '{{ $c }}')"
+                        style="width: 20px; height: 20px; border-radius: 50%; background: {{ $c }}; border: {{ $editStatusColor === $c ? '2px solid #fff' : '2px solid transparent' }}; cursor: pointer; transition: transform .1s;"
+                        onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"
+                    ></button>
+                    @endforeach
+                </div>
+
+                {{-- Acciones --}}
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <button wire:click="saveStatus"
+                        style="flex:1; padding: 6px; background: #f59e0b; color: #0f0f1a; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                        Guardar
+                    </button>
+                    <button wire:click="moveStatus({{ $status['id'] }}, 'left')" title="Mover izquierda"
+                        style="padding: 6px 8px; background: #23233a; color: #94a3b8; border: 1px solid #2d2d42; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                        ←
+                    </button>
+                    <button wire:click="moveStatus({{ $status['id'] }}, 'right')" title="Mover derecha"
+                        style="padding: 6px 8px; background: #23233a; color: #94a3b8; border: 1px solid #2d2d42; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                        →
+                    </button>
+                    <button
+                        wire:click="deleteStatus({{ $status['id'] }})"
+                        wire:confirm="¿Eliminar '{{ $status['name'] }}'? Los leads de esta columna quedarán sin estado asignado."
+                        title="Eliminar"
+                        style="padding: 6px 8px; background: #450a0a; color: #f87171; border: 1px solid #7f1d1d; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                        🗑
+                    </button>
+                </div>
+            </div>
+            @endif
 
             {{-- Lista de cards --}}
             <div style="flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; max-height: calc(100vh - 310px);">
