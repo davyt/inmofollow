@@ -7,6 +7,7 @@ use App\Models\Lead;
 use App\Models\LeadImportProfile;
 use App\Models\LeadListing;
 use App\Models\LeadStatus;
+use App\Services\FollowUpGenerator;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Livewire\WithFileUploads;
@@ -307,15 +308,19 @@ class ImportLeads extends Page
         $rawHeaders     = array_map(fn ($h) => trim((string) $h), $rawHeaders);
         $dataRows       = array_slice($allRows, $headerRowIndex + 1);
 
-        $imported   = 0;
-        $updated    = 0;
-        $skipped    = 0;
-        $duplicated = 0;
-        $errors     = [];
-        $companyId  = config('inmofollow.default_company_id', 1);
-        $userId     = auth()->id();
-        $boolTrue   = ['1', 'si', 'sí', 'yes', 'true', 'x', 'v'];
-        $lineNumber = 1;
+        // Dar tiempo suficiente para importaciones grandes (500+ filas)
+        set_time_limit(300);
+
+        $imported     = 0;
+        $updated      = 0;
+        $skipped      = 0;
+        $duplicated   = 0;
+        $errors       = [];
+        $newLeadIds   = [];   // leads nuevos → generar follow-ups al final
+        $companyId    = config('inmofollow.default_company_id', 1);
+        $userId       = auth()->id();
+        $boolTrue     = ['1', 'si', 'sí', 'yes', 'true', 'x', 'v'];
+        $lineNumber   = 1;
 
         $statusesByName = LeadStatus::where('company_id', $companyId)
             ->get()
@@ -382,7 +387,10 @@ class ImportLeads extends Page
                     $lead = Lead::find($existingLeadId);
                     $duplicated++;
                 } else {
-                    $lead = Lead::create($data);
+                    // Suprimimos el observer para que no dispare FollowUpGenerator
+                    // por cada lead individualmente — lo hacemos en lote al final
+                    $lead = Lead::withoutObservers(fn () => Lead::create($data));
+                    $newLeadIds[] = $lead->id;
                     $imported++;
 
                     if ($normalizedPhone) {
@@ -396,6 +404,21 @@ class ImportLeads extends Page
                 }
             } catch (\Throwable $e) {
                 $errors[] = "Fila {$lineNumber}: " . $e->getMessage();
+            }
+        }
+
+        // Generar follow-ups en lote para los leads nuevos.
+        // Al hacerlo después de que todos existen en DB, evitamos 500 queries
+        // intercaladas con los inserts y reducimos el riesgo de timeout.
+        if (! empty($newLeadIds)) {
+            $generator  = app(FollowUpGenerator::class);
+            $freshLeads = Lead::whereIn('id', $newLeadIds)->get();
+            foreach ($freshLeads as $freshLead) {
+                try {
+                    $generator->generateForLead($freshLead, 'lead_created');
+                } catch (\Throwable) {
+                    // No interrumpir el resultado por un follow-up fallido
+                }
             }
         }
 
