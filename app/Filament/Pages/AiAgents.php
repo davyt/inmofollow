@@ -287,6 +287,6 @@ class AiAgents extends Page
 
     public function getMaxContentWidth(): Width|string|null
     {
-        return Width::ExtraLarge;
+        return Width::Full;
     }
 }
