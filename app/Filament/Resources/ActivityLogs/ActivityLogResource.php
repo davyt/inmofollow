@@ -19,8 +19,6 @@ class ActivityLogResource extends Resource
 {
     protected static ?string $model = ActivityLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    
     protected static ?string $modelLabel = 'registro de actividad';
 
     protected static ?string $pluralModelLabel = 'registros de actividad';
