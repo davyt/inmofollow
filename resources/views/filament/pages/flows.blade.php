@@ -39,6 +39,7 @@
 .badge-status  { color: #f59e0b; }
 .badge-agent   { color: #a78bfa; }
 .badge-msg     { color: #34d399; }
+.badge-report  { color: #fb923c; }
 </style>
 
 <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:8px;">
@@ -202,6 +203,7 @@
                     'send_message'  => '#34d399',
                     'update_status' => '#f59e0b',
                     'assign_agent'  => '#8b5cf6',
+                    'send_report'   => '#fb923c',
                     default         => '#6b7280',
                 };
                 $badgeLabel = match($stepType) {
@@ -209,6 +211,7 @@
                     'send_message'  => '💬 Mensaje libre',
                     'update_status' => '🔄 Cambiar estado',
                     'assign_agent'  => '👤 Asignar agente',
+                    'send_report'   => '📋 Ficha al agente',
                     default         => $stepType,
                 };
             @endphp
@@ -273,6 +276,7 @@
                 <option value="send_message">💬 Enviar mensaje libre</option>
                 <option value="update_status">🔄 Cambiar estado del lead</option>
                 <option value="assign_agent">👤 Asignar agente</option>
+                <option value="send_report">📋 Enviar ficha al agente (cerrar)</option>
             </select>
         </div>
 
@@ -322,6 +326,22 @@
                 @endforeach
             </select>
         </div>
+
+        @elseif($stepType === 'send_report')
+        <div style="background: #0f1117; border: 1px solid #2d2d42; border-radius: 8px; padding: 12px; margin-bottom: 14px; font-size: 12px; color: #64748b; line-height: 1.6;">
+            Se genera y envía por WhatsApp al agente asignado una ficha completa del lead:<br>
+            nombre, teléfono, email, propiedad (zona, precio, dorm, m², link ML), notas, estado y origen.
+        </div>
+        <div style="margin-bottom: 14px;">
+            <label class="fl-label">Reasignar a agente (opcional)</label>
+            <select class="fl-select" wire:model="stepTargetAgentId">
+                <option value="">Mantener agente actual</option>
+                @foreach($agents as $a)
+                <option value="{{ $a['id'] }}">{{ $a['name'] }}</option>
+                @endforeach
+            </select>
+            <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">Si elegís un agente, se reasigna el lead antes de enviar la ficha.</div>
+        </div>
         @endif
 
         {{-- Días --}}
@@ -332,6 +352,9 @@
                 0 = mismo día del trigger · 1 = al día siguiente
                 @if(in_array($stepType, ['update_status', 'assign_agent']))
                 <span style="color: #f59e0b;"> · Con 0 se ejecuta de inmediato al crear el flow.</span>
+                @endif
+                @if($stepType === 'send_report')
+                <span style="color: #fb923c;"> · Con 0 se envía al agente el mismo día del trigger.</span>
                 @endif
             </div>
         </div>

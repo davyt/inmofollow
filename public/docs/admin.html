@@ -111,7 +111,7 @@
     <li><span class="check-box"></span> Crear los estados del Pipeline (ej: Nuevo, En seguimiento, Calificado, Cerrado) — desde el Pipeline directamente</li>
     <li><span class="check-box"></span> Crear las plantillas de mensajes globales (primer contacto, seguimiento, etc.) — con IA o manual</li>
     <li><span class="check-box"></span> Crear los flows de automatización y asociarlos a triggers (cambio de estado o lead creado), con filtro de origen si corresponde</li>
-    <li><span class="check-box"></span> Crear los usuarios (agentes y supervisores)</li>
+    <li><span class="check-box"></span> Crear los usuarios (agentes y supervisores) — asegurarse de registrar el teléfono de cada agente (necesario para las fichas de cliente por WhatsApp)</li>
     <li><span class="check-box"></span> Configurar el Agente IA en <em>Configuración → Agentes IA</em> — opcional pero recomendado</li>
     <li><span class="check-box"></span> Importar los leads iniciales o cargarlos manualmente</li>
     <li><span class="check-box"></span> Asignar los leads a los agentes</li>
@@ -334,8 +334,14 @@
       <tr><td><strong>💬 Mensaje libre</strong></td><td>Envía texto libre por WhatsApp (solo funciona si hay sesión activa de 24hs)</td><td>Confirmaciones rápidas dentro de una conversación activa</td></tr>
       <tr><td><strong>🔄 Cambiar estado</strong></td><td>Mueve el lead a otro estado del pipeline</td><td>Automatizar el avance (ej: "Nuevo" → "Contactado" después del primer mensaje)</td></tr>
       <tr><td><strong>👤 Asignar agente</strong></td><td>Asigna el lead a un agente específico</td><td>Distribución automática de leads nuevos</td></tr>
+      <tr><td><strong>📋 Ficha al agente (cerrar)</strong></td><td>Genera y envía por WhatsApp al agente asignado una ficha completa del lead: nombre, teléfono, email, propiedad (tipo, precio, dorm, m², link ML), notas, estado y origen. Puede reasignar el lead a otro agente antes de enviar.</td><td>Último paso de un flow para notificar al agente que debe trabajar activamente con ese cliente</td></tr>
     </tbody>
   </table>
+
+  <div class="callout info">
+    <span class="callout-icon">📱</span>
+    <p>Para que el paso <strong>"Ficha al agente"</strong> funcione, el agente necesita tener su <strong>teléfono personal registrado</strong> en <em>Configuración → Usuarios</em>. Si no tiene teléfono cargado, la ficha se cancela. La ficha llega desde el número de WhatsApp de la empresa al teléfono personal del agente.</p>
+  </div>
 
   <h3>Crear un flow</h3>
   <ol>
@@ -348,7 +354,7 @@
 
   <div class="callout info">
     <span class="callout-icon">💡</span>
-    <p>Los pasos con <strong>Día 0</strong> se ejecutan de inmediato. Las acciones (cambiar estado, asignar agente) en Día 0 se aplican en el momento, sin pasar por la cola de mensajes.</p>
+    <p>Los pasos con <strong>Día 0</strong> se ejecutan de inmediato. Las acciones (cambiar estado, asignar agente) en Día 0 se aplican en el momento. La ficha al agente siempre pasa por la cola de mensajes, incluso en Día 0.</p>
   </div>
 
   <div class="callout warning">

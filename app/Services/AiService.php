@@ -179,8 +179,17 @@ class AiService
             ];
         }
 
+        // Detect free-text classification tag [CLASIFICACION:texto]
+        if (preg_match('/\[CLASIFICACION:([^\]]{1,200})\]/i', $raw, $classMatch)) {
+            $actions[] = [
+                'type'  => 'classify_lead',
+                'value' => trim($classMatch[1]),
+            ];
+        }
+
         // Remove recognized action tags
         $reply = preg_replace('/\[(ESTADO|AGENTE|SECUENCIA):\d+\]/i', '', $raw);
+        $reply = preg_replace('/\[CLASIFICACION:[^\]]{1,200}\]/i', '', $reply);
 
         // Remove any other [Word: Value] brackets the AI may echo from the context
         $reply = preg_replace('/\[[^\[\]]{1,60}:[^\[\]]{1,120}\]/', '', $reply);
@@ -376,10 +385,9 @@ class AiService
 
         $lines = [
             '---',
-            'ACCIONES DISPONIBLES (opcionales — solo usá las que sean claramente apropiadas):',
-            'Podés incluir comandos al final de tu respuesta. Se ejecutan automáticamente y el cliente NO los ve.',
+            'ACCIONES DISPONIBLES (se ejecutan automáticamente — el cliente NO las ve):',
             '',
-            'Comandos:',
+            'Comandos opcionales (solo cuando el contexto lo justifica claramente):',
             '  [ESTADO:N]    → cambia el estado del lead al ID N',
             '  [AGENTE:N]    → asigna al agente con ID N',
             '  [SECUENCIA:N] → dispara el flow con ID N',
@@ -389,7 +397,24 @@ class AiService
             "Flows: {$sequences}",
             '',
             'Ejemplo: "Gracias! Te paso con un agente.[ESTADO:3][AGENTE:2]"',
-            'IMPORTANTE: Solo usá comandos si el contexto lo justifica claramente.',
+            '',
+            '---',
+            'CLASIFICACIÓN DEL CONTACTO (obligatorio cuando hay señal clara):',
+            '  [CLASIFICACION:descripción] → registra el motivo del contacto en pocas palabras',
+            '',
+            'Usá este comando cuando el mensaje deja claro por qué el propietario no quiere avanzar,',
+            'o cuando muestra interés genuino. Describí libremente en 3-10 palabras, sin categorías predefinidas.',
+            '',
+            'Ejemplos:',
+            '  "Ya lo vendí con un familiar"   → [CLASIFICACION:vendido sin intermediario]',
+            '  "No quiero pagar comisión"       → [CLASIFICACION:rechaza pagar comisión]',
+            '  "No quiero tratar con inmo"      → [CLASIFICACION:no quiere intermediario]',
+            '  "Me interesa, contame más"       → [CLASIFICACION:interesado]',
+            '  "Bajé la publicación"            → [CLASIFICACION:propiedad ya no disponible]',
+            '  "Está muy caro lo que cobran"    → [CLASIFICACION:objeción precio comisión]',
+            '',
+            'No uses categorías fijas. Describí lo que dice el contacto con tus propias palabras.',
+            'Si el mensaje es ambiguo o no da señal clara, no emitas este comando.',
         ];
 
         return implode("\n", $lines);

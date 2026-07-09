@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use App\Models\Lead;
+use App\Models\LeadListing;
+use App\Models\LeadStatus;
 use App\Models\ScheduledMessage;
 use App\Models\Sequence;
+use App\Models\User;
 use App\Support\Activity;
 use Illuminate\Support\Carbon;
 
@@ -60,6 +63,7 @@ class FollowUpGenerator
                 'send_message'  => $created += $this->handleSendMessage($lead, $sequence, $step, $stepData, $dayOffset),
                 'update_status' => $created += $this->handleUpdateStatus($lead, $sequence, $step, $stepData, $dayOffset),
                 'assign_agent'  => $created += $this->handleAssignAgent($lead, $sequence, $step, $stepData, $dayOffset),
+                'send_report'   => $created += $this->handleSendReport($lead, $sequence, $step, $stepData, $dayOffset),
                 default         => null,
             };
         }
@@ -210,6 +214,26 @@ class FollowUpGenerator
             'sequence_step_id' => $step->id,
             'channel'          => 'action',
             'step_type'        => 'assign_agent',
+            'step_data'        => $stepData,
+            'message_body'     => '',
+            'status'           => 'pending',
+            'scheduled_for'    => Carbon::now()->addDays($dayOffset),
+        ]);
+
+        return 1;
+    }
+
+    private function handleSendReport(Lead $lead, Sequence $sequence, $step, array $stepData, int $dayOffset): int
+    {
+        // The report goes to the agent, not the lead — no consent check needed.
+        // The agent receiving is determined at send time (after optional reassign).
+        ScheduledMessage::create([
+            'lead_id'          => $lead->id,
+            'sequence_id'      => $sequence->id,
+            'sequence_step_id' => $step->id,
+            'user_id'          => $lead->user_id,
+            'channel'          => 'agent_report',
+            'step_type'        => 'send_report',
             'step_data'        => $stepData,
             'message_body'     => '',
             'status'           => 'pending',

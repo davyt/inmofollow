@@ -342,6 +342,7 @@ class AiAgents extends Page
     private function fetchUrl(string $url): string
     {
         $response = Http::timeout(15)
+            ->withoutVerifying()  // Hostinger: CA bundle no configurado en php.ini
             ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; InmoFollow/1.0)'])
             ->get($url);
 

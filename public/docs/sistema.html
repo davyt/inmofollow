@@ -141,7 +141,7 @@
     <div class="module-card">
       <div class="icon">⚡</div>
       <h4>Flows</h4>
-      <p>Flujos de automatización con múltiples tipos de pasos. Se disparan al crear un lead o al cambiar su estado, y pueden filtrarse por el <strong>origen</strong> del lead (ej: solo MercadoLibre).</p>
+      <p>Flujos de automatización con múltiples tipos de pasos. Se disparan al crear un lead o al cambiar su estado, pueden filtrarse por el <strong>origen</strong> del lead, e incluyen el paso <strong>"Ficha al agente"</strong> para cerrar el proceso enviando un resumen completo del cliente por WhatsApp.</p>
     </div>
     <div class="module-card">
       <div class="icon">📝</div>
@@ -222,6 +222,13 @@
       <div class="flow-body">
         <h4>Seguimiento y notas</h4>
         <p>El agente ve todo lo del lead en dos vistas: <strong>Conversación</strong> (mensajes de WhatsApp, actualizada en vivo) y <strong>Actividad</strong> (notas y cambios de datos).</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot">7</div></div>
+      <div class="flow-body">
+        <h4>Cierre — Ficha al agente</h4>
+        <p>Cuando se decide trabajar con el lead, el paso <strong>"Ficha al agente"</strong> en un flow envía automáticamente por WhatsApp al agente asignado una ficha completa: datos de contacto, expediente de propiedad, notas, estado y origen. Opcionalmente reasigna el lead a otro agente antes de enviar.</p>
       </div>
     </div>
   </div>
@@ -339,8 +346,20 @@
     <li><em>"4 dormitorios | 2 baños | 174 m² cubiertos"</em> → dormitorios: 4, baños: 2, m²: 174</li>
   </ul>
 
-  <h2 id="flows">Flows y filtro por origen</h2>
+  <h2 id="flows">Flows y tipos de pasos</h2>
   <p>Los flows se disparan cuando un lead se crea o cambia de estado. Pueden configurarse para activarse <strong>solo si el lead tiene un origen determinado</strong> — por ejemplo, un flow de bienvenida específico para MercadoLibre que mencione la propiedad publicada.</p>
+
+  <h3>Tipos de pasos disponibles</h3>
+  <table>
+    <thead><tr><th>Tipo</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><strong>📋 Enviar plantilla</strong></td><td>Envía una plantilla aprobada por Meta al lead (WhatsApp o email)</td></tr>
+      <tr><td><strong>💬 Mensaje libre</strong></td><td>Envía texto libre al lead por WhatsApp (requiere sesión activa de 24hs)</td></tr>
+      <tr><td><strong>🔄 Cambiar estado</strong></td><td>Mueve al lead a otro estado del pipeline</td></tr>
+      <tr><td><strong>👤 Asignar agente</strong></td><td>Asigna el lead a un agente específico</td></tr>
+      <tr><td><strong>📋 Ficha al agente</strong></td><td>Envía por WhatsApp al agente asignado una ficha completa del lead: datos de contacto, propiedad, notas, estado y origen. Opcionalmente reasigna antes de enviar.</td></tr>
+    </tbody>
+  </table>
 
   <h3>Cómo funciona el filtro de origen</h3>
   <p>Al crear un flow, el campo <strong>"Solo si Origen es"</strong> permite elegir un valor (<code>ml</code>, <code>2clics</code>, <code>web</code>, <code>manual</code>) o dejarlo vacío para que dispare para cualquier origen.</p>

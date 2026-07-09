@@ -20,6 +20,7 @@ class Lead extends Model
         'last_contacted_at'  => 'datetime',
         'last_wa_inbound_at' => 'datetime',
         'next_follow_up_at'  => 'datetime',
+        'ai_classified_at'   => 'datetime',
     ];
 
     public function company()

@@ -190,10 +190,11 @@ class WhatsAppWebhookController extends Controller
     {
         try {
             return match ($action['type']) {
-                'update_status' => $this->aiUpdateStatus($lead, (int) $action['value']),
-                'assign_agent'  => $this->aiAssignAgent($lead, (int) $action['value']),
+                'update_status'    => $this->aiUpdateStatus($lead, (int) $action['value']),
+                'assign_agent'     => $this->aiAssignAgent($lead, (int) $action['value']),
                 'trigger_sequence' => $this->aiTriggerSequence($lead),
-                default         => null,
+                'classify_lead'    => $this->aiClassifyLead($lead, (string) $action['value']),
+                default            => null,
             };
         } catch (\Throwable $e) {
             Log::warning("AI action '{$action['type']}' failed: " . $e->getMessage(), ['lead_id' => $lead->id]);
@@ -226,6 +227,17 @@ class WhatsAppWebhookController extends Controller
     {
         $created = app(FollowUpGenerator::class)->generateForLead($lead, 'status_change');
         return $created > 0 ? "Flow disparado ({$created} paso(s) programado(s))" : null;
+    }
+
+    private function aiClassifyLead(Lead $lead, string $classification): ?string
+    {
+        // updateQuietly to avoid re-firing LeadObserver / flows
+        $lead->updateQuietly([
+            'ai_classification' => $classification,
+            'ai_classified_at'  => now(),
+        ]);
+
+        return "Clasificado → {$classification}";
     }
 
     private function notifyAiActions(Lead $lead, array $summaries): void

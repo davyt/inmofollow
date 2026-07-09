@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('whatsapp:send-scheduled')->everyMinute()->withoutOverlapping();
 Schedule::command('notify:follow-ups')->dailyAt('08:00');
+Schedule::command('leads:classify-no-response')->everyTwoHours()->withoutOverlapping();

@@ -163,6 +163,7 @@ class Flows extends Page
             'send_message'  => 'Mensaje: ' . \Illuminate\Support\Str::limit($data['message'] ?? '', 40),
             'update_status' => 'Cambiar estado → ' . (LeadStatus::find($data['status_id'] ?? 0)?->name ?? '?'),
             'assign_agent'  => 'Asignar → ' . (User::find($data['agent_id'] ?? 0)?->name ?? '?'),
+            'send_report'   => 'Ficha al agente' . (isset($data['agent_id']) ? ' (reasignar → ' . (User::find($data['agent_id'])?->name ?? '?') . ')' : ''),
             default         => $type,
         };
     }
@@ -262,6 +263,7 @@ class Flows extends Page
             'send_message'  => ['message' => $this->stepMessage],
             'update_status' => ['status_id' => $this->stepTargetStatusId],
             'assign_agent'  => ['agent_id' => $this->stepTargetAgentId],
+            'send_report'   => $this->stepTargetAgentId ? ['agent_id' => $this->stepTargetAgentId] : [],
             default         => null,
         };
 
@@ -270,7 +272,11 @@ class Flows extends Page
             'step_data'           => $stepData,
             'day_offset'          => $this->stepDayOffset,
             'message_template_id' => in_array($this->stepType, ['send_template']) ? $this->stepTemplateId : null,
-            'channel'             => in_array($this->stepType, ['send_template', 'send_message']) ? $this->stepChannel : 'action',
+            'channel'             => match ($this->stepType) {
+                'send_template', 'send_message' => $this->stepChannel,
+                'send_report'                   => 'agent_report',
+                default                         => 'action',
+            },
         ];
 
         if ($this->editStepId) {
