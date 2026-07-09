@@ -30,6 +30,7 @@ class Broadcasts extends Page
     public string  $broadcastName   = '';
     public ?int    $templateId      = null;
     public array   $filterStatusIds = [];
+    public int     $leadLimit       = 0;
 
     // State
     public array  $templates       = [];
@@ -72,8 +73,9 @@ class Broadcasts extends Page
 
     public function preview(): void
     {
-        $this->previewCount = $this->buildLeadQuery()->count();
-        $this->showConfirm  = true;
+        $total = $this->buildLeadQuery()->count();
+        $this->previewCount   = $this->leadLimit > 0 ? min($total, $this->leadLimit) : $total;
+        $this->showConfirm    = true;
         $this->successMessage = '';
     }
 
@@ -86,7 +88,8 @@ class Broadcasts extends Page
     {
         $user = Auth::user();
 
-        $leads = $this->buildLeadQuery()->get();
+        $query = $this->buildLeadQuery();
+        $leads = $this->leadLimit > 0 ? $query->limit($this->leadLimit)->get() : $query->get();
 
         if ($leads->isEmpty()) {
             $this->showConfirm = false;
@@ -119,6 +122,7 @@ class Broadcasts extends Page
         $this->broadcastName   = '';
         $this->templateId      = null;
         $this->filterStatusIds = [];
+        $this->leadLimit       = 0;
         $this->showConfirm     = false;
         $this->previewCount    = 0;
         $this->successMessage  = "✓ Broadcast creado: {$leads->count()} mensajes en cola.";
@@ -132,7 +136,8 @@ class Broadcasts extends Page
         $query = Lead::where('company_id', $user->company_id)
             ->where('do_not_contact', false)
             ->where('whatsapp_consent', true)
-            ->whereNotNull('phone');
+            ->whereNotNull('phone')
+            ->orderBy('created_at'); // FIFO: primeros importados, primeros en recibir
 
         if ($user->isAgent()) {
             $query->where('user_id', $user->id);
@@ -140,6 +145,14 @@ class Broadcasts extends Page
 
         if (! empty($this->filterStatusIds)) {
             $query->whereIn('lead_status_id', $this->filterStatusIds);
+        }
+
+        // Excluir leads que ya recibieron esta plantilla (enviada o en cola)
+        if ($this->templateId) {
+            $query->whereDoesntHave('scheduledMessages', function ($q) {
+                $q->where('message_template_id', $this->templateId)
+                  ->whereIn('status', ['sent', 'pending']);
+            });
         }
 
         return $query;

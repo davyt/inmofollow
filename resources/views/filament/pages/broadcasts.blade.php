@@ -101,6 +101,24 @@
             </div>
         </div>
 
+        {{-- Límite de leads --}}
+        <div style="margin-bottom: 18px;">
+            <label class="bc-label">Límite de envío <span style="color:#64748b;">(0 = sin límite)</span></label>
+            <input
+                type="number"
+                class="bc-input"
+                wire:model.live="leadLimit"
+                min="0"
+                placeholder="Ej: 100"
+                style="width: 120px;"
+            >
+            @if($templateId)
+            <div style="margin-top: 8px; font-size: 11px; color: #475569; line-height: 1.5;">
+                ✓ Se excluyen automáticamente los leads que ya recibieron esta plantilla.
+            </div>
+            @endif
+        </div>
+
         {{-- Botón preview --}}
         <button
             class="bc-btn bc-btn-primary"
