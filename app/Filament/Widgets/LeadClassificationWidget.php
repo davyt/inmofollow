@@ -12,7 +12,7 @@ class LeadClassificationWidget extends Widget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected static string $view = 'filament.widgets.lead-classification-widget';
+    protected string $view = 'filament.widgets.lead-classification-widget';
 
     public function getViewData(): array
     {
