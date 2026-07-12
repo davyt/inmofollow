@@ -27,10 +27,14 @@
     {{-- Panel izquierdo: lista --}}
     <div class="inbox-list" :class="showDetail ? 'mobile-hidden' : ''">
 
-        <div style="padding: 16px; border-bottom: 1px solid #2d2d42;">
+        <div style="padding: 16px; border-bottom: 1px solid #2d2d42; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
             <span style="font-size: 13px; font-weight: 600; color: #94a3b8;">
                 {{ count($conversations) }} conversación{{ count($conversations) !== 1 ? 'es' : '' }}
             </span>
+            <button
+                wire:click="openNewConversation"
+                style="display: flex; align-items: center; gap: 4px; background: #f59e0b; color: #1a1a2e; border: none; border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 700; cursor: pointer;"
+            >+ Nueva</button>
         </div>
 
         <div style="flex: 1; overflow-y: auto;">
@@ -77,6 +81,15 @@
                 No hay conversaciones todavía.
             </div>
             @endforelse
+            @if($hasMore)
+            <div style="padding: 12px 14px;">
+                <button
+                    wire:click="loadMore"
+                    wire:loading.attr="disabled"
+                    style="width: 100%; background: none; border: 1px solid #2d2d42; color: #94a3b8; border-radius: 6px; padding: 8px; font-size: 12px; cursor: pointer;"
+                >Cargar más</button>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -119,6 +132,51 @@
 
         @endif
     </div>
+
+    {{-- Modal: nueva conversación --}}
+    @if($showNewConversation)
+    <div
+        wire:click="closeNewConversation"
+        style="position: fixed; inset: 0; background: #00000099; z-index: 40; display: flex; align-items: flex-start; justify-content: center; padding-top: 10vh;"
+    >
+        <div
+            wire:click.stop
+            style="width: 100%; max-width: 420px; background: #1a1a2e; border: 1px solid #2d2d42; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 32px #00000066;"
+        >
+            <div style="padding: 14px 16px; border-bottom: 1px solid #2d2d42; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 14px; font-weight: 700; color: #e2e8f0;">Nueva conversación</span>
+                <button wire:click="closeNewConversation" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px; line-height: 1;">×</button>
+            </div>
+            <div style="padding: 12px 16px;">
+                <input
+                    type="text"
+                    wire:model.live.debounce.300ms="leadSearch"
+                    placeholder="Buscar lead por nombre o teléfono..."
+                    autofocus
+                    style="width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 6px; padding: 8px 10px; font-size: 13px; color: #e2e8f0; outline: none;"
+                >
+            </div>
+            <div style="max-height: 320px; overflow-y: auto; padding-bottom: 8px;">
+                @forelse($leadSearchResults as $r)
+                <div
+                    wire:click="startConversation({{ $r['id'] }})"
+                    x-on:click="showDetail = true"
+                    style="padding: 10px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 1px;"
+                    onmouseover="this.style.background='#1e1e35'"
+                    onmouseout="this.style.background='transparent'"
+                >
+                    <span style="font-size: 13px; font-weight: 600; color: #e2e8f0;">{{ $r['name'] ?: 'Sin nombre' }}</span>
+                    <span style="font-size: 11px; color: #6b7280;">{{ $r['phone'] ?: 'Sin teléfono' }}</span>
+                </div>
+                @empty
+                <div style="padding: 16px; text-align: center; color: #374151; font-size: 12px;">
+                    {{ mb_strlen(trim($leadSearch)) < 2 ? 'Escribí al menos 2 caracteres.' : 'Sin resultados.' }}
+                </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 </x-filament-panels::page>

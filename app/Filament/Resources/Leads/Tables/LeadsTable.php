@@ -14,6 +14,8 @@ use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -22,6 +24,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -172,12 +175,18 @@ class LeadsTable
                         }
                         return $indicators;
                     }),
+
+                TrashedFilter::make(),
             ])
             ->recordActions([
+                RestoreAction::make()
+                    ->visible(fn (Lead $record): bool => $record->trashed()),
+
                 Action::make('generate_followups')
                     ->label('Generar seguimiento')
                     ->color('warning')
                     ->requiresConfirmation()
+                    ->visible(fn (Lead $record): bool => ! $record->trashed())
                     ->action(function (Lead $record): void {
                         $created = app(FollowUpGenerator::class)->generateForLead($record);
 
@@ -192,6 +201,7 @@ class LeadsTable
                     ->label('Conversación')
                     ->icon('heroicon-o-chat-bubble-left-right')
                     ->color('success')
+                    ->visible(fn (Lead $record): bool => ! $record->trashed())
                     ->modalHeading(fn (Lead $record): string => 'Conversación con ' . $record->name)
                     ->modalWidth('2xl')
                     ->modalSubmitAction(false)
@@ -204,6 +214,7 @@ class LeadsTable
                     ->label('Actividad')
                     ->icon('heroicon-o-clock')
                     ->color('gray')
+                    ->visible(fn (Lead $record): bool => ! $record->trashed())
                     ->modalHeading(fn (Lead $record): string => 'Actividad de ' . $record->name)
                     ->modalWidth('5xl')
                     ->modalSubmitAction(false)
@@ -238,7 +249,8 @@ class LeadsTable
                         ]);
                     }),
 
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn (Lead $record): bool => ! $record->trashed()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -271,6 +283,7 @@ class LeadsTable
                         ->deselectRecordsAfterCompletion(),
 
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }

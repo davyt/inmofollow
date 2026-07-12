@@ -18,6 +18,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 
 class ScheduledMessagesTable
@@ -176,7 +177,10 @@ class ScheduledMessagesTable
                         ]);
             
                         $record->lead?->update([
-                            'last_contacted_at' => now(),
+                            'last_contacted_at'      => now(),
+                            'last_message_at'        => now(),
+                            'last_message_preview'   => Str::limit($record->message_body ?? '', 150),
+                            'last_message_direction' => 'out',
                         ]);
                         
                         Activity::log(

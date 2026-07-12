@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class LeadConversation extends Component implements HasSchemas
@@ -164,7 +165,12 @@ class LeadConversation extends Component implements HasSchemas
                 ]);
             }
 
-            $this->lead->update(['last_contacted_at' => now()]);
+            $this->lead->update([
+                'last_contacted_at'      => now(),
+                'last_message_at'        => now(),
+                'last_message_preview'   => Str::limit($body, 150),
+                'last_message_direction' => 'out',
+            ]);
 
             Activity::log(
                 event: 'whatsapp_sent_now',
@@ -229,14 +235,16 @@ class LeadConversation extends Component implements HasSchemas
         $company = Company::find($this->lead->company_id);
         if (! $company?->hasWhatsApp()) return;
 
+        $replyBody = $msg->ai_draft_reply;
+
         try {
-            $waId = app(WhatsAppService::class)->sendTextMessage($company, $this->lead->phone, $msg->ai_draft_reply);
+            $waId = app(WhatsAppService::class)->sendTextMessage($company, $this->lead->phone, $replyBody);
 
             ScheduledMessage::create([
                 'lead_id'       => $this->lead->id,
                 'user_id'       => auth()->id(),
                 'channel'       => 'whatsapp',
-                'message_body'  => $msg->ai_draft_reply,
+                'message_body'  => $replyBody,
                 'status'        => 'sent',
                 'scheduled_for' => now(),
                 'sent_at'       => now(),
@@ -244,7 +252,12 @@ class LeadConversation extends Component implements HasSchemas
             ]);
 
             $msg->update(['ai_draft_reply' => null, 'ai_draft_discarded' => true]);
-            $this->lead->update(['last_contacted_at' => now()]);
+            $this->lead->update([
+                'last_contacted_at'      => now(),
+                'last_message_at'        => now(),
+                'last_message_preview'   => Str::limit($replyBody, 150),
+                'last_message_direction' => 'out',
+            ]);
 
             Notification::make()->title('Respuesta enviada')->success()->send();
         } catch (\Throwable $e) {

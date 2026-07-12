@@ -6,10 +6,11 @@ use App\Models\Concerns\HasDefaultCompany;
 use App\Models\Concerns\LogsBasicActivity;
 use App\Models\Concerns\LogsLeadCriticalChanges;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lead extends Model
 {
-    use HasDefaultCompany, LogsBasicActivity, LogsLeadCriticalChanges;
+    use HasDefaultCompany, LogsBasicActivity, LogsLeadCriticalChanges, SoftDeletes;
     
     protected $guarded = [];
 
@@ -69,13 +70,18 @@ class Lead extends Model
             && $this->last_wa_inbound_at->gt(now()->subHours(24));
     }
 
+    /**
+     * Busca por teléfono incluyendo leads en la papelera (soft-deleted): el
+     * caller decide si reactivarlo (ver WhatsAppWebhookController, que restaura
+     * automáticamente si vuelve a escribir en vez de crear un lead duplicado).
+     */
     public static function findByWhatsAppPhone(string $waPhone): ?static
     {
         $core = static::normalizePhone($waPhone);
 
         if (! $core) return null;
 
-        return static::where(fn ($q) => $q
+        return static::withTrashed()->where(fn ($q) => $q
             ->orWhere('phone', $waPhone)
             ->orWhere('phone', '+' . $waPhone)
             ->orWhere('phone', $core)

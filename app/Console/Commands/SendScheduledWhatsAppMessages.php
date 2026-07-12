@@ -11,6 +11,7 @@ use App\Services\MessageSender;
 use App\Services\WhatsAppService;
 use App\Support\Activity;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class SendScheduledWhatsAppMessages extends Command
 {
@@ -77,7 +78,12 @@ class SendScheduledWhatsAppMessages extends Command
                     'message_body'  => $body,
                 ]);
 
-                $lead->update(['last_contacted_at' => now()]);
+                $lead->update([
+                    'last_contacted_at'      => now(),
+                    'last_message_at'        => now(),
+                    'last_message_preview'   => Str::limit($body, 150),
+                    'last_message_direction' => 'out',
+                ]);
 
                 if ($message->broadcast_id) {
                     Broadcast::where('id', $message->broadcast_id)->increment('sent_count');

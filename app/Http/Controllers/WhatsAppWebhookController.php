@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Models\LeadStatus;
 use App\Models\ScheduledMessage;
 use App\Models\User;
 use App\Models\WaInboundMessage;
@@ -10,6 +11,7 @@ use App\Models\AiAgent;
 use App\Services\AiService;
 use App\Services\FollowUpGenerator;
 use App\Models\ScheduledMessage as ScheduledMsg;
+use App\Support\Activity;
 use Filament\Actions\Action as FilamentAction;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
@@ -103,12 +105,17 @@ class WhatsAppWebhookController extends Controller
         $lead = Lead::findByWhatsAppPhone($from);
 
         if (! $lead) {
-            Log::warning('WA webhook: no lead matched inbound phone', ['from' => $from]);
-            return;
+            $lead = $this->createLeadFromInboundPhone($from);
+            Log::info('WA webhook: lead nuevo creado desde mensaje entrante', ['from' => $from, 'lead_id' => $lead->id]);
+        } elseif ($lead->trashed()) {
+            $lead->restore();
+            Log::info('WA webhook: lead reactivado desde la papelera', ['from' => $from, 'lead_id' => $lead->id]);
+            Activity::log(
+                event: 'lead_restored_from_trash',
+                description: 'Lead reactivado automáticamente: volvió a escribir por WhatsApp.',
+                subject: $lead,
+            );
         }
-
-        // Actualizar sesión activa: el lead nos escribió, abre ventana de 24hs
-        $lead->update(['last_wa_inbound_at' => now()]);
 
         $type = $message['type'] ?? 'unknown';
         $body = match ($type) {
@@ -117,6 +124,14 @@ class WhatsAppWebhookController extends Controller
             'interactive' => data_get($message, 'interactive.button_reply.title') ?? data_get($message, 'interactive.list_reply.title'),
             default       => data_get($message, "{$type}.caption"),
         };
+
+        // Actualizar sesión activa: el lead nos escribió, abre ventana de 24hs
+        $lead->update([
+            'last_wa_inbound_at'      => now(),
+            'last_message_at'         => now(),
+            'last_message_preview'    => Str::limit($body ?? '', 150),
+            'last_message_direction'  => 'in',
+        ]);
 
         $inboundMsg = WaInboundMessage::create([
             'lead_id'       => $lead->id,
@@ -129,6 +144,26 @@ class WhatsAppWebhookController extends Controller
 
         $this->notifyInboundMessage($lead, $body, $type);
         $this->triggerAiAgent($lead, $inboundMsg, $body);
+    }
+
+    private function createLeadFromInboundPhone(string $from): Lead
+    {
+        $lead = Lead::create([
+            'name'             => $from,
+            'phone'            => $from,
+            'source'           => 'WhatsApp entrante',
+            'whatsapp_consent' => true,
+        ]);
+
+        $defaultStatus = LeadStatus::where('company_id', $lead->company_id)
+            ->orderBy('sort_order')
+            ->first();
+
+        if ($defaultStatus) {
+            $lead->update(['lead_status_id' => $defaultStatus->id]);
+        }
+
+        return $lead;
     }
 
     private function triggerAiAgent(Lead $lead, WaInboundMessage $msg, ?string $body): void
@@ -163,7 +198,12 @@ class WhatsAppWebhookController extends Controller
                         'wa_message_id' => $waId,
                     ]);
 
-                    $lead->update(['last_contacted_at' => now()]);
+                    $lead->update([
+                        'last_contacted_at'       => now(),
+                        'last_message_at'         => now(),
+                        'last_message_preview'    => Str::limit($reply, 150),
+                        'last_message_direction'  => 'out',
+                    ]);
                 }
             } else {
                 $msg->update(['ai_draft_reply' => $reply]);
