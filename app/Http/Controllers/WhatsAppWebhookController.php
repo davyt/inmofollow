@@ -177,6 +177,9 @@ class WhatsAppWebhookController extends Controller
         'eliminame', 'borrame', 'bloqueame',
         'no quiero mas mensajes', 'no me escriban mas', 'no me escribas mas',
         'no me contacten mas', 'no me contactes mas',
+        // Botón de respuesta rápida "Detener promociones" de las plantillas
+        // aprobadas (cami/prop) — llega como button.text tal cual al webhook.
+        'detener promociones',
     ];
 
     private function isOptOutMessage(?string $body): bool
