@@ -234,7 +234,6 @@ class LeadConversation extends Component implements HasSchemas
 
             ScheduledMessage::create([
                 'lead_id'       => $this->lead->id,
-                'company_id'    => $this->lead->company_id,
                 'user_id'       => auth()->id(),
                 'channel'       => 'whatsapp',
                 'message_body'  => $msg->ai_draft_reply,

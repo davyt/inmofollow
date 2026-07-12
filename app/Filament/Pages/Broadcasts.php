@@ -110,10 +110,10 @@ class Broadcasts extends Page
             ScheduledMessage::create([
                 'broadcast_id'        => $broadcast->id,
                 'lead_id'             => $lead->id,
-                'company_id'          => $lead->company_id,
                 'user_id'             => $lead->user_id,
                 'message_template_id' => $this->templateId,
                 'channel'             => 'whatsapp',
+                'message_body'        => '',
                 'status'              => 'pending',
                 'scheduled_for'       => now(),
             ]);
