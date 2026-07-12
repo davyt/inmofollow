@@ -142,8 +142,78 @@ class WhatsAppWebhookController extends Controller
             'received_at'   => isset($message['timestamp']) ? Carbon::createFromTimestamp((int) $message['timestamp']) : now(),
         ]);
 
+        if ($this->isOptOutMessage($body)) {
+            $lead->update(['do_not_contact' => true]);
+
+            Activity::log(
+                event: 'lead_opted_out',
+                description: 'Lead pidió no ser contactado más (respondió "' . $body . '"). Marcado como "No contactar" automáticamente.',
+                subject: $lead,
+            );
+
+            $this->notifyOptOut($lead, $body);
+
+            // No se dispara el agente IA: seguir el hilo justo después de un pedido
+            // de baja sería contraproducente (y potencialmente otro motivo de reporte).
+            return;
+        }
+
         $this->notifyInboundMessage($lead, $body, $type);
         $this->triggerAiAgent($lead, $inboundMsg, $body);
+    }
+
+    /**
+     * Detección determinística de pedidos de baja — no depende de que el agente IA
+     * esté activo ni de que responda bien, es la red de seguridad mínima para no
+     * seguir contactando a alguien que pidió explícitamente que paremos (cuida la
+     * calidad del número ante Meta, sobre todo en campañas de contacto en frío).
+     * Conservador a propósito: solo matchea si el mensaje ES la palabra/frase de
+     * baja (no una mención dentro de una oración), para evitar falsos positivos.
+     */
+    private const OPT_OUT_KEYWORDS = [
+        'stop', 'baja', 'cancelar', 'unsubscribe',
+        'darme de baja', 'dame de baja',
+        'no molestar', 'no molestes',
+        'eliminame', 'borrame', 'bloqueame',
+        'no quiero mas mensajes', 'no me escriban mas', 'no me escribas mas',
+        'no me contacten mas', 'no me contactes mas',
+    ];
+
+    private function isOptOutMessage(?string $body): bool
+    {
+        if (! $body) return false;
+
+        $normalized = \Illuminate\Support\Str::of($body)
+            ->lower()
+            ->ascii()
+            ->trim(" .!¡?¿\t\n\r")
+            ->toString();
+
+        return in_array($normalized, self::OPT_OUT_KEYWORDS, true);
+    }
+
+    private function notifyOptOut(Lead $lead, ?string $body): void
+    {
+        $dbNotification = Notification::make()
+            ->title('🚫 ' . ($lead->name ?? 'Lead') . ' pidió no ser contactado')
+            ->body('Respondió "' . ($body ?? '') . '" — marcado como "No contactar" automáticamente.')
+            ->icon('heroicon-o-no-symbol')
+            ->danger()
+            ->actions([
+                FilamentAction::make('ver')->label('Ver lead')->url('/davyt/inbox'),
+            ])
+            ->toDatabase();
+
+        $recipients = User::where('company_id', $lead->company_id)
+            ->where(fn ($q) => $q
+                ->where('role', '!=', 'agent')
+                ->orWhere('id', $lead->user_id)
+            )
+            ->get();
+
+        foreach ($recipients as $user) {
+            $user->notifyNow($dbNotification);
+        }
     }
 
     private function createLeadFromInboundPhone(string $from): Lead
