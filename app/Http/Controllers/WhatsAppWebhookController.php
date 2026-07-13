@@ -282,9 +282,54 @@ class WhatsAppWebhookController extends Controller
         return $lead;
     }
 
+    private function isAutomatedReply(string $body): bool
+    {
+        $lower = mb_strtolower($body);
+
+        $patterns = [
+            'respuesta autom',           // "respuesta automática"
+            'contestaci',                // "contestación automática"
+            'mensaje autom',             // "mensaje automático"
+            'autorespuesta',
+            'auto-respuesta',
+            'respuesta auto',
+            'this is an auto',
+            'out of office',
+            'fuera de oficina',
+            'fuera de la oficina',
+            'estaré ausente',
+            'estare ausente',
+            'no responder a este',       // "no responder a este mensaje"
+            'do not reply',
+            'no reply',
+            'noreply',
+            'hemos recibido tu',
+            'hemos recibido su',
+            'su consulta fue recibida',
+            'tu consulta fue recibida',
+            'nos comunicaremos a la brevedad',
+            'en breve nos comunicaremos',
+            'en breve te contactaremos',
+            'a la brevedad nos pondremos en contacto',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (str_contains($lower, $pattern)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function triggerAiAgent(Lead $lead, WaInboundMessage $msg, ?string $body): void
     {
         if (! $body) return;
+
+        if ($this->isAutomatedReply($body)) {
+            Log::info('AI agent: mensaje automático detectado, se omite respuesta', ['lead_id' => $lead->id]);
+            return;
+        }
 
         $agent = AiAgent::where('company_id', $lead->company_id)
             ->where('active', true)
