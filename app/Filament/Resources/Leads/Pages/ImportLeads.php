@@ -490,6 +490,14 @@ class ImportLeads extends Page
 
             $dbField = str_replace('listing_', '', $field);
 
+            // listing_type → 'type' but column is property_type
+            // listing_url  → 'url'  but column is listing_url
+            $dbField = match ($dbField) {
+                'type' => 'property_type',
+                'url'  => 'listing_url',
+                default => $dbField,
+            };
+
             switch ($dbField) {
                 case 'price':
                     $parsed = $this->parsePrice($value);
@@ -510,9 +518,9 @@ class ImportLeads extends Page
             }
         }
 
-        // Si hay type en listing pero no en lead, copiarlo al lead
-        if (! empty($listingData['type']) && empty($lead->property_type)) {
-            $lead->updateQuietly(['property_type' => $listingData['type']]);
+        // Si hay property_type en listing pero no en lead, copiarlo al lead
+        if (! empty($listingData['property_type']) && empty($lead->property_type)) {
+            $lead->updateQuietly(['property_type' => $listingData['property_type']]);
         }
 
         $externalId = $listingData['external_id'] ?? null;
