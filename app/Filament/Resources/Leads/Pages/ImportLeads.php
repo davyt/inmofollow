@@ -31,6 +31,7 @@ class ImportLeads extends Page
     public ?string $defaultSource = null;
     public string $defaultWhatsappConsent = '';
     public string $defaultEmailConsent = '';
+    public ?int $defaultLeadStatusId = null;
     public string $newProfileName = '';
 
     public array $mapping = [
@@ -188,6 +189,14 @@ class ImportLeads extends Page
             ->toArray();
     }
 
+    public function availableStatuses(): array
+    {
+        return LeadStatus::where('company_id', config('inmofollow.default_company_id', 1))
+            ->orderBy('sort_order')
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
     public function updatedSelectedProfileId(): void
     {
         if (! $this->selectedProfileId) return;
@@ -208,6 +217,7 @@ class ImportLeads extends Page
         $this->defaultSource           = $profile->default_source;
         $this->defaultWhatsappConsent  = $this->boolToDefaultString($profile->default_whatsapp_consent);
         $this->defaultEmailConsent     = $this->boolToDefaultString($profile->default_email_consent);
+        $this->defaultLeadStatusId     = $profile->default_lead_status_id;
 
         Notification::make()
             ->title('Perfil aplicado: ' . $profile->name)
@@ -230,6 +240,7 @@ class ImportLeads extends Page
                 'default_source'           => $this->defaultSource,
                 'default_whatsapp_consent' => $this->defaultStringToBool($this->defaultWhatsappConsent),
                 'default_email_consent'    => $this->defaultStringToBool($this->defaultEmailConsent),
+                'default_lead_status_id'   => $this->defaultLeadStatusId,
             ],
         );
 
@@ -393,6 +404,10 @@ class ImportLeads extends Page
 
                 if ($this->defaultEmailConsent !== '') {
                     $data['email_consent'] = $this->defaultEmailConsent === '1';
+                }
+
+                if ($this->defaultLeadStatusId) {
+                    $data['lead_status_id'] = $this->defaultLeadStatusId;
                 }
 
                 $normalizedPhone = Lead::normalizePhone($data['phone'] ?? null);
@@ -589,6 +604,7 @@ class ImportLeads extends Page
         $this->defaultSource          = null;
         $this->defaultWhatsappConsent = '';
         $this->defaultEmailConsent    = '';
+        $this->defaultLeadStatusId    = null;
         $this->newProfileName         = '';
     }
 

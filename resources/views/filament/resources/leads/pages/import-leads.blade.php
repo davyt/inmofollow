@@ -125,10 +125,20 @@
                         <option value="0">No, para todos</option>
                     </select>
                 </div>
+                <div>
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px;">Estado fijo (opcional)</label>
+                    <select wire:model="defaultLeadStatusId"
+                        style="background:#1f2937; color:#e5e7eb; border:1px solid #374151; border-radius:6px; padding:6px 10px; font-size:13px; min-width:160px;">
+                        <option value="">— No fijar (usar columna) —</option>
+                        @foreach($this->availableStatuses() as $id => $name)
+                        <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
             <div style="font-size:12px; color:#6b7280; margin-bottom:10px;">
-                "Origen fijo" y los "fijo" de WhatsApp/Email se aplican a todas las filas, sin importar si mapeaste una columna para eso. Para flows por origen usá valores cortos como <code style="background:#1f2937;padding:1px 4px;border-radius:3px;">ml</code>, <code style="background:#1f2937;padding:1px 4px;border-radius:3px;">2clics</code>.
+                "Origen fijo" y los "fijo" de WhatsApp/Email/Estado se aplican a todas las filas, sin importar si mapeaste una columna para eso. Para flows por origen usá valores cortos como <code style="background:#1f2937;padding:1px 4px;border-radius:3px;">ml</code>, <code style="background:#1f2937;padding:1px 4px;border-radius:3px;">2clics</code>.
             </div>
 
             <div style="display:flex; gap:10px; align-items:center; border-top:1px solid #374151; padding-top:16px;">
