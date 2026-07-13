@@ -101,6 +101,26 @@
             </div>
         </div>
 
+        {{-- Filtro por origen --}}
+        @if(!empty($sources))
+        <div style="margin-bottom: 18px;">
+            <label class="bc-label">Filtrar por origen <span style="color:#64748b;">(vacío = todos)</span></label>
+            <div class="bc-checkbox-list">
+                @foreach($sources as $source)
+                <label class="bc-checkbox-item">
+                    <input
+                        type="checkbox"
+                        wire:model.live="filterSources"
+                        value="{{ $source }}"
+                        style="accent-color: #6366f1; width:14px; height:14px;"
+                    >
+                    <span style="font-size: 13px; color: #94a3b8;">{{ $source }}</span>
+                </label>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         {{-- Límite de leads --}}
         <div style="margin-bottom: 18px;">
             <label class="bc-label">Límite de envío <span style="color:#64748b;">(0 = sin límite)</span></label>

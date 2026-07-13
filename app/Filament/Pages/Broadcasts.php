@@ -33,6 +33,7 @@ class Broadcasts extends Page
     public string  $broadcastName   = '';
     public ?int    $templateId      = null;
     public array   $filterStatusIds = [];
+    public array   $filterSources   = [];
     public int     $leadLimit       = 0;
     public string  $startDate       = '';
     public string  $startTime       = '';
@@ -42,6 +43,7 @@ class Broadcasts extends Page
     // State
     public array  $templates       = [];
     public array  $statuses        = [];
+    public array  $sources         = [];
     public array  $history         = [];
     public int    $previewCount    = 0;
     public array  $previewSchedule = [];
@@ -62,6 +64,13 @@ class Broadcasts extends Page
         $this->statuses = LeadStatus::where('company_id', $user->company_id)
             ->orderBy('sort_order')
             ->get(['id', 'name', 'color'])
+            ->toArray();
+
+        $this->sources = Lead::where('company_id', $user->company_id)
+            ->whereNotNull('source')
+            ->distinct()
+            ->orderBy('source')
+            ->pluck('source')
             ->toArray();
 
         $this->startDate = now(self::TIMEZONE)->format('Y-m-d');
@@ -148,7 +157,7 @@ class Broadcasts extends Page
             'user_id'             => $user->id,
             'name'                => $this->broadcastName ?: 'Broadcast ' . now()->format('d/m/Y H:i'),
             'message_template_id' => $this->templateId,
-            'lead_filters'        => ['status_ids' => $this->filterStatusIds],
+            'lead_filters'        => ['status_ids' => $this->filterStatusIds, 'sources' => $this->filterSources],
             'status'              => 'queued',
             'total_count'         => $leads->count(),
         ]);
@@ -176,6 +185,7 @@ class Broadcasts extends Page
         $this->broadcastName   = '';
         $this->templateId      = null;
         $this->filterStatusIds = [];
+        $this->filterSources   = [];
         $this->leadLimit       = 0;
         $this->batchEnabled    = false;
         $this->batchSize       = 100;
@@ -204,6 +214,10 @@ class Broadcasts extends Page
 
         if (! empty($this->filterStatusIds)) {
             $query->whereIn('lead_status_id', $this->filterStatusIds);
+        }
+
+        if (! empty($this->filterSources)) {
+            $query->whereIn('source', $this->filterSources);
         }
 
         // Excluir leads que ya recibieron esta plantilla (enviada o en cola)
