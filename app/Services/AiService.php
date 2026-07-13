@@ -127,12 +127,15 @@ class AiService
 
         if ($lead->primaryListing) {
             $l = $lead->primaryListing;
-            if ($l->operation)    $contextLines[] = 'Operación: '        . $l->operation;
-            if ($l->asking_price) $contextLines[] = 'Precio publicado: ' . $l->formattedPrice();
-            if ($l->bedrooms)     $contextLines[] = 'Dormitorios: '      . $l->bedrooms;
-            if ($l->bathrooms)    $contextLines[] = 'Baños: '            . $l->bathrooms;
-            if ($l->m2_covered)   $contextLines[] = 'M² cubiertos: '     . $l->m2_covered;
-            if ($l->listing_url)  $contextLines[] = 'Publicación ML: '   . $l->listing_url;
+            if ($l->title)        $contextLines[] = 'Título publicación: ' . $l->title;
+            if ($l->operation)    $contextLines[] = 'Operación: '          . $l->operation;
+            if ($l->asking_price) $contextLines[] = 'Precio publicado: '   . $l->formattedPrice();
+            if ($l->bedrooms)     $contextLines[] = 'Dormitorios: '        . $l->bedrooms;
+            if ($l->bathrooms)    $contextLines[] = 'Baños: '              . $l->bathrooms;
+            if ($l->m2_covered)   $contextLines[] = 'M² cubiertos: '       . $l->m2_covered;
+            if ($l->m2_total)     $contextLines[] = 'M² totales: '         . $l->m2_total;
+            if ($l->zone_raw)     $contextLines[] = 'Dirección: '          . $l->zone_raw;
+            if ($l->listing_url)  $contextLines[] = 'Publicación ML: '     . $l->listing_url;
         }
 
         $system = $agent->system_prompt . $this->buildLeadContext(array_values(array_filter($contextLines)));
