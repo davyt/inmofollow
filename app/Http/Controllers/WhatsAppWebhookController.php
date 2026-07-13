@@ -91,7 +91,50 @@ class WhatsAppWebhookController extends Controller
                 'status'        => 'failed',
                 'error_message' => data_get($status, 'errors.0.title', 'Error desconocido'),
             ]);
+            return;
         }
+
+        if ($statusValue === 'delivered' && ! $message->delivered_at) {
+            $message->update(['delivered_at' => now()]);
+            $this->markContactedOnTemplateDelivery($message);
+        }
+    }
+
+    /**
+     * Mueve el lead a "Contactado" cuando se confirma la entrega de un mensaje
+     * de plantilla (broadcast o desde la conversación), siempre que el lead
+     * siga en un estado "de sistema" (Nuevo / sin estado / No responde) —
+     * nunca pisa un estado que el agente IA haya interpretado de la conversación
+     * (Interesado, No quiere inmobiliaria, etc).
+     */
+    private function markContactedOnTemplateDelivery(ScheduledMessage $message): void
+    {
+        if (! $message->message_template_id) {
+            return;
+        }
+
+        $lead = $message->lead;
+        if (! $lead) {
+            return;
+        }
+
+        $currentName = $lead->leadStatus?->name;
+        $isSystemManaged = $currentName === null
+            || in_array(mb_strtolower(trim($currentName)), ['nuevo', 'no responde'], true);
+
+        if (! $isSystemManaged) {
+            return;
+        }
+
+        $contactado = LeadStatus::where('company_id', $lead->company_id)
+            ->whereRaw('LOWER(TRIM(name)) = ?', ['contactado'])
+            ->first();
+
+        if (! $contactado || $contactado->id === $lead->lead_status_id) {
+            return;
+        }
+
+        $lead->update(['lead_status_id' => $contactado->id]);
     }
 
     private function handleInboundMessage(array $message): void

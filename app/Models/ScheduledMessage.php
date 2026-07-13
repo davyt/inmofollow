@@ -14,6 +14,7 @@ class ScheduledMessage extends Model
     protected $casts = [
         'scheduled_for' => 'datetime',
         'sent_at' => 'datetime',
+        'delivered_at' => 'datetime',
     ];
 
     public function lead()
