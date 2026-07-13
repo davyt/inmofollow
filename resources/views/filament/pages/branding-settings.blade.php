@@ -6,10 +6,10 @@
 .cs-section:first-of-type { margin-top: 0; border-top: none; padding-top: 0; }
 .cs-label   { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 6px; }
 .cs-input   { width: 100%; background: #13131f; border: 1px solid #2d2d42; border-radius: 8px; padding: 9px 12px; color: #e2e8f0; font-size: 14px; outline: none; box-sizing: border-box; }
-.cs-input:focus { border-color: #f59e0b; }
+.cs-input:focus { border-color: {{ $primaryColor ?: '#f59e0b' }}; }
 .cs-hint    { font-size: 11px; color: #64748b; margin-top: 4px; }
 .cs-field   { margin-bottom: 16px; }
-.cs-btn     { padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: #f59e0b; color: #0f0f1a; }
+.cs-btn     { padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: {{ $primaryColor ?: '#f59e0b' }}; color: #0f0f1a; }
 .cs-btn:hover { opacity: .85; }
 .cs-preview { display: flex; align-items: center; gap: 16px; background: #13131f; border: 1px solid #2d2d42; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
 .cs-preview img { max-height: 56px; max-width: 160px; object-fit: contain; }
