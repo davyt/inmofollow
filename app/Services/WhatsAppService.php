@@ -137,6 +137,11 @@ class WhatsAppService
             return '598' . $cleaned;
         }
 
+        // Uruguay con 0 local después del código de país: 5980XXXXXXXX (12 dígitos) → 59894564680 (11 dígitos)
+        if (str_starts_with($cleaned, '5980') && strlen($cleaned) === 12) {
+            return '598' . substr($cleaned, 4);
+        }
+
         // Already includes country code (11+ digits)
         return $cleaned;
     }
