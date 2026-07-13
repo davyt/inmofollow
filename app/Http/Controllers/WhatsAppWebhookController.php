@@ -317,7 +317,10 @@ class WhatsAppWebhookController extends Controller
 
     private function aiUpdateStatus(Lead $lead, int $statusId): ?string
     {
-        $status = \App\Models\LeadStatus::find($statusId);
+        // Scoped por company_id: el modelo solo puede aplicar un estado que
+        // pertenezca a la misma empresa del lead, aunque una inyección de
+        // prompt le haga devolver un ID de otra empresa.
+        $status = LeadStatus::where('company_id', $lead->company_id)->find($statusId);
         if (! $status) return null;
 
         // update() (not updateQuietly) so LeadObserver fires and triggers matching flows
@@ -328,7 +331,8 @@ class WhatsAppWebhookController extends Controller
 
     private function aiAssignAgent(Lead $lead, int $agentId): ?string
     {
-        $agent = User::find($agentId);
+        // Scoped por company_id: mismo motivo que aiUpdateStatus().
+        $agent = User::where('company_id', $lead->company_id)->find($agentId);
         if (! $agent) return null;
 
         $lead->update(['user_id' => $agentId]);
