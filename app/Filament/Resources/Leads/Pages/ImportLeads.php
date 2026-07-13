@@ -414,9 +414,9 @@ class ImportLeads extends Page
                     $lead = Lead::find($existingLeadId);
                     $duplicated++;
                 } else {
-                    // Suprimimos el observer para que no dispare FollowUpGenerator
+                    // Suprimimos los eventos de modelo para que no dispare FollowUpGenerator
                     // por cada lead individualmente — lo hacemos en lote al final
-                    $lead = Lead::withoutObservers(fn () => Lead::create($data));
+                    $lead = Lead::withoutEvents(fn () => Lead::create($data));
                     $newLeadIds[] = $lead->id;
                     $imported++;
 
