@@ -4,8 +4,10 @@ namespace App\Filament\Pages;
 
 use App\Models\Lead;
 use App\Models\LeadStatus;
+use App\Models\User;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class Pipeline extends Page
@@ -20,6 +22,13 @@ class Pipeline extends Page
     public array  $statuses         = [];
     public array  $leadsByStatus    = [];
 
+    // Filtros del tablero
+    public ?int   $filterUserId     = null;
+    public string $filterZone       = '';
+    public string $searchTerm       = '';
+    public array  $agents           = [];
+    public array  $zones            = [];
+
     // Nuevo estado inline
     public bool   $showNewStatus    = false;
     public string $newStatusName    = '';
@@ -32,6 +41,25 @@ class Pipeline extends Page
 
     public function mount(): void
     {
+        $user = Auth::user();
+
+        if ($user->isAdmin() || $user->isSupervisor()) {
+            $this->agents = User::where('company_id', $user->company_id)
+                ->where('active', true)
+                ->whereIn('role', ['agent', 'supervisor'])
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        $this->zones = Lead::where('company_id', $user->company_id)
+            ->whereNotNull('zone')
+            ->where('zone', '!=', '')
+            ->distinct()
+            ->orderBy('zone')
+            ->pluck('zone')
+            ->toArray();
+
         $this->loadBoard();
     }
 
@@ -50,6 +78,19 @@ class Pipeline extends Page
 
         if ($user->isAgent()) {
             $query->where('user_id', $user->id);
+        } elseif ($this->filterUserId) {
+            $query->where('user_id', $this->filterUserId);
+        }
+
+        if ($this->filterZone !== '') {
+            $query->where('zone', $this->filterZone);
+        }
+
+        if (trim($this->searchTerm) !== '') {
+            $term = trim($this->searchTerm);
+            $query->where(fn (Builder $q) => $q
+                ->where('name', 'like', "%{$term}%")
+                ->orWhere('phone', 'like', "%{$term}%"));
         }
 
         $leads = $query->orderByRaw('next_follow_up_at IS NULL, next_follow_up_at ASC')->get();
@@ -61,6 +102,29 @@ class Pipeline extends Page
                 ->values()
                 ->toArray();
         }
+    }
+
+    public function updatedFilterUserId(): void
+    {
+        $this->loadBoard();
+    }
+
+    public function updatedFilterZone(): void
+    {
+        $this->loadBoard();
+    }
+
+    public function updatedSearchTerm(): void
+    {
+        $this->loadBoard();
+    }
+
+    public function clearFilters(): void
+    {
+        $this->filterUserId = null;
+        $this->filterZone   = '';
+        $this->searchTerm   = '';
+        $this->loadBoard();
     }
 
     public function moveLead(int $leadId, int $newStatusId): void

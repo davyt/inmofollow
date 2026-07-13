@@ -29,6 +29,8 @@ class ImportLeads extends Page
 
     public ?int $selectedProfileId = null;
     public ?string $defaultSource = null;
+    public string $defaultWhatsappConsent = '';
+    public string $defaultEmailConsent = '';
     public string $newProfileName = '';
 
     public array $mapping = [
@@ -203,7 +205,9 @@ class ImportLeads extends Page
             $this->listingMapping[$field] = in_array($savedColumn, $this->headers, true) ? $savedColumn : '';
         }
 
-        $this->defaultSource = $profile->default_source;
+        $this->defaultSource           = $profile->default_source;
+        $this->defaultWhatsappConsent  = $this->boolToDefaultString($profile->default_whatsapp_consent);
+        $this->defaultEmailConsent     = $this->boolToDefaultString($profile->default_email_consent);
 
         Notification::make()
             ->title('Perfil aplicado: ' . $profile->name)
@@ -221,11 +225,26 @@ class ImportLeads extends Page
 
         LeadImportProfile::updateOrCreate(
             ['company_id' => config('inmofollow.default_company_id', 1), 'name' => trim($this->newProfileName)],
-            ['mapping' => array_merge($this->mapping, $this->listingMapping), 'default_source' => $this->defaultSource],
+            [
+                'mapping'                  => array_merge($this->mapping, $this->listingMapping),
+                'default_source'           => $this->defaultSource,
+                'default_whatsapp_consent' => $this->defaultStringToBool($this->defaultWhatsappConsent),
+                'default_email_consent'    => $this->defaultStringToBool($this->defaultEmailConsent),
+            ],
         );
 
         Notification::make()->title('Perfil guardado')->success()->send();
         $this->newProfileName = '';
+    }
+
+    private function defaultStringToBool(string $value): ?bool
+    {
+        return $value === '' ? null : $value === '1';
+    }
+
+    private function boolToDefaultString(?bool $value): string
+    {
+        return $value === null ? '' : ($value ? '1' : '0');
     }
 
     // ─── Auto-map ─────────────────────────────────────────────────────────────
@@ -366,6 +385,14 @@ class ImportLeads extends Page
 
                 if (! empty($this->defaultSource)) {
                     $data['source'] = $this->defaultSource;
+                }
+
+                if ($this->defaultWhatsappConsent !== '') {
+                    $data['whatsapp_consent'] = $this->defaultWhatsappConsent === '1';
+                }
+
+                if ($this->defaultEmailConsent !== '') {
+                    $data['email_consent'] = $this->defaultEmailConsent === '1';
                 }
 
                 $normalizedPhone = Lead::normalizePhone($data['phone'] ?? null);
@@ -558,9 +585,11 @@ class ImportLeads extends Page
         $this->delimiter        = ',';
         $this->mapping          = array_fill_keys(array_keys(self::getLeadFields()), '');
         $this->listingMapping   = array_fill_keys(array_keys(self::getListingFields()), '');
-        $this->selectedProfileId = null;
-        $this->defaultSource    = null;
-        $this->newProfileName   = '';
+        $this->selectedProfileId      = null;
+        $this->defaultSource          = null;
+        $this->defaultWhatsappConsent = '';
+        $this->defaultEmailConsent    = '';
+        $this->newProfileName         = '';
     }
 
     private function isXlsx(): bool

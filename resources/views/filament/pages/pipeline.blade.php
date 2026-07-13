@@ -1,4 +1,47 @@
 <x-filament-panels::page>
+
+{{-- Filtros --}}
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 16px;">
+
+    @if(auth()->user()->isAdmin() || auth()->user()->isSupervisor())
+    <div>
+        <label style="display:block; font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Agente</label>
+        <select wire:model.live="filterUserId"
+            style="background:#1a1a2e; color:#e2e8f0; border:1px solid #2d2d42; border-radius:8px; padding:7px 10px; font-size:13px; min-width:160px;">
+            <option value="">Todos</option>
+            @foreach($agents as $id => $name)
+            <option value="{{ $id }}">{{ $name }}</option>
+            @endforeach
+        </select>
+    </div>
+    @endif
+
+    <div>
+        <label style="display:block; font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Zona</label>
+        <select wire:model.live="filterZone"
+            style="background:#1a1a2e; color:#e2e8f0; border:1px solid #2d2d42; border-radius:8px; padding:7px 10px; font-size:13px; min-width:160px;">
+            <option value="">Todas</option>
+            @foreach($zones as $zone)
+            <option value="{{ $zone }}">{{ $zone }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div>
+        <label style="display:block; font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Buscar</label>
+        <input type="text" wire:model.live.debounce.400ms="searchTerm" placeholder="Nombre o teléfono..."
+            style="background:#1a1a2e; color:#e2e8f0; border:1px solid #2d2d42; border-radius:8px; padding:7px 10px; font-size:13px; min-width:200px; box-sizing:border-box;">
+    </div>
+
+    @if($filterUserId || $filterZone !== '' || trim($searchTerm) !== '')
+    <button wire:click="clearFilters"
+        style="padding:7px 14px; background:#23233a; color:#94a3b8; border:1px solid #2d2d42; border-radius:8px; font-size:12px; cursor:pointer;">
+        Limpiar filtros
+    </button>
+    @endif
+
+</div>
+
 <div
     x-data="{ dragging: null, dropTarget: null }"
     style="overflow-x: auto; padding-bottom: 24px;"

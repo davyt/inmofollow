@@ -119,6 +119,35 @@
             @endif
         </div>
 
+        {{-- Fecha/hora de inicio --}}
+        <div style="margin-bottom: 18px;">
+            <label class="bc-label">Fecha y hora de inicio <span style="color:#64748b;">(hora Uruguay)</span></label>
+            <div style="display:flex; gap:8px;">
+                <input type="date" class="bc-input" wire:model.live="startDate" style="max-width: 160px;">
+                <input type="time" class="bc-input" wire:model.live="startTime" style="max-width: 110px;">
+            </div>
+        </div>
+
+        {{-- Envío por tandas --}}
+        <div style="margin-bottom: 18px;">
+            <label class="bc-checkbox-item" style="padding: 0; margin-bottom: 8px;">
+                <input type="checkbox" wire:model.live="batchEnabled" style="accent-color:#f59e0b; width:14px; height:14px;">
+                <span style="font-size: 13px; color: #e2e8f0; font-weight: 600;">Repartir en tandas por día</span>
+            </label>
+            @if($batchEnabled)
+            <div style="display:flex; align-items:center; gap:8px; margin-top: 4px;">
+                <input
+                    type="number"
+                    class="bc-input"
+                    wire:model.live="batchSize"
+                    min="1"
+                    style="width: 100px;"
+                >
+                <span style="font-size: 12px; color: #64748b;">mensajes por día, empezando en la fecha/hora de arriba</span>
+            </div>
+            @endif
+        </div>
+
         {{-- Botón preview --}}
         <button
             class="bc-btn bc-btn-primary"
@@ -138,6 +167,16 @@
                 <br><span style="color:#ef4444; font-size:12px;">No hay leads que coincidan con los filtros.</span>
                 @endif
             </div>
+            @if(!empty($previewSchedule))
+            <div style="margin-bottom: 12px; display:flex; flex-direction:column; gap:4px; max-height: 160px; overflow-y:auto;">
+                @foreach($previewSchedule as $block)
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:#94a3b8; background:#0f0f1a; border-radius:6px; padding:6px 10px;">
+                    <span>{{ $block['date'] }}</span>
+                    <span style="color:#e2e8f0; font-weight:600;">{{ $block['count'] }} mensajes</span>
+                </div>
+                @endforeach
+            </div>
+            @endif
             <div style="display: flex; gap: 8px;">
                 <button
                     class="bc-btn bc-btn-danger"

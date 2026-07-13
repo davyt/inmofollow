@@ -8,7 +8,6 @@ use App\Models\LeadStatus;
 use App\Models\User;
 use App\Services\FollowUpGenerator;
 use App\Support\Activity;
-use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -19,11 +18,13 @@ use Filament\Actions\RestoreBulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -74,30 +75,9 @@ class LeadsTable
                     ->label('WhatsApp')
                     ->boolean(),
 
-                IconColumn::make('email_consent')
-                    ->label('Email')
-                    ->boolean(),
-
                 IconColumn::make('do_not_contact')
                     ->label('No contactar')
                     ->boolean(),
-
-                TextColumn::make('next_follow_up_at')
-                    ->label('Próximo seguimiento')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->description(fn ($state): ?string => match(true) {
-                        ! $state                                      => null,
-                        Carbon::parse($state)->isToday()              => 'Para hoy',
-                        Carbon::parse($state)->isPast()               => 'Vencido',
-                        default                                        => null,
-                    })
-                    ->color(fn ($state): string => match(true) {
-                        ! $state                                      => 'gray',
-                        Carbon::parse($state)->isToday()              => 'warning',
-                        Carbon::parse($state)->isPast()               => 'danger',
-                        default                                        => 'success',
-                    }),
 
                 TextColumn::make('created_at')
                     ->label('Creado')
@@ -146,35 +126,22 @@ class LeadsTable
                     ->label('No contactar')
                     ->query(fn (Builder $query): Builder => $query->where('do_not_contact', true)),
 
-                Filter::make('overdue_followup')
-                    ->label('Seguimiento vencido')
-                    ->query(fn (Builder $query): Builder => $query
-                        ->whereNotNull('next_follow_up_at')
-                        ->where('next_follow_up_at', '<', now())
-                        ->where('do_not_contact', false)
+                TernaryFilter::make('contacted')
+                    ->label('Contactado')
+                    ->placeholder('Todos')
+                    ->trueLabel('Contactado (plantilla enviada)')
+                    ->falseLabel('No contactado')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query->whereHas(
+                            'scheduledMessages',
+                            fn (Builder $q) => $q->where('status', 'sent'),
+                        ),
+                        false: fn (Builder $query): Builder => $query->whereDoesntHave(
+                            'scheduledMessages',
+                            fn (Builder $q) => $q->where('status', 'sent'),
+                        ),
+                        blank: fn (Builder $query): Builder => $query,
                     ),
-
-                Filter::make('next_follow_up_range')
-                    ->label('Rango seguimiento')
-                    ->form([
-                        DatePicker::make('from')->label('Desde'),
-                        DatePicker::make('until')->label('Hasta'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when($data['from'] ?? null, fn ($q, $v) => $q->whereDate('next_follow_up_at', '>=', $v))
-                            ->when($data['until'] ?? null, fn ($q, $v) => $q->whereDate('next_follow_up_at', '<=', $v));
-                    })
-                    ->indicateUsing(function (array $data): array {
-                        $indicators = [];
-                        if ($data['from'] ?? null) {
-                            $indicators[] = 'Seguimiento desde ' . $data['from'];
-                        }
-                        if ($data['until'] ?? null) {
-                            $indicators[] = 'Seguimiento hasta ' . $data['until'];
-                        }
-                        return $indicators;
-                    }),
 
                 TrashedFilter::make(),
             ])
@@ -277,6 +244,67 @@ class LeadsTable
                             $records->each->update(['user_id' => $data['user_id']]);
                             Notification::make()
                                 ->title("{$records->count()} lead(s) asignados a {$agent->name}")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('bulk_edit')
+                        ->label('Editar en lote')
+                        ->icon('heroicon-o-pencil-square')
+                        ->color('gray')
+                        ->visible(fn (): bool => auth()->user()?->isAdmin() || auth()->user()?->isSupervisor())
+                        ->form([
+                            TextInput::make('source')
+                                ->label('Origen')
+                                ->placeholder('Dejar vacío para no cambiar'),
+
+                            Select::make('whatsapp_consent')
+                                ->label('Acepta WhatsApp')
+                                ->options(['' => '— No cambiar —', '1' => 'Sí', '0' => 'No'])
+                                ->default(''),
+
+                            Select::make('email_consent')
+                                ->label('Acepta Email')
+                                ->options(['' => '— No cambiar —', '1' => 'Sí', '0' => 'No'])
+                                ->default(''),
+
+                            Select::make('do_not_contact')
+                                ->label('No contactar')
+                                ->options(['' => '— No cambiar —', '1' => 'Sí', '0' => 'No'])
+                                ->default(''),
+
+                            Select::make('lead_status_id')
+                                ->label('Estado')
+                                ->options(fn () => LeadStatus::query()->orderBy('sort_order')->orderBy('name')->pluck('name', 'id')->toArray())
+                                ->placeholder('— No cambiar —'),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $updates = [];
+
+                            if (filled($data['source'] ?? null)) {
+                                $updates['source'] = $data['source'];
+                            }
+
+                            foreach (['whatsapp_consent', 'email_consent', 'do_not_contact'] as $field) {
+                                if (($data[$field] ?? '') !== '') {
+                                    $updates[$field] = $data[$field] === '1';
+                                }
+                            }
+
+                            if (filled($data['lead_status_id'] ?? null)) {
+                                $updates['lead_status_id'] = $data['lead_status_id'];
+                            }
+
+                            if (empty($updates)) {
+                                Notification::make()->title('No seleccionaste ningún cambio')->warning()->send();
+                                return;
+                            }
+
+                            $records->each->update($updates);
+
+                            Notification::make()
+                                ->title("{$records->count()} lead(s) actualizados")
                                 ->success()
                                 ->send();
                         })

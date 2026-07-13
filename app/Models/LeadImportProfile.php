@@ -12,7 +12,9 @@ class LeadImportProfile extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'mapping' => 'array',
+        'mapping'                   => 'array',
+        'default_whatsapp_consent' => 'boolean',
+        'default_email_consent'    => 'boolean',
     ];
 
     public function company()
