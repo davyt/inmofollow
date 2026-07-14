@@ -18,6 +18,11 @@ class MessagesRequiringAttention extends BaseWidget
 
     protected static ?string $heading = 'Mensajes que requieren atención';
 
+    public static function canView(): bool
+    {
+        return false;
+    }
+
     public function table(Table $table): Table
     {
         return $table

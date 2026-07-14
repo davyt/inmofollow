@@ -19,6 +19,11 @@ class LeadFollowUpsWidget extends BaseWidget
 
     protected static ?string $heading = 'Leads a contactar';
 
+    public static function canView(): bool
+    {
+        return false;
+    }
+
     protected static ?string $pollingInterval = null;
 
     public function table(Table $table): Table
