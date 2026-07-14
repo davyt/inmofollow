@@ -3,7 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\InmofollowStatsOverview;
-use App\Filament\Widgets\LeadFollowUpsWidget;
+use App\Filament\Widgets\LeadClassificationWidget;
 use App\Filament\Widgets\QuickActionsWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
@@ -41,7 +41,13 @@ class Dashboard extends BaseDashboard
         return [
             QuickActionsWidget::class,
             InmofollowStatsOverview::class,
-            LeadFollowUpsWidget::class,
+        ];
+    }
+
+    public function getWidgets(): array
+    {
+        return [
+            LeadClassificationWidget::class,
         ];
     }
 

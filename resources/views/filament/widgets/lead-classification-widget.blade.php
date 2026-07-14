@@ -1,115 +1,77 @@
 <x-filament-widgets::widget>
 
+@php
+function clf_color(string $label): array {
+    $l = mb_strtolower($label);
+    if (str_contains($l, 'interesado') || str_contains($l, 'consulta') || str_contains($l, 'quiere')) {
+        return ['bar' => '#22c55e', 'bg' => '#22c55e18', 'text' => '#4ade80'];
+    }
+    if (str_contains($l, 'no interesado') || str_contains($l, 'descart') || str_contains($l, 'no contact')) {
+        return ['bar' => '#ef4444', 'bg' => '#ef444418', 'text' => '#f87171'];
+    }
+    if (str_contains($l, 'automát') || str_contains($l, 'bot') || str_contains($l, 'empresa')) {
+        return ['bar' => '#6366f1', 'bg' => '#6366f118', 'text' => '#a5b4fc'];
+    }
+    if (str_contains($l, 'sin_respuesta') || str_contains($l, 'sin respuesta')) {
+        return ['bar' => '#334155', 'bg' => '#33415520', 'text' => '#64748b'];
+    }
+    // neutral / indefinido
+    return ['bar' => '#f59e0b', 'bg' => '#f59e0b18', 'text' => '#fbbf24'];
+}
+@endphp
+
 <style>
-.clf-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 14px;
-}
-.clf-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #94a3b8;
-    letter-spacing: .03em;
-    text-transform: uppercase;
-}
-.clf-total {
-    font-size: 12px;
-    color: #64748b;
-}
-.clf-empty {
-    color: #64748b;
-    font-size: 13px;
-    padding: 12px 0;
-}
-.clf-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 9px;
-}
-.clf-label {
-    font-size: 13px;
-    color: #cbd5e1;
-    min-width: 0;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.clf-label.no-response {
-    color: #64748b;
-}
-.clf-bar-wrap {
-    width: 120px;
-    height: 8px;
-    background: #1e293b;
-    border-radius: 4px;
-    flex-shrink: 0;
-    overflow: hidden;
-}
-.clf-bar {
-    height: 100%;
-    border-radius: 4px;
-    background: #f59e0b;
-    transition: width .3s;
-}
-.clf-bar.no-response {
-    background: #334155;
-}
-.clf-count {
-    font-size: 12px;
-    font-weight: 600;
-    color: #94a3b8;
-    width: 28px;
-    text-align: right;
-    flex-shrink: 0;
-}
-.clf-pct {
-    font-size: 11px;
-    color: #475569;
-    width: 32px;
-    text-align: right;
-    flex-shrink: 0;
-}
-.clf-phase {
-    margin-top: 12px;
-    font-size: 11px;
-    color: #475569;
-    font-style: italic;
-}
+.clf2-wrap       { padding: 4px 0; }
+.clf2-head       { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.clf2-title      { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: .06em; text-transform: uppercase; }
+.clf2-meta       { font-size: 12px; color: #475569; }
+.clf2-grid       { display: grid; gap: 10px; }
+.clf2-card       { border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 14px; }
+.clf2-label      { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.clf2-bar-wrap   { flex: 0 0 200px; height: 10px; background: #1e293b; border-radius: 5px; overflow: hidden; }
+@media (max-width: 640px) { .clf2-bar-wrap { flex: 0 0 90px; } }
+.clf2-bar        { height: 100%; border-radius: 5px; transition: width .4s ease; }
+.clf2-count      { font-size: 20px; font-weight: 800; width: 42px; text-align: right; flex-shrink: 0; line-height: 1; }
+.clf2-pct        { font-size: 12px; color: #475569; width: 36px; text-align: right; flex-shrink: 0; }
+.clf2-empty      { color: #64748b; font-size: 13px; padding: 20px 0; }
+.clf2-footer     { margin-top: 16px; font-size: 11px; color: #334155; font-style: italic; }
 </style>
 
-<div>
-    <div class="clf-header">
-        <span class="clf-title">Clasificación de contactos</span>
+<div class="clf2-wrap">
+    <div class="clf2-head">
+        <span class="clf2-title">Clasificación de contactos</span>
         @if($total > 0)
-            <span class="clf-total">{{ $total }} clasificados · {{ $pending }} sin clasificar</span>
+            <span class="clf2-meta">{{ $total }} clasificados &middot; {{ $pending }} sin clasificar</span>
         @endif
     </div>
 
     @if($rows->isEmpty())
-        <p class="clf-empty">Todavía no hay clasificaciones. Se irán acumulando a medida que los contactos respondan y el cron detecte los que no responden.</p>
+        <p class="clf2-empty">Todavía no hay clasificaciones. Se irán acumulando a medida que los contactos respondan.</p>
     @else
-        @foreach($rows as $row)
-            @php
-                $isNoResponse = $row->ai_classification === 'sin_respuesta';
-                $pct = $total > 0 ? round($row->count / $total * 100) : 0;
-            @endphp
-            <div class="clf-row">
-                <span class="clf-label {{ $isNoResponse ? 'no-response' : '' }}">
-                    {{ $isNoResponse ? '— sin respuesta' : $row->ai_classification }}
-                </span>
-                <div class="clf-bar-wrap">
-                    <div class="clf-bar {{ $isNoResponse ? 'no-response' : '' }}" style="width: {{ $pct }}%"></div>
+        <div class="clf2-grid">
+            @foreach($rows as $row)
+                @php
+                    $isNoResp = $row->ai_classification === 'sin_respuesta';
+                    $labelText = $isNoResp ? 'Sin respuesta' : $row->ai_classification;
+                    $pct = $total > 0 ? round($row->count / $total * 100) : 0;
+                    $c = clf_color($row->ai_classification);
+                @endphp
+                <div class="clf2-card" style="background: {{ $c['bg'] }}; border: 1px solid {{ $c['bar'] }}22;">
+                    <span class="clf2-label" style="color: {{ $c['text'] }};" title="{{ $labelText }}">
+                        {{ $labelText }}
+                    </span>
+                    <div class="clf2-bar-wrap">
+                        <div class="clf2-bar" style="width: {{ $pct }}%; background: {{ $c['bar'] }};"></div>
+                    </div>
+                    <span class="clf2-count" style="color: {{ $c['text'] }};">{{ $row->count }}</span>
+                    <span class="clf2-pct">{{ $pct }}%</span>
                 </div>
-                <span class="clf-count">{{ $row->count }}</span>
-                <span class="clf-pct">{{ $pct }}%</span>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
 
-        <p class="clf-phase">Fase 1 — recolección libre. En ~3 semanas se agrupan en categorías definitivas.</p>
+        @if($pending > 0)
+        <p class="clf2-footer">{{ $pending }} lead{{ $pending !== 1 ? 's' : '' }} aún sin clasificar — el cron nocturno los procesa automáticamente.</p>
+        @endif
     @endif
 </div>
 
