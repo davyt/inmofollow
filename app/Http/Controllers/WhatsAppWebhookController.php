@@ -328,6 +328,13 @@ class WhatsAppWebhookController extends Controller
 
         if ($this->isAutomatedReply($body)) {
             Log::info('AI agent: mensaje automático detectado, se omite respuesta', ['lead_id' => $lead->id]);
+            // Clasificar directamente sin llamar a la IA
+            if (! $lead->ai_classification) {
+                $lead->updateQuietly([
+                    'ai_classification' => 'respuesta automática empresa',
+                    'ai_classified_at'  => now(),
+                ]);
+            }
             return;
         }
 
