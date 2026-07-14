@@ -111,6 +111,13 @@
                 <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $lead->name }}</div>
                 <div style="font-size: 11px; color: #4b5563;">{{ $lead->phone }}</div>
             </div>
+            @if($lead->primaryListing?->listing_url)
+            <a href="{{ $lead->primaryListing->listing_url }}" target="_blank" rel="noopener"
+               title="{{ $lead->primaryListing->title }}"
+               style="font-size: 12px; color: #34d399; text-decoration: none; padding: 5px 10px; border: 1px solid #34d39944; border-radius: 6px; white-space: nowrap; flex-shrink: 0;">
+                Ver publicación →
+            </a>
+            @endif
             <a href="/davyt/leads/{{ $lead->id }}/edit"
                style="font-size: 12px; color: #f59e0b; text-decoration: none; padding: 5px 10px; border: 1px solid #f59e0b44; border-radius: 6px; white-space: nowrap; flex-shrink: 0;">
                 Ver lead →

@@ -121,7 +121,7 @@ class Inbox extends Page
     public function selectedLead(): ?Lead
     {
         if (! $this->selectedLeadId) return null;
-        return Lead::find($this->selectedLeadId);
+        return Lead::with('primaryListing')->find($this->selectedLeadId);
     }
 
     public function getMaxContentWidth(): Width|string|null
