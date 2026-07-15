@@ -78,9 +78,8 @@ class Flows extends Page
 
         $this->agents = User::where('company_id', $user->company_id)
             ->where('active', true)
-            ->whereIn('role', ['agent', 'supervisor'])
             ->orderBy('name')
-            ->get(['id', 'name'])
+            ->get(['id', 'name', 'role'])
             ->toArray();
     }
 
