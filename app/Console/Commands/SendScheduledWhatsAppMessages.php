@@ -147,6 +147,67 @@ class SendScheduledWhatsAppMessages extends Command
             }
         }
 
+        // Process send_template_to_agent steps
+        $agentTemplates = ScheduledMessage::query()
+            ->with(['lead.company', 'lead.user', 'messageTemplate'])
+            ->where('channel', 'agent_template')
+            ->where('status', 'pending')
+            ->where('scheduled_for', '<=', now())
+            ->orderBy('scheduled_for')
+            ->limit($maxPerRun)
+            ->get();
+
+        foreach ($agentTemplates as $message) {
+            $lead     = $message->lead;
+            $company  = $lead?->company;
+            $template = $message->messageTemplate;
+            $stepData = $message->step_data ?? [];
+
+            if (! $company || ! $company->wa_active || ! $company->wa_phone_number_id || ! $company->wa_access_token) {
+                continue;
+            }
+
+            $agentId    = $stepData['agent_id'] ?? null;
+            $agent      = $agentId ? User::find($agentId) : $lead->user;
+            $agentPhone = preg_replace('/\D/', '', $agent?->phone ?? '');
+
+            if (! $agentPhone || ! $template) {
+                $message->update(['status' => 'cancelled', 'error_message' => 'Agente sin teléfono registrado o plantilla no encontrada.']);
+                $this->warn("  ⚠ Plantilla→agente Lead #{$lead->id}: sin teléfono o sin plantilla.");
+                continue;
+            }
+
+            try {
+                $body = $sender->substituteVariables($template->body, $lead, $agent);
+
+                if (! empty($template->meta_template_name)) {
+                    app(WhatsAppService::class)->sendTemplateMessage(
+                        $company,
+                        $agentPhone,
+                        $template->meta_template_name,
+                        $template->meta_template_language ?? 'es_UY',
+                        [],
+                    );
+                } else {
+                    app(WhatsAppService::class)->sendTextMessage($company, $agentPhone, $body);
+                }
+
+                $message->update(['status' => 'sent', 'sent_at' => now(), 'message_body' => $body]);
+
+                Activity::log(
+                    event: 'agent_template_sent',
+                    description: "Plantilla \"{$template->name}\" enviada al agente {$agent->name} por flow.",
+                    subject: $lead,
+                    properties: ['agent_id' => $agent->id, 'template_id' => $template->id],
+                );
+
+                $this->line("  ✓ Plantilla→agente Lead #{$lead->id} → {$agent->name}");
+            } catch (\Throwable $e) {
+                $message->update(['status' => 'failed', 'error_message' => $e->getMessage()]);
+                $this->error("  ✗ Plantilla→agente Lead #{$lead->id}: " . $e->getMessage());
+            }
+        }
+
         // Process agent report steps (send_report)
         $reports = ScheduledMessage::query()
             ->with(['lead.user', 'lead.primaryListing', 'lead.leadStatus', 'lead.company'])

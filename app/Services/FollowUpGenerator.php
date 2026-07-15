@@ -59,12 +59,13 @@ class FollowUpGenerator
             $stepData  = $step->step_data ?? [];
 
             match ($stepType) {
-                'send_template' => $created += $this->handleSendTemplate($lead, $sequence, $step, $dayOffset),
-                'send_message'  => $created += $this->handleSendMessage($lead, $sequence, $step, $stepData, $dayOffset),
-                'update_status' => $created += $this->handleUpdateStatus($lead, $sequence, $step, $stepData, $dayOffset),
-                'assign_agent'  => $created += $this->handleAssignAgent($lead, $sequence, $step, $stepData, $dayOffset),
-                'send_report'   => $created += $this->handleSendReport($lead, $sequence, $step, $stepData, $dayOffset),
-                default         => null,
+                'send_template'          => $created += $this->handleSendTemplate($lead, $sequence, $step, $dayOffset),
+                'send_message'           => $created += $this->handleSendMessage($lead, $sequence, $step, $stepData, $dayOffset),
+                'update_status'          => $created += $this->handleUpdateStatus($lead, $sequence, $step, $stepData, $dayOffset),
+                'assign_agent'           => $created += $this->handleAssignAgent($lead, $sequence, $step, $stepData, $dayOffset),
+                'send_report'            => $created += $this->handleSendReport($lead, $sequence, $step, $stepData, $dayOffset),
+                'send_template_to_agent' => $created += $this->handleSendTemplateToAgent($lead, $sequence, $step, $stepData, $dayOffset),
+                default                  => null,
             };
         }
 
@@ -218,6 +219,35 @@ class FollowUpGenerator
             'message_body'     => '',
             'status'           => 'pending',
             'scheduled_for'    => Carbon::now()->addDays($dayOffset),
+        ]);
+
+        return 1;
+    }
+
+    private function handleSendTemplateToAgent(Lead $lead, Sequence $sequence, $step, array $stepData, int $dayOffset): int
+    {
+        $template = $step->messageTemplate;
+
+        if (! $template || ! $template->active) {
+            return 0;
+        }
+
+        if (empty($stepData['agent_id'])) {
+            return 0;
+        }
+
+        ScheduledMessage::create([
+            'lead_id'             => $lead->id,
+            'sequence_id'         => $sequence->id,
+            'sequence_step_id'    => $step->id,
+            'message_template_id' => $template->id,
+            'user_id'             => $lead->user_id,
+            'channel'             => 'agent_template',
+            'step_type'           => 'send_template_to_agent',
+            'step_data'           => $stepData,
+            'message_body'        => '',
+            'status'              => 'pending',
+            'scheduled_for'       => Carbon::now()->addDays($dayOffset),
         ]);
 
         return 1;

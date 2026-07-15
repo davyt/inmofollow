@@ -199,20 +199,22 @@
             @php
                 $stepType = $step['step_type'];
                 $accentColor = match($stepType) {
-                    'send_template' => $step['channel'] === 'whatsapp' ? '#25d366' : '#3b82f6',
-                    'send_message'  => '#34d399',
-                    'update_status' => '#f59e0b',
-                    'assign_agent'  => '#8b5cf6',
-                    'send_report'   => '#fb923c',
-                    default         => '#6b7280',
+                    'send_template'          => $step['channel'] === 'whatsapp' ? '#25d366' : '#3b82f6',
+                    'send_message'           => '#34d399',
+                    'update_status'          => '#f59e0b',
+                    'assign_agent'           => '#8b5cf6',
+                    'send_report'            => '#fb923c',
+                    'send_template_to_agent' => '#e879f9',
+                    default                  => '#6b7280',
                 };
                 $badgeLabel = match($stepType) {
-                    'send_template' => $step['channel'] === 'whatsapp' ? '📱 Plantilla WhatsApp' : '✉️ Plantilla Email',
-                    'send_message'  => '💬 Mensaje libre',
-                    'update_status' => '🔄 Cambiar estado',
-                    'assign_agent'  => '👤 Asignar agente',
-                    'send_report'   => '📋 Ficha al agente',
-                    default         => $stepType,
+                    'send_template'          => $step['channel'] === 'whatsapp' ? '📱 Plantilla WhatsApp' : '✉️ Plantilla Email',
+                    'send_message'           => '💬 Mensaje libre',
+                    'update_status'          => '🔄 Cambiar estado',
+                    'assign_agent'           => '👤 Asignar agente',
+                    'send_report'            => '📋 Ficha al agente',
+                    'send_template_to_agent' => '📨 Plantilla → Agente',
+                    default                  => $stepType,
                 };
             @endphp
             <div class="fl-node fl-node-step" style="{{ !$step['active'] ? 'opacity:.5;' : '' }}">
@@ -272,11 +274,12 @@
         <div style="margin-bottom: 14px;">
             <label class="fl-label">Tipo de acción</label>
             <select class="fl-select" wire:model.live="stepType">
-                <option value="send_template">📋 Enviar plantilla</option>
+                <option value="send_template">📋 Enviar plantilla al lead</option>
+                <option value="send_template_to_agent">📨 Enviar plantilla a agente</option>
                 <option value="send_message">💬 Enviar mensaje libre</option>
                 <option value="update_status">🔄 Cambiar estado del lead</option>
                 <option value="assign_agent">👤 Asignar agente</option>
-                <option value="send_report">📋 Enviar ficha al agente (cerrar)</option>
+                <option value="send_report">📋 Enviar ficha al agente</option>
             </select>
         </div>
 
@@ -323,6 +326,29 @@
                 <option value="">Seleccioná un agente</option>
                 @foreach($agents as $a)
                 <option value="{{ $a['id'] }}">{{ $a['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        @elseif($stepType === 'send_template_to_agent')
+        <div style="background: #0f1117; border: 1px solid #2d2d42; border-radius: 8px; padding: 12px; margin-bottom: 14px; font-size: 12px; color: #64748b; line-height: 1.6;">
+            La plantilla se envía al WhatsApp del agente seleccionado, con las variables del lead sustituidas. No le llega nada al lead.
+        </div>
+        <div style="margin-bottom: 14px;">
+            <label class="fl-label">Agente destinatario</label>
+            <select class="fl-select" wire:model="stepTargetAgentId">
+                <option value="">Seleccioná un agente</option>
+                @foreach($agents as $a)
+                <option value="{{ $a['id'] }}">{{ $a['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div style="margin-bottom: 14px;">
+            <label class="fl-label">Plantilla a enviar</label>
+            <select class="fl-select" wire:model="stepTemplateId">
+                <option value="">Seleccioná una plantilla</option>
+                @foreach($templates as $t)
+                <option value="{{ $t['id'] }}">{{ $t['name'] }}</option>
                 @endforeach
             </select>
         </div>

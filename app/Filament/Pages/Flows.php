@@ -159,12 +159,16 @@ class Flows extends Page
         $data = $step->step_data ?? [];
 
         return match ($type) {
-            'send_template' => $step->messageTemplate?->name ?? 'Sin plantilla',
-            'send_message'  => 'Mensaje: ' . \Illuminate\Support\Str::limit($data['message'] ?? '', 40),
-            'update_status' => 'Cambiar estado → ' . (LeadStatus::find($data['status_id'] ?? 0)?->name ?? '?'),
-            'assign_agent'  => 'Asignar → ' . (User::find($data['agent_id'] ?? 0)?->name ?? '?'),
-            'send_report'   => 'Ficha al agente' . (isset($data['agent_id']) ? ' (reasignar → ' . (User::find($data['agent_id'])?->name ?? '?') . ')' : ''),
-            default         => $type,
+            'send_template'          => $step->messageTemplate?->name ?? 'Sin plantilla',
+            'send_message'           => 'Mensaje: ' . \Illuminate\Support\Str::limit($data['message'] ?? '', 40),
+            'update_status'          => 'Cambiar estado → ' . (LeadStatus::find($data['status_id'] ?? 0)?->name ?? '?'),
+            'assign_agent'           => 'Asignar → ' . (User::find($data['agent_id'] ?? 0)?->name ?? '?'),
+            'send_report'            => 'Ficha al agente' . (isset($data['agent_id']) ? ' (reasignar → ' . (User::find($data['agent_id'])?->name ?? '?') . ')' : ''),
+            'send_template_to_agent' => sprintf('"%s" → %s',
+                $step->messageTemplate?->name ?? 'sin plantilla',
+                User::find($data['agent_id'] ?? 0)?->name ?? 'agente no configurado'
+            ),
+            default => $type,
         };
     }
 
@@ -260,21 +264,23 @@ class Flows extends Page
         $maxOrder = SequenceStep::where('sequence_id', $this->selectedId)->max('sort_order') ?? -1;
 
         $stepData = match ($this->stepType) {
-            'send_message'  => ['message' => $this->stepMessage],
-            'update_status' => ['status_id' => $this->stepTargetStatusId],
-            'assign_agent'  => ['agent_id' => $this->stepTargetAgentId],
-            'send_report'   => $this->stepTargetAgentId ? ['agent_id' => $this->stepTargetAgentId] : [],
-            default         => null,
+            'send_message'           => ['message' => $this->stepMessage],
+            'update_status'          => ['status_id' => $this->stepTargetStatusId],
+            'assign_agent'           => ['agent_id' => $this->stepTargetAgentId],
+            'send_report'            => $this->stepTargetAgentId ? ['agent_id' => $this->stepTargetAgentId] : [],
+            'send_template_to_agent' => ['agent_id' => $this->stepTargetAgentId],
+            default                  => null,
         };
 
         $attrs = [
             'step_type'           => $this->stepType,
             'step_data'           => $stepData,
             'day_offset'          => $this->stepDayOffset,
-            'message_template_id' => in_array($this->stepType, ['send_template']) ? $this->stepTemplateId : null,
+            'message_template_id' => in_array($this->stepType, ['send_template', 'send_template_to_agent']) ? $this->stepTemplateId : null,
             'channel'             => match ($this->stepType) {
                 'send_template', 'send_message' => $this->stepChannel,
                 'send_report'                   => 'agent_report',
+                'send_template_to_agent'        => 'agent_template',
                 default                         => 'action',
             },
         ];
