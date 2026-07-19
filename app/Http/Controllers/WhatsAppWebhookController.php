@@ -186,7 +186,11 @@ class WhatsAppWebhookController extends Controller
         ]);
 
         if ($this->isOptOutMessage($body)) {
-            $lead->update(['do_not_contact' => true]);
+            $lead->update([
+                'do_not_contact'     => true,
+                'ai_classification'  => 'solicita no ser contactado',
+                'ai_classified_at'   => now(),
+            ]);
 
             Activity::log(
                 event: 'lead_opted_out',
@@ -311,6 +315,14 @@ class WhatsAppWebhookController extends Controller
             'en breve nos comunicaremos',
             'en breve te contactaremos',
             'a la brevedad nos pondremos en contacto',
+            'gracias por comunicarte con',
+            'gracias por contactarte con',
+            'gracias por tu mensaje',
+            'gracias por escribirnos',
+            'te responderemos a la brevedad',
+            'te responderemos en breve',
+            'pronto nos pondremos en contacto',
+            'horario de atenci',
         ];
 
         foreach ($patterns as $pattern) {

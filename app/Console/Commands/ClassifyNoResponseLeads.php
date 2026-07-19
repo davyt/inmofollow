@@ -25,7 +25,13 @@ class ClassifyNoResponseLeads extends Command
         // 3. Siguen en estado "Contactado" — si el agente ya los movió a otro estado
         //    a partir de la conversación (Interesado, No quiere inmobiliaria, etc.),
         //    no los tocamos.
+        // 4. No tienen ya una clasificación (ai_classification null) ni pidieron baja
+        //    (do_not_contact) — evita pisar una clasificación real (opt-out, interés,
+        //    etc.) con el default genérico "sin_respuesta" cuando esa clasificación
+        //    llegó después de que el lead entrara en la ventana de 48hs.
         $query = Lead::query()
+            ->whereNull('ai_classification')
+            ->where('do_not_contact', false)
             ->whereHas('scheduledMessages', function ($q) use ($cutoff) {
                 $q->whereNotNull('message_template_id')
                   ->where('channel', 'whatsapp')
