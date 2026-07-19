@@ -42,12 +42,12 @@ class DavytPanelProvider extends PanelProvider
             ])
             ->when(
                 $company?->brand_logo_path,
-                fn (Panel $p) => $p->brandLogo(Storage::disk('branding')->url($company->brand_logo_path))
+                fn (Panel $p) => $p->brandLogo($this->brandingUrl($company->brand_logo_path))
                     ->brandLogoHeight('2.25rem'),
             )
             ->when(
                 $company?->brand_favicon_path,
-                fn (Panel $p) => $p->favicon(Storage::disk('branding')->url($company->brand_favicon_path)),
+                fn (Panel $p) => $p->favicon($this->brandingUrl($company->brand_favicon_path)),
             )
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
@@ -85,5 +85,12 @@ class DavytPanelProvider extends PanelProvider
             ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s');
+    }
+
+    private function brandingUrl(string $path): string
+    {
+        return Storage::disk('branding')->exists($path)
+            ? Storage::disk('branding')->url($path)
+            : '';
     }
 }

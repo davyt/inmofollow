@@ -45,7 +45,9 @@ class BrandingSettingsPage extends Page
 
     private function urlFor(?string $path): string
     {
-        return $path ? Storage::disk('branding')->url($path) : '';
+        return ($path && Storage::disk('branding')->exists($path))
+            ? Storage::disk('branding')->url($path)
+            : '';
     }
 
     public function save(): void
@@ -58,25 +60,42 @@ class BrandingSettingsPage extends Page
         ];
 
         if ($this->logoUpload) {
-            $ext  = $this->logoUpload->getClientOriginalExtension() ?: 'png';
-            $path = "{$company->id}/logo.{$ext}";
-            Storage::disk('branding')->putFileAs("{$company->id}", $this->logoUpload, "logo.{$ext}");
-            $data['brand_logo_path'] = $path;
-            $this->currentLogoUrl    = $this->urlFor($path);
+            $data['brand_logo_path'] = $this->storeVersioned($company, $this->logoUpload, 'logo', $company->brand_logo_path);
+            $this->currentLogoUrl    = $this->urlFor($data['brand_logo_path']);
             $this->logoUpload        = null;
         }
 
         if ($this->faviconUpload) {
-            $ext  = $this->faviconUpload->getClientOriginalExtension() ?: 'png';
-            $path = "{$company->id}/favicon.{$ext}";
-            Storage::disk('branding')->putFileAs("{$company->id}", $this->faviconUpload, "favicon.{$ext}");
-            $data['brand_favicon_path'] = $path;
-            $this->currentFaviconUrl    = $this->urlFor($path);
+            $data['brand_favicon_path'] = $this->storeVersioned($company, $this->faviconUpload, 'favicon', $company->brand_favicon_path);
+            $this->currentFaviconUrl    = $this->urlFor($data['brand_favicon_path']);
             $this->faviconUpload        = null;
         }
 
         $company->update($data);
 
-        $this->saveMessage = '✓ Estilos guardados. Recargá la página para ver los cambios reflejados en el panel.';
+        $this->saveMessage = '✓ Estilos guardados.';
+    }
+
+    /**
+     * Guarda con un nombre de archivo único por subida (en vez de pisar
+     * siempre logo.png/favicon.png) y borra el archivo anterior. El hosting
+     * sirve /branding/* detrás de una CDN que cachea por URL hasta 7 días e
+     * ignora el query string al cachear estáticos, así que la única forma
+     * confiable de que la imagen nueva se vea es que la URL (el nombre de
+     * archivo) cambie de verdad.
+     */
+    private function storeVersioned(Company $company, UploadedFile $file, string $baseName, ?string $previousPath): string
+    {
+        $ext      = $file->getClientOriginalExtension() ?: 'png';
+        $filename = "{$baseName}-" . now()->timestamp . ".{$ext}";
+        $path     = "{$company->id}/{$filename}";
+
+        Storage::disk('branding')->putFileAs((string) $company->id, $file, $filename);
+
+        if ($previousPath && $previousPath !== $path) {
+            Storage::disk('branding')->delete($previousPath);
+        }
+
+        return $path;
     }
 }
