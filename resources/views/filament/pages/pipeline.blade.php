@@ -42,16 +42,23 @@
 
 </div>
 
+@php
+    $avatarPalette = ['#6366f1','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#ec4899','#f97316','#14b8a6'];
+@endphp
+
 <div
     x-data="{ dragging: null, dropTarget: null }"
     style="overflow-x: auto; padding-bottom: 24px;"
 >
-    <div style="display: flex; gap: 14px; min-width: max-content; min-height: calc(100vh - 200px); padding: 4px 2px;">
+    {{-- Sin min-width:max-content: las columnas pueden achicarse (hasta su
+         min-width) para llenar el ancho disponible, y solo aparece scroll
+         horizontal cuando ya no entran más al mínimo. --}}
+    <div style="display: flex; gap: 14px; align-items: flex-start; min-height: calc(100vh - 260px); padding: 4px 2px;">
 
         @forelse($statuses as $status)
         @php $statusColor = $status['color'] ?? '#6b7280'; @endphp
         <div
-            style="width: 272px; flex-shrink: 0; display: flex; flex-direction: column; background: #1a1a2e; border-radius: 12px; border: 1px solid #2d2d42; overflow: hidden; transition: box-shadow .15s;"
+            style="flex: 1 1 260px; min-width: 240px; max-width: 400px; display: flex; flex-direction: column; background: #1a1a2e; border-radius: 12px; border: 1px solid #2d2d42; overflow: hidden; transition: box-shadow .15s;"
             :style="dropTarget === {{ $status['id'] }} ? 'box-shadow: 0 0 0 2px {{ $statusColor }}; border-color: {{ $statusColor }};' : ''"
             @dragover.prevent="dropTarget = {{ $status['id'] }}"
             @dragleave="dropTarget = null"
@@ -64,28 +71,28 @@
             <div style="height: 4px; background: {{ $statusColor }};"></div>
 
             {{-- Cabecera --}}
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #2d2d42;">
-                <span style="font-weight: 600; font-size: 13px; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">
-                    {{ $status['name'] }}
-                </span>
-                <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: 6px;">
-                    <span style="font-size: 11px; font-weight: 500; background: #2d2d42; color: #94a3b8; border-radius: 999px; padding: 2px 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid #2d2d42;">
+                <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                    <span style="font-weight: 600; font-size: 13px; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {{ $status['name'] }}
+                    </span>
+                    <span style="font-size: 11px; font-weight: 600; background: #2d2d42; color: #94a3b8; border-radius: 999px; padding: 2px 8px; flex-shrink: 0;">
                         {{ count($leadsByStatus[$status['id']] ?? []) }}
                     </span>
-                    @if(auth()->user()->isAdmin() || auth()->user()->isSupervisor())
-                    <button
-                        wire:click="openEditStatus({{ $status['id'] }})"
-                        title="Configurar"
-                        style="background: none; border: none; cursor: pointer; color: {{ $editingStatusId === $status['id'] ? '#f59e0b' : '#64748b' }}; padding: 2px; line-height: 0; transition: color .15s;"
-                        onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='{{ $editingStatusId === $status['id'] ? '#f59e0b' : '#64748b' }}'"
-                    >
-                        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </button>
-                    @endif
                 </div>
+                @if(auth()->user()->isAdmin() || auth()->user()->isSupervisor())
+                <button
+                    wire:click="openEditStatus({{ $status['id'] }})"
+                    title="Configurar"
+                    style="background: none; border: none; cursor: pointer; color: {{ $editingStatusId === $status['id'] ? '#f59e0b' : '#64748b' }}; padding: 2px; line-height: 0; flex-shrink: 0; margin-left: 6px; transition: color .15s;"
+                    onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='{{ $editingStatusId === $status['id'] ? '#f59e0b' : '#64748b' }}'"
+                >
+                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </button>
+                @endif
             </div>
 
             {{-- Panel de configuración inline --}}
@@ -143,6 +150,14 @@
             <div style="flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; max-height: calc(100vh - 310px);">
 
                 @forelse(($leadsByStatus[$status['id']] ?? []) as $lead)
+                @php
+                    $leadName    = trim((string) ($lead['name'] ?? ''));
+                    $leadPhone   = trim((string) ($lead['phone'] ?? ''));
+                    $hasRealName = $leadName !== '' && $leadName !== $leadPhone;
+                    $displayName = $hasRealName ? $leadName : ($leadPhone !== '' ? $leadPhone : 'Sin nombre');
+                    $initial     = $hasRealName ? mb_strtoupper(mb_substr($leadName, 0, 1)) : null;
+                    $avatarColor = $avatarPalette[$lead['id'] % count($avatarPalette)];
+                @endphp
                 <div
                     wire:key="lead-{{ $lead['id'] }}"
                     draggable="true"
@@ -153,29 +168,40 @@
                     onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.35)'"
                     onmouseout="this.style.boxShadow='none'"
                 >
-                    {{-- Nombre --}}
-                    <a href="/davyt/leads/{{ $lead['id'] }}/edit"
-                       style="display: block; font-weight: 600; font-size: 13px; color: #e2e8f0; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;"
-                       @click.stop
-                    >{{ $lead['name'] ?? 'Sin nombre' }}</a>
-
-                    {{-- Teléfono --}}
-                    @if(!empty($lead['phone']))
-                    <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">
-                        {{ $lead['phone'] }}
+                    {{-- Avatar + nombre --}}
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; background: {{ $avatarColor }}26; color: {{ $avatarColor }}; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;">
+                            @if($initial)
+                                {{ $initial }}
+                            @else
+                                <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a4 4 0 100-8 4 4 0 000 8zm-6 9a6 6 0 1112 0H4z"/></svg>
+                            @endif
+                        </div>
+                        <a href="/davyt/leads/{{ $lead['id'] }}/edit"
+                           style="flex: 1; min-width: 0; display: block; font-weight: 600; font-size: 13px; color: #e2e8f0; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                           @click.stop
+                        >{{ $displayName }}</a>
                     </div>
+
+                    {{-- Teléfono (solo si hay nombre real, para no repetirlo) --}}
+                    @if($hasRealName && $leadPhone !== '')
+                    <div style="font-size: 11px; color: #64748b; margin-bottom: 8px; padding-left: 32px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ $leadPhone }}
+                    </div>
+                    @else
+                    <div style="margin-bottom: 8px;"></div>
                     @endif
 
                     {{-- Tags --}}
                     @if(!empty($lead['property_type']) || !empty($lead['zone']))
                     <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
                         @if(!empty($lead['property_type']))
-                        <span style="font-size: 11px; background: #1e3a5f; color: #60a5fa; border-radius: 4px; padding: 2px 7px;">
+                        <span style="display: inline-block; max-width: 110px; font-size: 11px; background: #1e3a5f; color: #60a5fa; border-radius: 4px; padding: 2px 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             {{ $lead['property_type'] }}
                         </span>
                         @endif
                         @if(!empty($lead['zone']))
-                        <span style="font-size: 11px; background: #2d1f4e; color: #a78bfa; border-radius: 4px; padding: 2px 7px;">
+                        <span style="display: inline-block; max-width: 140px; font-size: 11px; background: #2d1f4e; color: #a78bfa; border-radius: 4px; padding: 2px 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             {{ $lead['zone'] }}
                         </span>
                         @endif
@@ -183,8 +209,8 @@
                     @endif
 
                     {{-- Footer --}}
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid #2d2d42;">
-                        <span style="font-size: 11px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid #2d2d42;">
+                        <span style="font-size: 11px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">
                             @if(!auth()->user()->isAgent())
                                 {{ $lead['user']['name'] ?? 'Sin agente' }}
                             @else
@@ -224,7 +250,7 @@
 
         {{-- Columna: Añadir nuevo estado --}}
         @if(auth()->user()->isAdmin() || auth()->user()->isSupervisor())
-        <div style="width: 240px; flex-shrink: 0; display: flex; flex-direction: column;">
+        <div style="flex: 0 0 240px; width: 240px; display: flex; flex-direction: column;">
 
             @if(!$showNewStatus)
 
