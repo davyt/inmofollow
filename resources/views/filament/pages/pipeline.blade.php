@@ -76,8 +76,8 @@
                     <button
                         wire:click="openEditStatus({{ $status['id'] }})"
                         title="Configurar"
-                        style="background: none; border: none; cursor: pointer; color: {{ $editingStatusId === $status['id'] ? '#f59e0b' : '#4b5563' }}; padding: 2px; line-height: 0; transition: color .15s;"
-                        onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='{{ $editingStatusId === $status['id'] ? '#f59e0b' : '#4b5563' }}'"
+                        style="background: none; border: none; cursor: pointer; color: {{ $editingStatusId === $status['id'] ? '#f59e0b' : '#64748b' }}; padding: 2px; line-height: 0; transition: color .15s;"
+                        onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='{{ $editingStatusId === $status['id'] ? '#f59e0b' : '#64748b' }}'"
                     >
                         <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -184,7 +184,7 @@
 
                     {{-- Footer --}}
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid #2d2d42;">
-                        <span style="font-size: 11px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">
+                        <span style="font-size: 11px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">
                             @if(!auth()->user()->isAgent())
                                 {{ $lead['user']['name'] ?? 'Sin agente' }}
                             @else
@@ -209,7 +209,7 @@
                 </div>
                 @empty
                 <div
-                    style="border: 2px dashed #2d2d42; border-radius: 8px; padding: 28px 16px; text-align: center; color: #374151; font-size: 12px; transition: border-color .15s, color .15s;"
+                    style="border: 2px dashed #2d2d42; border-radius: 8px; padding: 28px 16px; text-align: center; color: #64748b; font-size: 12px; transition: border-color .15s, color .15s;"
                     :style="dropTarget === {{ $status['id'] }} ? 'border-color: {{ $statusColor }}; color: #94a3b8;' : ''"
                 >
                     Arrastra un lead aquí
@@ -230,9 +230,9 @@
 
             <button
                 wire:click="$set('showNewStatus', true)"
-                style="width: 100%; height: 56px; background: transparent; border: 2px dashed #2d2d42; border-radius: 12px; color: #4b5563; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: border-color .15s, color .15s;"
+                style="width: 100%; height: 56px; background: transparent; border: 2px dashed #2d2d42; border-radius: 12px; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: border-color .15s, color .15s;"
                 onmouseover="this.style.borderColor='#f59e0b';this.style.color='#f59e0b'"
-                onmouseout="this.style.borderColor='#2d2d42';this.style.color='#4b5563'"
+                onmouseout="this.style.borderColor='#2d2d42';this.style.color='#94a3b8'"
             >
                 <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Añadir estado
@@ -282,7 +282,7 @@
         @endif
 
         @if(empty($statuses) && !$showNewStatus)
-        <div style="display: flex; align-items: center; justify-content: center; width: 100%; color: #4b5563; font-size: 14px;">
+        <div style="display: flex; align-items: center; justify-content: center; width: 100%; color: #94a3b8; font-size: 14px;">
             No hay estados todavía. Creá el primero con el botón de arriba.
         </div>
         @endif

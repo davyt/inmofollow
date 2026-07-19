@@ -20,7 +20,7 @@
 .bc-btn-danger { background: #dc2626; color: #fff; }
 .bc-badge { display: inline-block; font-size: 10px; font-weight: 600; border-radius: 999px; padding: 2px 8px; }
 .bc-table { width: 100%; border-collapse: collapse; }
-.bc-table th { font-size: 11px; font-weight: 600; color: #4b5563; text-transform: uppercase; text-align: left; padding: 8px 12px; border-bottom: 1px solid #2d2d42; }
+.bc-table th { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; text-align: left; padding: 8px 12px; border-bottom: 1px solid #2d2d42; }
 .bc-table td { font-size: 13px; color: #94a3b8; padding: 11px 12px; border-bottom: 1px solid #1e1e35; vertical-align: middle; }
 .bc-table tr:last-child td { border-bottom: none; }
 .bc-confirm-box { background: #13131f; border: 1px solid #f59e0b44; border-radius: 10px; padding: 16px; margin-top: 14px; }
@@ -61,7 +61,7 @@
         <div style="margin-bottom: 14px;">
             <label class="bc-label">Plantilla Meta <span style="color:#ef4444;">*</span></label>
             @if(empty($templates))
-            <div style="font-size: 12px; color: #4b5563; padding: 10px; background: #13131f; border-radius: 8px; border: 1px solid #2d2d42;">
+            <div style="font-size: 12px; color: #64748b; padding: 10px; background: #13131f; border-radius: 8px; border: 1px solid #2d2d42;">
                 No hay plantillas Meta activas configuradas.
             </div>
             @else
@@ -133,7 +133,7 @@
                 style="width: 120px;"
             >
             @if($templateId)
-            <div style="margin-top: 8px; font-size: 11px; color: #475569; line-height: 1.5;">
+            <div style="margin-top: 8px; font-size: 11px; color: #64748b; line-height: 1.5;">
                 ✓ Se excluyen automáticamente los leads que ya recibieron esta plantilla.
             </div>
             @endif
@@ -218,11 +218,11 @@
     <div class="bc-card">
         <div style="font-size: 15px; font-weight: 700; color: #e2e8f0; margin-bottom: 18px;">
             Historial
-            <span style="font-size: 12px; font-weight: 400; color: #4b5563; margin-left: 6px;">(últimos 20)</span>
+            <span style="font-size: 12px; font-weight: 400; color: #64748b; margin-left: 6px;">(últimos 20)</span>
         </div>
 
         @if(empty($history))
-        <div style="padding: 48px 0; text-align: center; color: #374151; font-size: 13px;">
+        <div style="padding: 48px 0; text-align: center; color: #64748b; font-size: 13px;">
             Aún no enviaste ningún broadcast.
         </div>
         @else
@@ -261,7 +261,7 @@
                         @if($failed > 0)
                         <span class="bc-badge" style="background:#450a0a; color:#f87171;">{{ $failed }}</span>
                         @else
-                        <span style="color:#374151;">0</span>
+                        <span style="color:#64748b;">0</span>
                         @endif
                     </td>
                     <td style="white-space: nowrap;">

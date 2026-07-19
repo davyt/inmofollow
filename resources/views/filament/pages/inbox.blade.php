@@ -59,13 +59,13 @@
                         <span style="font-size: 13px; font-weight: {{ $conv['unread'] ? '700' : '500' }}; color: {{ $conv['unread'] ? '#e2e8f0' : '#94a3b8' }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">
                             {{ $conv['name'] }}
                         </span>
-                        <span style="font-size: 11px; color: #4b5563; flex-shrink: 0; margin-left: 6px;">{{ $timeAgo }}</span>
+                        <span style="font-size: 11px; color: #64748b; flex-shrink: 0; margin-left: 6px;">{{ $timeAgo }}</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <span style="font-size: 11px; flex-shrink: 0; color: {{ $conv['direction'] === 'out' ? '#34d399' : '#60a5fa' }};">
                             {{ $conv['direction'] === 'out' ? '↗' : '↙' }}
                         </span>
-                        <span style="font-size: 12px; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <span style="font-size: 12px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             {{ $conv['last_message'] ?: '...' }}
                         </span>
                     </div>
@@ -77,7 +77,7 @@
                 </div>
             </div>
             @empty
-            <div style="padding: 48px 24px; text-align: center; color: #374151; font-size: 13px;">
+            <div style="padding: 48px 24px; text-align: center; color: #64748b; font-size: 13px;">
                 No hay conversaciones todavía.
             </div>
             @endforelse
@@ -109,7 +109,7 @@
             >←</button>
             <div style="flex: 1; min-width: 0;">
                 <div style="font-size: 14px; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $lead->name }}</div>
-                <div style="font-size: 11px; color: #4b5563;">{{ $lead->phone }}</div>
+                <div style="font-size: 11px; color: #94a3b8;">{{ $lead->phone }}</div>
             </div>
             @if($lead->primaryListing?->listing_url)
             <a href="{{ $lead->primaryListing->listing_url }}" target="_blank" rel="noopener"
@@ -131,10 +131,10 @@
 
         @else
 
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #374151;">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b;">
             <div style="font-size: 36px; margin-bottom: 10px;">💬</div>
-            <div style="font-size: 14px; font-weight: 500; color: #4b5563;">Seleccioná una conversación</div>
-            <div style="font-size: 12px; color: #374151; margin-top: 4px;">Hacé clic en un contacto de la lista</div>
+            <div style="font-size: 14px; font-weight: 500; color: #94a3b8;">Seleccioná una conversación</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Hacé clic en un contacto de la lista</div>
         </div>
 
         @endif
@@ -176,7 +176,7 @@
                     <span style="font-size: 11px; color: #6b7280;">{{ $r['phone'] ?: 'Sin teléfono' }}</span>
                 </div>
                 @empty
-                <div style="padding: 16px; text-align: center; color: #374151; font-size: 12px;">
+                <div style="padding: 16px; text-align: center; color: #64748b; font-size: 12px;">
                     {{ mb_strlen(trim($leadSearch)) < 2 ? 'Escribí al menos 2 caracteres.' : 'Sin resultados.' }}
                 </div>
                 @endforelse

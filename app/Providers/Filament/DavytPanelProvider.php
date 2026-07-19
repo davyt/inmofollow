@@ -34,6 +34,7 @@ class DavytPanelProvider extends PanelProvider
             ->id('davyt')
             ->path('davyt')
             ->login()
+            ->darkMode(true, isForced: true)
             ->font('Inter')
             ->colors([
                 'primary' => $company?->brand_primary_color

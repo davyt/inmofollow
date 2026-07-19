@@ -21,7 +21,7 @@
 .fl-node-step:hover { border-color: #4b5563; }
 .fl-connector  { width: 2px; height: 32px; background: #2d2d42; margin: 0 auto; position: relative; }
 .fl-connector::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #2d2d42; }
-.fl-add-btn    { width: 300px; border: 2px dashed #2d2d42; border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; color: #374151; font-size: 13px; transition: all .15s; }
+.fl-add-btn    { width: 300px; border: 2px dashed #2d2d42; border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; color: #64748b; font-size: 13px; transition: all .15s; }
 .fl-add-btn:hover { border-color: #f59e0b88; color: #f59e0b; }
 
 /* Modal overlay */
@@ -75,7 +75,7 @@
                 <div style="width: 8px; height: 8px; border-radius: 50%; background: {{ $seq['active'] ? '#4ade80' : '#374151' }}; flex-shrink: 0;"></div>
                 <div style="flex: 1; min-width: 0;">
                     <div style="font-size: 13px; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $seq['name'] }}</div>
-                    <div style="font-size: 11px; color: #4b5563; margin-top: 1px;">
+                    <div style="font-size: 11px; color: #64748b; margin-top: 1px;">
                         {{ $seq['steps_count'] }} paso{{ $seq['steps_count'] !== 1 ? 's' : '' }}
                         @if($seq['trigger_type'] === 'lead_created')
                         · Lead creado
@@ -86,7 +86,7 @@
                 </div>
             </div>
             @empty
-            <div style="padding: 32px 16px; text-align: center; color: #374151; font-size: 12px;">
+            <div style="padding: 32px 16px; text-align: center; color: #64748b; font-size: 12px;">
                 No hay flows.<br>Creá el primero.
             </div>
             @endforelse
@@ -177,7 +177,7 @@
                     @elseif($flow['trigger_name'])
                     <div style="font-size: 13px; color: #e2e8f0; font-weight: 600;">Lead cambia a "{{ $flow['trigger_name'] }}"</div>
                     @else
-                    <div style="font-size: 13px; color: #4b5563; font-style: italic;">Sin trigger de estado (manual)</div>
+                    <div style="font-size: 13px; color: #64748b; font-style: italic;">Sin trigger de estado (manual)</div>
                     @endif
                 </div>
             </div>
@@ -250,10 +250,10 @@
 
         @elseif(!$showNewForm)
 
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #374151;">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b;">
             <div style="font-size: 40px; margin-bottom: 12px;">⚡</div>
-            <div style="font-size: 14px; font-weight: 500; color: #4b5563;">Seleccioná un flow</div>
-            <div style="font-size: 12px; color: #374151; margin-top: 4px;">o creá uno nuevo con el botón "Nuevo"</div>
+            <div style="font-size: 14px; font-weight: 500; color: #94a3b8;">Seleccioná un flow</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">o creá uno nuevo con el botón "Nuevo"</div>
         </div>
 
         @endif
@@ -366,7 +366,7 @@
                 <option value="{{ $a['id'] }}">{{ $a['name'] }}</option>
                 @endforeach
             </select>
-            <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">Si elegís un agente, se reasigna el lead antes de enviar la ficha.</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Si elegís un agente, se reasigna el lead antes de enviar la ficha.</div>
         </div>
         @endif
 
@@ -374,7 +374,7 @@
         <div style="margin-bottom: 20px;">
             <label class="fl-label">Días desde el inicio del flow</label>
             <input type="number" class="fl-input" wire:model="stepDayOffset" min="0" style="width: 100px;">
-            <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
                 0 = mismo día del trigger · 1 = al día siguiente
                 @if(in_array($stepType, ['update_status', 'assign_agent']))
                 <span style="color: #f59e0b;"> · Con 0 se ejecuta de inmediato al crear el flow.</span>

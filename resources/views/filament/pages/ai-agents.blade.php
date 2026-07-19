@@ -110,7 +110,7 @@
                 autocomplete="off"
             >
             @if($provider === 'anthropic')
-            <div style="font-size: 11px; color: #4b5563; margin-top: 4px;">O dejá vacío para usar la clave configurada en Mi empresa.</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">O dejá vacío para usar la clave configurada en Mi empresa.</div>
             @endif
         </div>
 
@@ -119,7 +119,7 @@
             <div class="ai-toggle-wrap">
                 <div>
                     <div style="font-size: 13px; font-weight: 600; color: #e2e8f0;">Activar agente</div>
-                    <div style="font-size: 11px; color: #4b5563; margin-top: 2px;">Responde a mensajes WhatsApp entrantes</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Responde a mensajes WhatsApp entrantes</div>
                 </div>
                 <label class="ai-toggle">
                     <input type="checkbox" wire:model.live="active">
@@ -129,7 +129,7 @@
             <div class="ai-toggle-wrap" style="{{ !$active ? 'opacity:.4; pointer-events:none;' : '' }}">
                 <div>
                     <div style="font-size: 13px; font-weight: 600; color: #e2e8f0;">Envío automático</div>
-                    <div style="font-size: 11px; color: #4b5563; margin-top: 2px;">
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
                         {{ $autoSend ? 'Envía directo al lead por WhatsApp' : 'Guarda como borrador en el Inbox' }}
                     </div>
                 </div>
@@ -237,7 +237,7 @@
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
         <div>
             <div style="font-size: 15px; font-weight: 700; color: #e2e8f0;">📚 Base de conocimiento</div>
-            <div style="font-size: 12px; color: #4b5563; margin-top: 2px;">El agente usará este contexto al responder. Máx. 6.000 caracteres por consulta.</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">El agente usará este contexto al responder. Máx. 6.000 caracteres por consulta.</div>
         </div>
         <div style="display: flex; gap: 8px;">
             <button class="ai-btn" style="background:#23233a;color:#94a3b8;border:1px solid #2d2d42;font-size:11px;padding:6px 12px;" wire:click="openAddForm('text')">+ Texto</button>
@@ -272,7 +272,7 @@
         <div style="margin-bottom:14px;">
             <label class="ai-label">URL</label>
             <input type="url" class="ai-input" wire:model="kbUrl" placeholder="https://...">
-            <div style="font-size:11px;color:#4b5563;margin-top:4px;">Se descargará el contenido de texto de la página (funciona mejor con páginas estáticas).</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px;">Se descargará el contenido de texto de la página (funciona mejor con páginas estáticas).</div>
         </div>
 
         @elseif($kbType === 'pdf')
@@ -280,7 +280,7 @@
             <label class="ai-label">Archivo PDF</label>
             <input type="file" wire:model="kbFile" accept=".pdf"
                    style="width:100%;color:#94a3b8;font-size:13px;padding:8px 0;">
-            <div style="font-size:11px;color:#4b5563;margin-top:4px;">Máx. 10MB. Se extraerá el texto del PDF automáticamente.</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px;">Máx. 10MB. Se extraerá el texto del PDF automáticamente.</div>
         </div>
         @endif
 
@@ -296,7 +296,7 @@
 
     {{-- Lista de entradas --}}
     @if(empty($entries))
-    <div style="padding:32px;text-align:center;color:#374151;font-size:13px;">
+    <div style="padding:32px;text-align:center;color:#64748b;font-size:13px;">
         No hay entradas todavía. Agregá textos, URLs o PDFs para enriquecer las respuestas del agente.
     </div>
     @else
@@ -307,11 +307,11 @@
                 {{ $entry['type'] === 'pdf' ? '📄' : ($entry['type'] === 'url' ? '🔗' : '📝') }}
             </span>
             <div style="flex:1;min-width:0;">
-                <div style="font-size:13px;font-weight:600;color:{{ $entry['active'] ? '#e2e8f0' : '#4b5563' }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <div style="font-size:13px;font-weight:600;color:{{ $entry['active'] ? '#e2e8f0' : '#64748b' }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                     {{ $entry['title'] }}
                 </div>
                 @if(!empty($entry['source_url']))
-                <div style="font-size:11px;color:#4b5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">
+                <div style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">
                     {{ $entry['source_url'] }}
                 </div>
                 @endif
@@ -351,7 +351,7 @@
                 🧪 Playground
                 <span style="font-size: 10px; font-weight: 700; background: #1e3a5f; color: #60a5fa; border-radius: 3px; padding: 2px 7px; margin-left: 8px; vertical-align: middle; letter-spacing: .04em;">SIN EFECTOS REALES</span>
             </div>
-            <div style="font-size: 12px; color: #4b5563; margin-top: 3px;">Probá el agente como si fueras el lead. Las acciones <code style="font-size:10px;background:#13131f;padding:1px 4px;border-radius:3px;">[ESTADO]</code> <code style="font-size:10px;background:#13131f;padding:1px 4px;border-radius:3px;">[AGENTE]</code> se detectan pero no se ejecutan.</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 3px;">Probá el agente como si fueras el lead. Las acciones <code style="font-size:10px;background:#13131f;padding:1px 4px;border-radius:3px;">[ESTADO]</code> <code style="font-size:10px;background:#13131f;padding:1px 4px;border-radius:3px;">[AGENTE]</code> se detectan pero no se ejecutan.</div>
         </div>
         @if(!empty($pgHistory))
         <button class="ai-btn" style="background:#23233a;color:#94a3b8;border:1px solid #2d2d42;font-size:11px;padding:6px 14px;" wire:click="clearPlayground">Limpiar chat</button>
@@ -375,7 +375,7 @@
     <div id="pg-chat" style="background:#0d0d1a;border:1px solid #2d2d42;border-radius:10px;padding:16px;min-height:200px;max-height:440px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px;">
 
         @if(empty($pgHistory))
-        <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#374151;font-size:13px;padding:40px 0;">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:13px;padding:40px 0;">
             Escribí un mensaje para comenzar a probar el agente...
         </div>
         @else
