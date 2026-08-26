@@ -321,18 +321,33 @@ class AiService
         };
     }
 
+    /**
+     * Los últimos 10 mensajes de la conversación, en orden cronológico.
+     *
+     * Ojo con el orden del `limit`: hay que traer los últimos 10 de cada lado,
+     * no los primeros. La versión anterior ordenaba ascendente y recortaba a 10
+     * antes de mezclar, así que en una conversación de más de 10 idas y vueltas
+     * el agente recibía el arranque de la charla y **nunca lo último dicho** —
+     * respondiendo con contexto viejo sin que nada lo delatara.
+     *
+     * Tomar los 10 más recientes de cada lado alcanza: cualquier mensaje que
+     * esté entre los 10 más recientes del total está, por definición, entre los
+     * 10 más recientes de su propio lado.
+     */
     private function buildHistory(Lead $lead): Collection
     {
         $sent = $lead->scheduledMessages()
             ->where('channel', 'whatsapp')
             ->where('status', 'sent')
-            ->orderBy('sent_at')
+            ->orderByDesc('sent_at')
+            ->orderByDesc('id')
             ->limit(10)
             ->get()
             ->map(fn ($m) => ['role' => 'assistant', 'content' => $m->message_body ?? '', 'at' => $m->sent_at]);
 
         $received = WaInboundMessage::where('lead_id', $lead->id)
-            ->orderBy('received_at')
+            ->orderByDesc('received_at')
+            ->orderByDesc('id')
             ->limit(10)
             ->get()
             ->map(fn ($m) => ['role' => 'user', 'content' => $m->body ?? '', 'at' => $m->received_at]);
