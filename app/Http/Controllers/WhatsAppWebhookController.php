@@ -14,6 +14,7 @@ use App\Models\ScheduledMessage as ScheduledMsg;
 use App\Support\Activity;
 use Filament\Actions\Action as FilamentAction;
 use Filament\Notifications\Notification;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
@@ -145,6 +146,22 @@ class WhatsAppWebhookController extends Controller
             return;
         }
 
+        // Meta reintenta la entrega si no recibe un 200 a tiempo, así que el mismo
+        // mensaje puede llegar más de una vez. El corte va ANTES de cualquier
+        // efecto: sin él se duplica el mensaje en la conversación, se reabre un
+        // lead de la papelera de nuevo y —lo peor, con auto_send prendido— el
+        // agente IA le contesta dos veces al cliente por un solo mensaje suyo.
+        $waMessageId = $message['id'] ?? null;
+
+        if ($waMessageId && WaInboundMessage::where('wa_message_id', $waMessageId)->exists()) {
+            Log::info('WA webhook: mensaje entrante repetido, ignorado', [
+                'wa_message_id' => $waMessageId,
+                'from'          => $from,
+            ]);
+
+            return;
+        }
+
         $lead = Lead::findByWhatsAppPhone($from);
 
         if (! $lead) {
@@ -176,14 +193,31 @@ class WhatsAppWebhookController extends Controller
             'last_message_direction'  => 'in',
         ]);
 
-        $inboundMsg = WaInboundMessage::create([
-            'lead_id'       => $lead->id,
-            'company_id'    => $lead->company_id,
-            'wa_message_id' => $message['id'] ?? null,
-            'message_type'  => $type,
-            'body'          => $body,
-            'received_at'   => isset($message['timestamp']) ? Carbon::createFromTimestamp((int) $message['timestamp']) : now(),
-        ]);
+        try {
+            $inboundMsg = WaInboundMessage::create([
+                'lead_id'       => $lead->id,
+                'company_id'    => $lead->company_id,
+                'wa_message_id' => $waMessageId,
+                'message_type'  => $type,
+                'body'          => $body,
+                'received_at'   => isset($message['timestamp']) ? Carbon::createFromTimestamp((int) $message['timestamp']) : now(),
+            ]);
+        } catch (QueryException $e) {
+            // Dos entregas del mismo mensaje procesándose en paralelo: ninguna vio
+            // a la otra en la guarda de arriba y el índice único decidió cuál gana.
+            // La que pierde no debe notificar ni disparar la IA. Se confirma que
+            // fue eso y no otro error de base antes de tragarse la excepción.
+            if (! $waMessageId || ! WaInboundMessage::where('wa_message_id', $waMessageId)->exists()) {
+                throw $e;
+            }
+
+            Log::info('WA webhook: mensaje entrante repetido en paralelo, ignorado', [
+                'wa_message_id' => $waMessageId,
+                'from'          => $from,
+            ]);
+
+            return;
+        }
 
         if ($this->isOptOutMessage($body)) {
             $lead->update([
