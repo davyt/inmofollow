@@ -76,7 +76,7 @@ class AiAgents extends Page
     public static array $models = [
         'groq'       => [
             'llama-3.1-8b-instant'    => 'Llama 3.1 8B Instant (rápido, gratuito)',
-            'llama-3.3-70b-versatile' => 'Llama 3.3 70B Versatile (mejor calidad, gratuito)',
+            'openai/gpt-oss-120b'     => 'GPT OSS 120B (mejor calidad)',
             'mixtral-8x7b-32768'      => 'Mixtral 8x7B (gratuito)',
             'gemma2-9b-it'            => 'Gemma 2 9B (gratuito)',
         ],
