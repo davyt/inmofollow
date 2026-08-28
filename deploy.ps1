@@ -3,7 +3,7 @@ param(
 )
 
 $SSH_KEY = "$env:USERPROFILE\.ssh\inmofollow_hostinger"
-$SSH_HOST = "u528839040@147.79.85.220"
+$SSH_HOST = "u528839040@31.97.80.45"
 $SSH_PORT = "65002"
 $APP_PATH = "~/domains/lightblue-sparrow-828519.hostingersite.com/public_html"
 

@@ -75,10 +75,10 @@ class AiAgents extends Page
 
     public static array $models = [
         'groq'       => [
-            'llama-3.1-8b-instant'    => 'Llama 3.1 8B Instant (rápido, gratuito)',
             'openai/gpt-oss-120b'     => 'GPT OSS 120B (mejor calidad)',
-            'mixtral-8x7b-32768'      => 'Mixtral 8x7B (gratuito)',
-            'gemma2-9b-it'            => 'Gemma 2 9B (gratuito)',
+            'openai/gpt-oss-20b'      => 'GPT OSS 20B (rápido)',
+            'groq/compound-mini'      => 'Compound Mini (rápido)',
+            'qwen/qwen3.8-27b'        => 'Qwen 3.8 27B',
         ],
         'openrouter' => [
             'meta-llama/llama-3.1-8b-instruct:free'    => 'Llama 3.1 8B (gratuito)',
@@ -87,14 +87,14 @@ class AiAgents extends Page
             'microsoft/phi-3-mini-128k-instruct:free'  => 'Phi-3 Mini (gratuito)',
         ],
         'gemini'     => [
-            'gemini-1.5-flash'    => 'Gemini 1.5 Flash (tier gratuito)',
-            'gemini-1.5-flash-8b' => 'Gemini 1.5 Flash 8B (tier gratuito)',
-            'gemini-1.5-pro'      => 'Gemini 1.5 Pro (pago)',
+            'gemini-2.5-flash'      => 'Gemini 2.5 Flash (tier gratuito)',
+            'gemini-2.0-flash'      => 'Gemini 2.0 Flash (tier gratuito)',
+            'gemini-2.5-pro'        => 'Gemini 2.5 Pro (pago)',
         ],
         'openai'     => [
             'gpt-4o-mini'   => 'GPT-4o Mini (más barato)',
             'gpt-4o'        => 'GPT-4o',
-            'gpt-3.5-turbo' => 'GPT-3.5 Turbo',
+            'gpt-4.1-mini'  => 'GPT-4.1 Mini',
         ],
         'anthropic'  => [
             'claude-haiku-4-5-20251001' => 'Claude Haiku 4.5 (rápido)',
@@ -118,7 +118,7 @@ class AiAgents extends Page
             $this->autoSend     = $agent->auto_send;
         } else {
             $this->systemPrompt = $this->defaultPrompt();
-            $this->model        = 'llama-3.1-8b-instant';
+            $this->model        = 'openai/gpt-oss-120b';
         }
 
         $this->loadEntries();

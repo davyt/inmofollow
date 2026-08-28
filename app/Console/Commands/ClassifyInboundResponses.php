@@ -112,7 +112,7 @@ Ejemplos: "no interesado precio comisión", "interesado quiere más información
 PROMPT;
 
         $endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-        $model    = $agent->model ?: 'llama-3.1-8b-instant';
+        $model    = $agent->model ?: 'openai/gpt-oss-120b';
 
         // Para clasificación puntual usamos el modelo más capaz de Groq
         if (str_contains($model, '8b') || str_contains($model, 'instant')) {

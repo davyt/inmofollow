@@ -314,8 +314,8 @@ class AiService
         return match ($provider) {
             'anthropic'  => 'claude-haiku-4-5-20251001',
             'openai'     => 'gpt-4o-mini',
-            'groq'       => 'llama-3.1-8b-instant',
-            'gemini'     => 'gemini-1.5-flash',
+            'groq'       => 'openai/gpt-oss-120b',
+            'gemini'     => 'gemini-2.5-flash',
             'openrouter' => 'meta-llama/llama-3.1-8b-instruct:free',
             default      => '',
         };
