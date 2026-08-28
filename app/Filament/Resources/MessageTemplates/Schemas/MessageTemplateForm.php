@@ -79,7 +79,7 @@ class MessageTemplateForm
 
                 Textarea::make('body')
                     ->label('Mensaje')
-                    ->helperText('Variables disponibles: {{nombre}}, {{zona}}, {{tipo_propiedad}}, {{agente}}')
+                    ->helperText('Variables: {{nombre}}, {{telefono}}, {{email}}, {{zona}}, {{tipo_propiedad}}, {{estado}}, {{clasificacion}}, {{origen}}, {{agente}}')
                     ->required()
                     ->rows(8)
                     ->columnSpanFull()
@@ -95,8 +95,8 @@ class MessageTemplateForm
                             ->form(function (Get $get): array {
                                 $body = $get('body') ?: '';
                                 $preview = str_replace(
-                                    ['{{nombre}}', '{{zona}}', '{{tipo_propiedad}}', '{{agente}}'],
-                                    ['María García', 'Pocitos', 'Apartamento', 'Carlos Rodríguez'],
+                                    ['{{nombre}}', '{{telefono}}', '{{email}}', '{{zona}}', '{{tipo_propiedad}}', '{{estado}}', '{{clasificacion}}', '{{origen}}', '{{agente}}'],
+                                    ['María García', '+59899123456', 'maria@ejemplo.com', 'Pocitos', 'Apartamento', 'Interesado', 'interesado quiere info', 'Mercado Libre', 'Carlos Rodríguez'],
                                     $body,
                                 );
                                 return [
@@ -193,7 +193,7 @@ class MessageTemplateForm
                         TagsInput::make('meta_template_variables')
                             ->label('Variables en orden')
                             ->helperText('Indicá en qué orden pusiste las variables en Meta. Si en Meta escribiste "Hola {{1}}, te contactamos por {{2}}", ponés: nombre → zona. Cada variable aquí corresponde a un {{número}} allá.')
-                            ->suggestions(['nombre', 'zona', 'tipo_propiedad', 'agente'])
+                            ->suggestions(['nombre', 'telefono', 'email', 'zona', 'tipo_propiedad', 'estado', 'clasificacion', 'origen', 'agente'])
                             ->placeholder('Ej: nombre')
                             ->columnSpanFull(),
 
@@ -223,9 +223,13 @@ class MessageTemplateForm
                             ->label('Botón con URL dinámica (opcional)')
                             ->helperText('Completá solo si la plantilla en Meta tiene un botón de "URL dinámica" como PRIMER botón. Elegí qué dato del lead se reemplaza en esa URL.')
                             ->options([
+                                'id'             => 'ID del lead (para links al panel)',
                                 'nombre'         => 'Nombre',
+                                'telefono'       => 'Teléfono',
                                 'zona'           => 'Zona',
                                 'tipo_propiedad' => 'Tipo de propiedad',
+                                'estado'         => 'Estado',
+                                'clasificacion'  => 'Clasificación IA',
                                 'agente'         => 'Agente',
                             ])
                             ->nullable()

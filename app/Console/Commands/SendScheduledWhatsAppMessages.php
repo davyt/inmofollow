@@ -178,19 +178,13 @@ class SendScheduledWhatsAppMessages extends Command
             }
 
             try {
-                $body = $sender->substituteVariables($template->body, $lead, $agent);
+                // Mismo camino que el envío a un lead —variables, header y botón incluidos—
+                // pero con el teléfono del agente como destino. Antes esta rama mandaba la
+                // plantilla de Meta con la lista de parámetros vacía, así que cualquier
+                // plantilla con {{1}} fallaba al enviarse.
+                $sender->send($lead, $template, $company, $agent, $agentPhone);
 
-                if (! empty($template->meta_template_name)) {
-                    app(WhatsAppService::class)->sendTemplateMessage(
-                        $company,
-                        $agentPhone,
-                        $template->meta_template_name,
-                        $template->meta_template_language ?? 'es_UY',
-                        [],
-                    );
-                } else {
-                    app(WhatsAppService::class)->sendTextMessage($company, $agentPhone, $body);
-                }
+                $body = $sender->substituteVariables($template->body, $lead, $agent);
 
                 $message->update(['status' => 'sent', 'sent_at' => now(), 'message_body' => $body]);
 
