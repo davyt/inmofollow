@@ -6,6 +6,7 @@
         @forelse ($conversation as $item)
             @php
                 $isAiDraft = ($item['type'] ?? 'message') === 'ai_draft';
+                $audioUrl  = $item['audio_url'] ?? null;
                 $isOut     = $item['direction'] === 'out';
                 $failed    = $isOut && ($item['status'] ?? '') === 'failed';
                 $date      = $item['date'] ? \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') : '-';
@@ -30,9 +31,14 @@
                     @if($isAiDraft)
                     <div style="font-size: 10px; font-weight: 700; color: #a78bfa; letter-spacing: .06em; margin-bottom: 6px;">🤖 BORRADOR IA</div>
                     @endif
-                    <div style="color: #e5e7eb; font-size: 14px; line-height: 1.5; white-space: pre-line; word-break: break-word;">
-                        {{ $item['text'] ?: '-' }}
+                    @if($audioUrl)
+                    <audio controls preload="none" src="{{ $audioUrl }}" style="max-width: 100%;"></audio>
+                    @endif
+                    @if($item['text'])
+                    <div style="color: #e5e7eb; font-size: 14px; line-height: 1.5; white-space: pre-line; word-break: break-word; {{ $audioUrl ? 'margin-top: 8px;' : '' }}">
+                        {{ $item['text'] }}
                     </div>
+                    @endif
                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 8px;">
                         @if($isAiDraft)
                         <div style="display: flex; gap: 6px;">

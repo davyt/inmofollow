@@ -108,6 +108,37 @@ class WhatsAppService
         return $response->json('data', []);
     }
 
+    /**
+     * Resuelve la URL temporal (y el mime type) de un media entrante a partir de su id.
+     * La URL que devuelve Meta expira rápido y solo es descargable con el mismo token.
+     */
+    public function getMediaUrl(Company $company, string $mediaId): array
+    {
+        $response = Http::withToken($company->wa_access_token)
+            ->get(self::API_BASE . "/{$mediaId}");
+
+        if (! $response->successful()) {
+            $error = $response->json('error.message', $response->body());
+            throw new \RuntimeException("WhatsApp API error: {$error}");
+        }
+
+        return [
+            'url'       => $response->json('url'),
+            'mime_type' => $response->json('mime_type'),
+        ];
+    }
+
+    public function downloadMedia(Company $company, string $mediaUrl): string
+    {
+        $response = Http::withToken($company->wa_access_token)->get($mediaUrl);
+
+        if (! $response->successful()) {
+            throw new \RuntimeException('No se pudo descargar el media de WhatsApp.');
+        }
+
+        return $response->body();
+    }
+
     public function testConnection(Company $company): bool
     {
         $response = Http::withToken($company->wa_access_token)

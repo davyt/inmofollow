@@ -212,7 +212,10 @@ class LeadConversation extends Component implements HasSchemas
                     'direction' => 'in',
                     'date'      => $m->received_at ?? $m->created_at,
                     'status'    => null,
-                    'text'      => $m->body ?: '[' . ucfirst($m->message_type) . ']',
+                    'text'      => $m->body ?: ($m->media_path ? null : '[' . ucfirst($m->message_type) . ']'),
+                    'audio_url' => $m->message_type === 'audio' && $m->media_path
+                        ? route('wa-inbound.audio', $m->id)
+                        : null,
                 ],
                 $m->ai_draft_reply && ! $m->ai_draft_discarded ? [
                     'type'       => 'ai_draft',

@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Models\ScheduledMessage;
+use App\Models\WaInboundMessage;
 use App\Support\Activity;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,3 +53,25 @@ Route::middleware(['auth'])->get('/scheduled-messages/{scheduledMessage}/open-wh
 
     return redirect()->away("https://wa.me/{$phone}?text={$message}");
 })->name('scheduled-messages.open-whatsapp');
+
+Route::middleware(['auth'])->get('/wa-audio/{waInboundMessage}', function (WaInboundMessage $waInboundMessage) {
+    $user = auth()->user();
+    $lead = $waInboundMessage->lead;
+
+    if (! $user || ! $lead || (int) $waInboundMessage->company_id !== (int) $user->company_id) {
+        abort(403);
+    }
+
+    if ($user->isAgent() && (int) $lead->user_id !== (int) $user->id) {
+        abort(403);
+    }
+
+    if (! $waInboundMessage->media_path || ! Storage::disk('local')->exists($waInboundMessage->media_path)) {
+        abort(404);
+    }
+
+    return Storage::disk('local')->response(
+        $waInboundMessage->media_path,
+        headers: ['Content-Type' => $waInboundMessage->media_mime_type ?? 'audio/ogg']
+    );
+})->name('wa-inbound.audio');

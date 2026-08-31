@@ -10,6 +10,7 @@ use App\Models\WaInboundMessage;
 use App\Models\AiAgent;
 use App\Services\AiService;
 use App\Services\FollowUpGenerator;
+use App\Services\WhatsAppService;
 use App\Models\ScheduledMessage as ScheduledMsg;
 use App\Support\Activity;
 use Filament\Actions\Action as FilamentAction;
@@ -19,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class WhatsAppWebhookController extends Controller
@@ -193,14 +195,20 @@ class WhatsAppWebhookController extends Controller
             'last_message_direction'  => 'in',
         ]);
 
+        [$mediaPath, $mediaMimeType] = $type === 'audio'
+            ? $this->downloadInboundAudio($lead->company, data_get($message, 'audio.id'), $waMessageId)
+            : [null, null];
+
         try {
             $inboundMsg = WaInboundMessage::create([
-                'lead_id'       => $lead->id,
-                'company_id'    => $lead->company_id,
-                'wa_message_id' => $waMessageId,
-                'message_type'  => $type,
-                'body'          => $body,
-                'received_at'   => isset($message['timestamp']) ? Carbon::createFromTimestamp((int) $message['timestamp']) : now(),
+                'lead_id'         => $lead->id,
+                'company_id'      => $lead->company_id,
+                'wa_message_id'   => $waMessageId,
+                'message_type'    => $type,
+                'body'            => $body,
+                'media_path'      => $mediaPath,
+                'media_mime_type' => $mediaMimeType,
+                'received_at'     => isset($message['timestamp']) ? Carbon::createFromTimestamp((int) $message['timestamp']) : now(),
             ]);
         } catch (QueryException $e) {
             // Dos entregas del mismo mensaje procesándose en paralelo: ninguna vio
@@ -241,6 +249,43 @@ class WhatsAppWebhookController extends Controller
 
         $this->notifyInboundMessage($lead, $body, $type);
         $this->triggerAiAgent($lead, $inboundMsg, $body);
+    }
+
+    /**
+     * Descarga una nota de voz entrante y la guarda en el disco privado ('local',
+     * no expuesto por web) para poder reproducirla después desde la Conversación.
+     * Nunca lanza: si falla, el mensaje igual se guarda (solo sin audio).
+     */
+    private function downloadInboundAudio(?\App\Models\Company $company, ?string $mediaId, ?string $waMessageId): array
+    {
+        if (! $company || ! $mediaId || ! $company->wa_access_token) {
+            return [null, null];
+        }
+
+        try {
+            $whatsApp = app(WhatsAppService::class);
+            $media    = $whatsApp->getMediaUrl($company, $mediaId);
+
+            if (! $media['url']) {
+                return [null, null];
+            }
+
+            $bytes     = $whatsApp->downloadMedia($company, $media['url']);
+            $extension = Str::after($media['mime_type'] ?? 'audio/ogg', '/');
+            $extension = Str::before($extension, ';'); // ej. "ogg; codecs=opus" -> "ogg"
+            $path      = "wa-audio/{$company->id}/" . ($waMessageId ?: Str::uuid()) . ".{$extension}";
+
+            Storage::disk('local')->put($path, $bytes);
+
+            return [$path, $media['mime_type']];
+        } catch (\Throwable $e) {
+            Log::warning('WA webhook: no se pudo descargar el audio entrante', [
+                'wa_message_id' => $waMessageId,
+                'error'         => $e->getMessage(),
+            ]);
+
+            return [null, null];
+        }
     }
 
     /**
