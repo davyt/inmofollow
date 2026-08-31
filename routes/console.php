@@ -8,7 +8,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('whatsapp:send-scheduled')->everyMinute()->withoutOverlapping();
+Schedule::command('whatsapp:send-scheduled')->everyMinute()->withoutOverlapping(5);
 Schedule::command('notify:follow-ups')->dailyAt('08:00');
 Schedule::command('leads:classify-no-response')->everyTwoHours()->withoutOverlapping();
 // Fallback: clasifica con IA los leads que tienen mensajes entrantes pero sin clasificación
