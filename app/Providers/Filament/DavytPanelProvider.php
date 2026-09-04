@@ -58,6 +58,7 @@ class DavytPanelProvider extends PanelProvider
                 NavigationGroup::make('Comercial'),
                 NavigationGroup::make('Comunicación'),
                 NavigationGroup::make('Automatizaciones'),
+                NavigationGroup::make('Rentiva'),
                 NavigationGroup::make('Configuración'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
